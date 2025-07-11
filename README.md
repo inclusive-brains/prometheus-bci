@@ -182,6 +182,10 @@ Raw EEG data and calibration events are recorded in HDF5 format in the `data` di
 4. **UI detection** ➡️ Double/triple blinks in 1200ms
 5. **Refractory** ⏳ 800ms
 
+> **🚀 More models are coming soon:**  
+> In the coming months, additional methods will be implemented, including non-linear techniques and CSP (Common Spatial Patterns).
+
+## License :
 
 Creative Commons Attribution-NonCommercial 4.0 International
 
