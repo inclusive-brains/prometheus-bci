@@ -28,7 +28,7 @@ This project is made possible thanks to the support of Allianz Trade, whose comm
 
 ## 👋 Contributing
 
-Prometheus BCI is open source with a purpose: to be hacked, improved, forked, and reimagined by the community.
+Prometheus BCI is open source with a purpose: to be improved, forked, and reimagined by the community.
 We want this platform to evolve through collective intelligence — whether you’re passionate about neuroscience, creative signal processing, innovative machine learning, UX design, or simply exploring new ways to use multimodal data.
 
 Feel free to open an issue or submit a pull request.
