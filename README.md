@@ -21,6 +21,8 @@ A few weeks later, on July 24, 2024, **Pierre Landerretche** — also living wit
 Their journeys are a tribute to the spirit of inclusion, resilience, and innovation.  
 Prometheus BCI exists because of pioneers like Nathalie and Pierre, whose courage and stories inspire us to push the boundaries of assistive neurotechnology — for everyone.
 
+This project is made possible thanks to the support of Allianz Trade, whose commitment to innovation and inclusion helps turn advanced AI and neurotechnology into real-world solutions for people with disabilities.
+
 ---
 
 ## 👋 Contributing
