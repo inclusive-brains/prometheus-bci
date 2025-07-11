@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/app.js"></script>
+    <link rel="stylesheet" href="assets/style.css">
+    <title>N-Back</title>
+  </head>
+  <body>
+    <div id="instructions" class="center">
+      <p>Numbers will be presented one at a time. Take note of them. If the number on the screen is the same as the number <b>n</b> numbers before, press the spacebar. For example, if <b>n = 2</b>:</p>
+      <img src="assets/example.png" width="100%"></img>
+    </div>
+    <div id="baseline" class="center hidden">
+      <p>On the following screen, a cross will be displayed for up to one minute. Stay still and just look at it without doing anything.</p>
+      <p>Press any key to continue.</p>
+    </div>
+    <div id="marker" class="marker center hidden"></div>
+    </div>
+    <div id="ready" class="center hidden">
+      <p id="ready_n"></p>
+      <p>Press the space key when you are ready.</p>
+    </div>
+    <div id="symbol" class="center hidden"></div>
+  </body>
+</html>

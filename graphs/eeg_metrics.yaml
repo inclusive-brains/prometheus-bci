@@ -1,0 +1,173 @@
+graphs:
+
+# Fake EEG Data + Metric calculation graph
+  - id: EEG
+    nodes:
+    - id: sub_eeg
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics: [eeg_filtered]
+    - id: window
+      module: timeflux.nodes.window
+      class: Slide
+      params:
+        length: 10
+        step: 1
+    - id: attention
+      module: nodes.EEG_ratio
+      class: Ratio
+      params:
+        a: ["[A-Z]*[0-9]", [12, 22]]
+        b: ["[A-Z]*[0-9]", [8, 13]]
+        metric: eeg_attention
+    - id: arousal
+      module: nodes.EEG_ratio
+      class: Ratio
+      params:
+        a: ["[A-Z]*[0-9]", [8, 12]]
+        b: ["[A-Z]*[0-9]", [13, 30]]
+        metric: eeg_arousal
+    - id: event_to_signal_attention
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_attention'
+        keys: null
+    - id: event_to_signal_arousal
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_arousal'
+        keys: null
+    - id: pub_attention
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_attention_metric
+    - id: pub_arousal
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_arousal_metric
+    - id: display
+      module: timeflux.nodes.debug
+      class: Display
+    - id: pub_eeg
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: raw
+    edges:
+      - source: sub_eeg:eeg_filtered
+        target: window
+      - source: window
+        target: attention
+      - source: attention
+        target: event_to_signal_attention
+      - source: event_to_signal_attention
+        target: pub_attention
+      - source: window
+        target: arousal
+      - source: arousal
+        target: event_to_signal_arousal
+      - source: event_to_signal_arousal
+        target: pub_arousal
+    rate: 10
+
+# Fake EEG Data + Metric calculation graph
+  - id: EEG_motor
+    nodes:
+    - id: sub_eeg
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics: [eeg_filtered]
+    - id: window
+      module: timeflux.nodes.window
+      class: Slide
+      params:
+        length: 10
+        step: 1
+    - id: eeg_motor_mu_theta
+      module: nodes.EEG_ratio
+      class: Ratio
+      params:
+        a: ["^C*P*O|T", [8, 14]]
+        b: ["^C*P*O|T", [4, 8]]
+        metric: eeg_motor_mu_theta
+    - id: eeg_motor_low_beta_alpha
+      module: nodes.EEG_ratio
+      class: Ratio
+      params:
+        a: ["^C*P*O|T", [13, 22]]
+        b: ["^C*P*O|T", [8, 13]]
+        metric: eeg_motor_low_beta_alpha
+    - id: eeg_motor_gamma_alpha
+      module: nodes.EEG_ratio
+      class: Ratio
+      params:
+        a: ["[A-Z]*[0-9]", [30, 50]]
+        b: ["[A-Z]*[0-9]", [8, 13]]
+        metric: eeg_motor_gamma_alpha
+    - id: event_to_signal_eeg_motor_mu_theta
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_motor_mu_theta'
+        keys: null
+    - id: event_to_signal_eeg_motor_mu_mu
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_motor_mu_mu'
+        keys: null
+    - id: event_to_signal_eeg_motor_low_beta_alpha
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_motor_low_beta_alpha'
+        keys: null
+    - id: event_to_signal_eeg_motor_gamma_alpha
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_motor_gamma_alpha'
+        keys: null
+    - id: pub_eeg_motor_mu_theta
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_motor_mu_theta
+    - id: pub_eeg_motor_low_beta_alpha
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_motor_low_beta_alpha
+    - id: pub_eeg_motor_gamma_alpha
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_motor_gamma_alpha
+    edges:
+      - source: sub_eeg:eeg_filtered
+        target: window
+      - source: window
+        target: eeg_motor_mu_theta
+      - source: eeg_motor_mu_theta
+        target: event_to_signal_eeg_motor_mu_theta
+      - source: event_to_signal_eeg_motor_mu_theta
+        target: pub_eeg_motor_mu_theta
+      - source: window
+        target: eeg_motor_low_beta_alpha
+      - source: eeg_motor_low_beta_alpha
+        target: event_to_signal_eeg_motor_low_beta_alpha
+      - source: event_to_signal_eeg_motor_low_beta_alpha
+        target: pub_eeg_motor_low_beta_alpha
+      - source: window
+        target: eeg_motor_gamma_alpha
+      - source: eeg_motor_gamma_alpha
+        target: event_to_signal_eeg_motor_gamma_alpha
+      - source: event_to_signal_eeg_motor_gamma_alpha
+        target: pub_eeg_motor_gamma_alpha
+    rate: 10

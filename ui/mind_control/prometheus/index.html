@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Multimodal Metrics - Inclusive Brains</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/bs-theme-overrides.css">
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/js/app.js"></script>
+    <script defer src="assets/js/smoothie.js"></script>
+    <script src="assets/mediapipe/camera_utils.js"></script>
+    <script src="assets/mediapipe/control_utils.js"></script>
+    <script src="assets/mediapipe/drawing_utils.js"></script>
+    <script src="assets/mediapipe/face_mesh.js"></script>
+    <script src="assets/mediapipe/vision_bundle.js"
+            crossorigin="anonymous"></script>
+    <script type="module" src="assets/js/main.js"></script>
+    <script type="module" src="assets/js/mediapipe.js"></script>
+    <style>
+        #wrapper .sidebar {
+            width: 350px !important;
+        }
+
+        .sidebar-subitem-active {
+            background-color: #ce1126; /* Choisir une couleur de fond pour l'élément actif */
+            color: #FFF; /* Choisir une couleur de texte pour l'élément actif */
+            border-radius: 5px;
+        }
+
+        .bg-dark-blue {
+            background-color: #181414 !important;
+        }
+
+        .bg-red {
+            background-color: #ce1126 !important;
+        }
+
+        .hidden {
+        display: none;
+        }
+
+    </style>
+
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar bg-dark-blue text-start align-items-start sidebar sidebar-dark accordion p-0 navbar-dark" data-bs-theme="light">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#"><img src="assets/img/ib_logo.png" width="170" height="70" style="width: 182px;height: 72px;margin-right: 0px;margin-top: 0px;padding-top: 0px;padding-bottom: 0px;margin-bottom: -44px;"></a>
+                <ul class="navbar-nav text-light" id="accordionSidebar" style="padding-top: 20px;">
+                    <li class="border-top my-3"></li>
+                    <li class="mb-1">
+                        <a href="/dashboard" class="btn align-items-center btn-toggle rounded fs-5 link-light">
+                            <i class="fas fa-tachometer-alt me-1"></i> Data Monitoring
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#realtime-detections-collapse" aria-expanded="true"><i class="fas fa-wave-square me-1"></i> Agents</button>
+                        <div id="realtime-detections-collapse" class="collapse show">
+                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/brain_metrics">Brainwaves</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/heart_metrics">Heart activity</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/facial_expressions">Facial Expressions</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/head_motions">Head Movements</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#mind-control-collapse" aria-expanded="true"><i class="fas fa-gamepad me-1"></i>Mental Commands </button>
+                        <div id="mind-control-collapse" class="collapse show">
+                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/mind_control_training">Mind Control calibration</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/obi1">Mind Keyboard</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start sidebar-subitem-active" href="/prometheus">Prometheus BCI - v1</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/prometheus_2">Prometheus BCI - v2 </a></li>                            
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#experiments-collapse" aria-expanded="true"><i class="fas fa-flask me-1"></i> Experiments </button>
+                        <div id="experiments-collapse" class="collapse show">
+                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/n_back">N-back experiment</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light" style="padding-bottom: 0px;height: 105px;">
+                    <div class="container-fluid">
+                        <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="navbar-nav flex-nowrap ms-auto">
+                            <li class="nav-item dropdown d-sm-none no-arrow">
+                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><i class="fas fa-search"></i></a>
+                                <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in" aria-labelledby="searchDropdown">
+                                    <form class="me-auto navbar-search w-100">
+                                        <div class="input-group">
+                                            <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
+                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow">
+                                    <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">Prometheus_BCI UI v0.1</span><img class="border rounded-circle img-profile" src="assets/img/prometheus_logo.png"></a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="alert alert-info" role="alert">
+                                <h4 class="alert-heading">Prometheus BCI - v1</h4>
+                                <hr>
+                                <p>
+                                    This page provides an initial example of the Prometheus BCI platform. 
+                                    This first version of the interface was designed to allow Nathalie Labrégère to interact with the exoskeleton arm and carry the Olympic flame on May 9, 2024, in Marseille. 
+                                    Due to her motor and cerebral disabilities, Nathalie could not use motor imagery-based commands; her sole means of interaction with the outside world is through her facial expressions.
+                                </p>
+                                <p class="mb-0">The following sections will enable you to monitor metric changes over time and adjust control settings by selecting a facial expression to integrate into the multimodal brain metric.</p>
+                                <hr>
+                                <div class="text-center mb-3">
+                                    <!-- Chemin de votre image -->
+                                    <img src="assets/img/prometheus_nathalie.jpg" alt="Nathalie Labrégère portant la torche olympique" class="img-fluid" style="max-width: 50%; height: auto;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-12 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="text-primary fw-bold m-0">Facemesh</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="liveView" class="videoView">
+                                        <button id="webcamButton" class="mdc-button mdc-button--raised">
+                                            <span class="mdc-button__ripple"></span>
+                                            <span class="mdc-button__label">ENABLE WEBCAM</span>
+                                        </button>
+                                        <div style="position: relative;">
+                                            <video id="webcam" style="position: absolute; left: 0; top: 0;" autoplay playsinline></video>
+                                            <canvas class="output_canvas" id="output_canvas" style="position: absolute; left: 0; top: 0;"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="blend-shapes">
+                                        <ul class="blend-shapes-list" id="video-blend-shapes"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-12 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="text-primary fw-bold m-0">Multimodal Detections - Percentage of change over time</h6>
+                                </div>
+                                <div class="card-body">
+                                    <h4 id="attention_title" class="small fw-bold">Attention<span class="float-end">60%</span></h4>
+                                    <div class="progress mb-4">
+                                        <div id="attention_progress" class="progress-bar bg-primary" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"><span class="visually-hidden">60%</span></div>
+                                    </div>
+                                    <div id="messageContainer" style="position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; display: none;">
+                                        <span id="messageText"></span>
+                                    </div>                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-6 col-xl-12 mb-4">
+                          <div class="card shadow mb-4">
+                              <div class="card-header py-3">
+                                  <h6 class="text-primary fw-bold m-0">Exosqueleton Connection </h6>
+                              </div>
+                              <div class="card-body">
+                                  <div class="container-fluid">
+                                      <!-- Boutons Up et Down sur la même ligne -->
+                                      <div class="row justify-content-center">
+                                          <div class="col-6">
+                                              <button class="btn btn-secondary w-100 py-4" id="connectButton">Exosqueleton connection</button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-lg-6 col-xl-12 mb-4">
+                          <div class="card shadow mb-4">
+                              <div class="card-header py-3">
+                                  <h6 class="text-primary fw-bold m-0">Exosqueleton Arm Control -- Manual</h6>
+                              </div>
+                              <div class="card-body">
+                                  <div class="container-fluid">
+                                      <!-- Boutons Up et Down sur la même ligne -->
+                                      <div class="row justify-content-center">
+                                          <div class="col-auto">
+                                              <button class="btn btn-primary mb-2" id="sendCommandButtonB">Up</button>
+                                              <button class="btn btn-primary mb-2" id="sendCommandButtonA">Down</button>
+                                              <button class="btn btn-danger mb-2" id="sendCommandButtonC">Stop</button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-6 col-xl-12 mb-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="text-primary fw-bold m-0">Exoskeleton Arm Control Settings</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="controlSettingsForm" class="row g-3">
+                                    <!-- Ligne pour le contrôle global -->
+                                    <div class="col-12 d-flex align-items-center">
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-0">Control Metric</label>
+                                            <input type="text" class="form-control" id="controlMetric" value="Multimodal Attention" readonly>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="thresholdInput" class="form-label mb-0">Control Threshold</label>
+                                            <input type="number" class="form-control" id="thresholdInput" step="0.01" value="0.8">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-0">Control Value</label>
+                                            <input type="number" class="form-control" id="controlValue" value="0" readonly>
+                                        </div>
+                                    </div>
+                
+                                    <!-- Ligne pour l'action Up: Métrique, Threshold et Valeur en temps réel -->
+                                    <div class="col-12 d-flex align-items-center">
+                                        <div class="col-md-4">
+                                            <label for="upMetricSelect" class="form-label mb-0">Select Up Metric</label>
+                                            <select class="form-control" id="upMetricSelect">
+                                                <!-- Options générées dynamiquement par JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="upExpressionThreshold" class="form-label mb-0">Up Action Threshold</label>
+                                            <input type="number" class="form-control" id="upExpressionThreshold" step="0.01" value="0.8">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-0">Up Metric Value</label>
+                                            <input type="number" class="form-control" id="upMetricValue" value="0" readonly>
+                                        </div>
+                                    </div>
+                
+                                    <!-- Ligne pour l'action Down: Métrique, Threshold et Valeur en temps réel -->
+                                    <div class="col-12 d-flex align-items-center">
+                                        <div class="col-md-4">
+                                            <label for="downMetricSelect" class="form-label mb-0">Select Down Metric</label>
+                                            <select class="form-control" id="downMetricSelect">
+                                                <!-- Options générées dynamiquement par JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="downExpressionThreshold" class="form-label mb-0">Down Action Threshold</label>
+                                            <input type="number" class="form-control" id="downExpressionThreshold" step="0.01" value="0.8">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label mb-0">Down Metric Value</label>
+                                            <input type="number" class="form-control" id="downMetricValue" value="0" readonly>
+                                        </div>
+                                    </div>
+                
+                                    <!-- Bouton Appliquer centré -->
+                                    <div class="col-12 d-flex justify-content-center">
+                                        <button type="button" class="btn btn-primary" id="applySettingsButton">Apply changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-12 mb-4">
+                            <div class="card shadow mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="text-primary fw-bold m-0">Facial Expressions</h6>
+                                        <div class="dropdown no-arrow">
+                                            <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
+                                            <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                                <p class="text-center dropdown-header">dropdown header:</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row" id="facialMetricsContainer">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-7 col-xl-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary fw-bold m-0">Facial Blendshapes</h6>
+                                    <div class="dropdown no-arrow">
+                                        <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
+                                        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="facialBlendshapesContainer">
+                                    </div>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Inclusive Brains 2024</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+</html>
+

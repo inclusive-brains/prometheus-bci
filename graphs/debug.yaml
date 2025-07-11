@@ -1,0 +1,16 @@
+graphs:
+
+  - id: Display
+    nodes:
+    - id: subscribe
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics: [ filtered, events ]
+    - id: debug
+      module: timeflux.nodes.debug
+      class: Display
+    edges:
+      - source: subscribe:events
+        target: debug
+    rate: 10

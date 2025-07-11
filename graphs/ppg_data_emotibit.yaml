@@ -1,0 +1,61 @@
+graphs:
+
+  - id: osc_acquisition
+    nodes:
+      - id: osc_receiver
+        module: timeflux.nodes.osc
+        class: Server
+        params:
+          ip: 'localhost'
+          port: 12345
+          addresses:
+            - /EmotiBit/0/PPG_RED
+            - /EmotiBit/0/HR
+      - id: select_column
+        module: timeflux.nodes.query
+        class: LocQuery
+        params:
+          key: 1  # selecting only one PPG channel (IR)
+          axis: 1
+      - id: select_column_hr
+        module: timeflux.nodes.query
+        class: LocQuery
+        params:
+          key: 0
+          axis: 1
+      - id: bandpass_filter
+        module: timeflux_dsp.nodes.filters
+        class: FIRFilter
+        params:
+          rate: 25
+          frequencies: [0.5, 10]
+          filter_type: bandpass
+          order: 2
+      - id: pub_filtered
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_filtered
+      - id: pub_hr
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: hr_data
+      - id: pub_raw
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_raw
+    edges:
+      - source: osc_receiver:EmotiBit_0_PPG_RED
+        target: select_column
+      - source: osc_receiver:EmotiBit_0_HR
+        target: select_column_hr
+      - source: select_column
+        target: bandpass_filter
+      - source: select_column_hr
+        target: pub_hr
+      - source: bandpass_filter
+        target: pub_filtered
+      - source: select_column
+        target: pub_raw

@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'advent_promedium';
+    src: url('../fonts/adventpro-medium-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'robotoregular';
+    src: url('../fonts/Roboto-Regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}

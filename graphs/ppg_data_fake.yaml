@@ -1,0 +1,67 @@
+graphs:
+
+  # Fake PPG Data + Metric calculation graph
+  - id: PPG
+    nodes:
+      - id: random
+        module: timeflux.nodes.random
+        class: Random
+        params:
+          columns: 1
+          rows_min: 1
+          rows_max: 10
+          value_min: 60
+          value_max: 120
+          seed: 1
+      - id: eda_simulation_node
+        module: nodes.PPG 
+        class: EDASimulator
+      - id: ecg_simulation_node
+        module: nodes.PPG 
+        class: ECGSimulator
+      - id: bandpass_filter
+        module: timeflux_dsp.nodes.filters
+        class: FIRFilter
+        params:
+          rate: 30
+          frequencies: [0.5, 14]
+          order: 2
+          filter_type: bandpass
+      - id: pub_filtered
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_filtered
+      - id: pub_raw
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_raw
+      - id: pub_eda
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: eda_raw
+      - id: pub_temperature
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: temperature_raw
+      - id: pub_hr
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: hr_data
+    edges:
+      - source: random
+        target: bandpass_filter
+      - source: bandpass_filter
+        target: pub_filtered
+      - source: random
+        target: pub_raw
+      - source: random
+        target: pub_eda
+      - source: random
+        target: pub_hr
+      - source: random
+        target: pub_temperature

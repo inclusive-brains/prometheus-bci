@@ -1,0 +1,34 @@
+graphs:
+  - nodes:
+      - id: camera
+        module: nodes.camera
+        class: UnifiedFacialMetricsAndTracking
+      - id: publish_facial_expressions
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+          topic: facial_metrics
+      - id: blendshapes
+        module: nodes.camera
+        class: FaceBlendshapes
+      - id: publish_blendshapes
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+          topic: facial_blendshapes
+      - id: emotions
+        module: nodes.camera
+        class: EmotionNode
+      - id: publish_emotions
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+          topic: facial_emotions
+    edges:
+      - source: camera
+        target: publish_facial_expressions
+      - source: blendshapes
+        target: publish_blendshapes
+      - source: emotions
+        target: publish_emotions
+    rate: 20

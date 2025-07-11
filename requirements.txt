@@ -1,0 +1,8 @@
+timeflux>=0.15.0
+timeflux_ui>=0.5.2
+timeflux_dsp>=0.3.3
+timeflux_openbci>=0.4.0
+timeflux_bitalino>=0.3.0
+pyriemann>=0.3.0
+sounddevice>=0.4.6
+neurokit2>=0.2.7

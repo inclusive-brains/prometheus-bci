@@ -1,0 +1,34 @@
+graphs:
+
+  - id: OSC
+    nodes:
+    - id: subscribe
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics: [ model, metrics ]
+    - id: format
+      module: nodes.osc
+      class: Format
+    - id: commands
+      module: timeflux.nodes.osc
+      class: Client
+      params:
+        address: /commands
+        ip: {{ OSC_IP }}
+        port: {{ OSC_PORT }}
+    - id: metrics
+      module: timeflux.nodes.osc
+      class: Client
+      params:
+        address: /metrics
+        ip: {{ OSC_IP }}
+        port: {{ OSC_PORT }}
+    edges:
+      - source: subscribe:model
+        target: format
+      - source: format
+        target: commands
+      - source: subscribe:metrics
+        target: metrics
+    rate: 20

@@ -1,0 +1,65 @@
+:root {
+    --background-color: #CCCCCC;
+    --marker-size: 60px;
+    --marker-color: #000000;
+    --marker-thickness: 6px;
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: "Arial";
+}
+
+.marker {
+    width: var(--marker-size);
+    height: var(--marker-size);
+    background:
+        linear-gradient(var(--marker-color), var(--marker-color)),
+        linear-gradient(var(--marker-color), var(--marker-color));
+    background-position: center;
+    background-size: 100% var(--marker-thickness), var(--marker-thickness) 100%;
+    background-repeat: no-repeat;
+}
+
+.center {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.hidden {
+    display: none;
+}
+
+.no_cursor {
+    cursor: none;
+}
+
+#instructions, #ready, #baseline {
+    font-size: 1.5em;
+}
+
+#ready_n {
+    text-align: center;
+    font-weight: bold;
+}
+
+#symbol {
+    font-size: 80px;
+    width: 120px;
+    height: 120px;
+    text-align: center;
+    line-height: 120px;
+    border:  5px solid;
+}
+
+.green {
+    color: green;
+    border-color: green;
+}
+
+.red {
+    color: red;
+    border-color: red;
+}

@@ -1,0 +1,467 @@
+import:
+  - graphs/eeg_data_{{ EEG_DEVICE }}.yaml
+  {% if ECG %}
+  - graphs/ecg_bitalino.yaml
+  {% endif %}
+  {% if PPG_DEVICE %}
+  - graphs/ppg_data_{{ PPG_DEVICE }}.yaml
+  {% endif %}
+  - graphs/classification.yaml
+  - graphs/ppg_metrics.yaml
+  - graphs/eeg_metrics.yaml
+  - graphs/multimodal_metrics.yaml
+  - graphs/debug.yaml
+  - graphs/camera_facial_expressions.yaml
+  {% if OSC_ENABLE == "true" %}
+  - graphs/osc.yaml
+  {% endif %}
+
+graphs:
+
+  - id: Broker
+    nodes:
+    - id: broker
+      module: timeflux.nodes.zmq
+      class: Broker
+
+  - id: record
+    nodes:
+    - id: subscribe
+      module: timeflux.nodes.zmq
+      class: Sub
+      params:
+        topics: [facial_blendshapes, facial_metrics, facial_emotions, bitalino_offsets, offsets, model, hr_data, hrv_data, temperature_raw, eda_raw, motion, audio, eeg_raw, ppg_raw, eeg_filtered, ppg_filtered, eeg_bandpower, eeg_bandpower_mean, eeg_bandpower_mean_fullband, multimodal_attention, events,ppg_attention_metric,ppg_arousal_metric,eeg_attention_metric,eeg_arousal_metric, eeg_motor_mu_theta, eeg_motor_low_beta_alpha, eeg_motor_gamma_alpha]
+    # Gate note for each data type
+    - id: gate_events
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_raw
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_ppg_raw
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_ppg_filtered
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_filtered
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_bandpower
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_multimodal_stress
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_multimodal_attention
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_multimodal_cognitive_load
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_multimodal_arousal
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_stress
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_attention
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_cognitive_load
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_arousal
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_audio
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_motion
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_facial_expressions
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_facial_emotions
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_facial_blendshapes
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: gate_eeg_emotiv_metrics
+      module: timeflux.nodes.gate
+      class: Gate
+      params:
+        event_opens: start
+        event_closes: stop
+        event_label: label
+    - id: pub
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: events
+    - id: ui
+      module: timeflux_ui.nodes.ui
+      class: UI
+      params:
+        port: 8002
+        routes:
+          dashboard: ./ui/data_monitoring
+          heart_metrics: ./ui/real_time_detections/heart_metrics
+          head_motions: ./ui/real_time_detections/head_motions
+          brain_metrics: ./ui/real_time_detections/brain_metrics
+          facial_expressions: ./ui/real_time_detections/facial_expressions
+          n_back: ./ui/experiments/nback
+          mind_control_training: ./ui/mind_control/motor
+          obi1: ./ui/mind_control/obi1
+          prometheus: ./ui/mind_control/prometheus
+          prometheus_2: ./ui/mind_control/prometheus_2
+        settings:
+          mind_control_training:
+            training:
+              baseline:
+                enable: {{ BASELINE_ENABLE }}
+                duration: {{ BASELINE_DURATION }}
+              motor:
+                enable: {{ MOTOR_ENABLE }}
+                blocks: {{ MOTOR_BLOCKS }}
+                trials: {{ MOTOR_TRIALS }}
+                duration:
+                  prep: 5000
+                  rest: 8000
+                  display_on: 6000
+                  display_off: 2000
+                  pause_before: 0
+                  pause_after: 400
+                imagery:
+                  - LEFT
+                  - RIGHT
+                {% if MOTOR_IMAGERY == "rotation" %}
+                media:
+                  - path: assets/media/rotation_left.mp4
+                    width: 320
+                    position: bottom-left
+                  - path: assets/media/rotation_right.mp4
+                    width: 320
+                    position: bottom-right
+                {% elif MOTOR_IMAGERY == "extension" %}
+                media:
+                  - path: assets/media/extension_left.mp4
+                    width: 320
+                    position: bottom-left
+                  - path: assets/media/extension_right.mp4
+                    width: 320
+                    position: bottom-right
+                {% elif MOTOR_IMAGERY == "flexion" %}
+                media:
+                  - path: assets/media/flexion_left.mp4
+                    width: 320
+                    position: bottom-left
+                  - path: assets/media/flexion_right.mp4
+                    width: 320
+                    position: bottom-right
+                {% elif MOTOR_IMAGERY == "generic" %}
+                media:
+                  - path: assets/media/arrow_left.png
+                    width: 320
+                    #position: left
+                    position: center
+                  - path: assets/media/arrow_right.png
+                    width: 320
+                    #position: right
+                    position: center
+                {% endif %}
+              blink:
+                enable: true
+                trials: 10
+            grid:
+              shape:
+                ratio: "1:1"
+    - id: save
+      module: timeflux.nodes.hdf5
+      class: Save
+      params:
+        min_itemsize: 1024
+        path: ./data
+    - id: display
+      module: timeflux.nodes.debug
+      class: Display
+    edges:
+      - source: ui:events
+        target: pub
+      - source: subscribe:model
+        target: ui:model
+      - source: subscribe:events
+        target: ui:events
+      - source: subscribe:multimodal_stress
+        target: ui:multimodal_stress
+      - source: subscribe:multimodal_attention
+        target: ui:multimodal_attention
+      - source: subscribe:multimodal_cognitive_load
+        target: ui:multimodal_cognitive_load
+      - source: subscribe:multimodal_arousal
+        target: ui:multimodal_arousal
+      - source: subscribe:eeg_raw
+        target: ui:eeg_raw
+      - source: subscribe:eeg_filtered
+        target: ui:eeg_filtered
+      - source: subscribe:ppg_raw
+        target: ui:ppg_raw
+      - source: subscribe:ppg_filtered
+        target: ui:ppg_filtered
+      - source: subscribe:ppg_stress_metric
+        target: ui:ppg_stress_metric
+      - source: subscribe:ppg_attention_metric
+        target: ui:ppg_attention_metric
+      - source: subscribe:ppg_cognitive_load_metric
+        target: ui:ppg_cognitive_load_metric
+      - source: subscribe:ppg_arousal_metric
+        target: ui:ppg_arousal_metric
+      - source: subscribe:eeg_stress_metric
+        target: ui:eeg_stress_metric
+      - source: subscribe:eeg_attention_metric
+        target: ui:eeg_attention_metric
+      - source: subscribe:eeg_cognitiveload_metric
+        target: ui:eeg_cognitiveload_metric
+      - source: subscribe:eeg_arousal_metric
+        target: ui:eeg_arousal_metric
+      - source: subscribe:eeg_bandpower
+        target: ui:eeg_bandpower
+      - source: subscribe:audio
+        target: ui:audio
+      - source: subscribe:motion
+        target: ui:motion
+      - source: subscribe:hrv_data
+        target: ui:hrv_data # is not saved here !
+      - source: subscribe:eda_raw
+        target: ui:eda_raw #eda is not saved here !
+      - source: subscribe:temperature_raw
+        target: ui:temperature_raw #temperature is not saved here !
+      - source: subscribe:hr_data
+        target: ui:hr_data 
+      - source: subscribe:facial_metrics
+        target: ui:facial_metrics
+      - source: subscribe:facial_blendshapes
+        target: ui:facial_blendshapes
+      - source: subscribe:eeg_motor_mu_theta #is not saved here !
+        target: ui:eeg_motor_mu_theta
+      - source: subscribe:eeg_motor_low_beta_alpha #is not saved here !
+        target: ui:eeg_motor_low_beta_alpha
+      - source: subscribe:eeg_motor_gamma_alpha #is not saved here !
+        target: ui:eeg_motor_gamma_alpha
+      - source: subscribe:eeg_bandpower_mean #is not saved here !
+        target: ui:eeg_bandpower_mean
+      - source: subscribe:eeg_bandpower_mean_fullband #is not saved here !
+        target: ui:eeg_bandpower_mean_fullband
+      - source: subscribe:facial_emotions #is not saved here !
+        target: ui:facial_emotions
+      - source: subscribe:prosody #is not saved here !
+        target: ui:prosody
+      - source: subscribe:eeg_emotiv_metrics
+        target: ui:eeg_emotiv_metrics
+  
+      # Sub to gate for each data type
+      - source: subscribe:events
+        target: gate_events
+      - source: subscribe:eeg_raw
+        target: gate_eeg_raw
+      - source: subscribe:ppg_raw
+        target: gate_ppg_raw
+      - source: subscribe:eeg_filtered
+        target: gate_eeg_filtered
+      - source: subscribe:ppg_filtered
+        target: gate_ppg_filtered
+      - source: subscribe:multimodal_stress
+        target: gate_multimodal_stress
+      - source: subscribe:multimodal_attention
+        target: gate_multimodal_attention
+      - source: subscribe:multimodal_cognitive_load
+        target: gate_multimodal_cognitive_load
+      - source: subscribe:multimodal_arousal
+        target: gate_multimodal_arousal
+      - source: subscribe:eeg_stress_metric
+        target: gate_eeg_stress
+      - source: subscribe:eeg_attention_metric
+        target: gate_eeg_attention
+      - source: subscribe:eeg_cognitiveload_metric
+        target: gate_eeg_cognitive_load
+      - source: subscribe:eeg_arousal_metric
+        target: gate_eeg_arousal
+      - source: subscribe:eeg_bandpower
+        target: gate_eeg_bandpower
+      - source: subscribe:audio
+        target: gate_audio
+      - source: subscribe:motion
+        target: gate_motion
+      - source: subscribe:facial_metrics
+        target: gate_facial_expressions
+      - source: subscribe:facial_blendshapes
+        target: gate_facial_blendshapes
+      - source: subscribe:eeg_emotiv_metrics
+        target: gate_eeg_emotiv_metrics
+      - source: subscribe:facial_emotions
+        target: gate_facial_emotions
+
+
+      # Gate to save for each data type
+      - source: gate_events
+        target: save:events
+      - source: gate_eeg_raw
+        target: save:eeg_raw
+      - source: gate_ppg_raw
+        target: save:ppg_raw
+      - source: gate_eeg_filtered
+        target: save:eeg_filtered
+      - source: gate_ppg_filtered
+        target: save:ppg_filtered
+      - source: gate_multimodal_stress
+        target: save:multimodal_stress
+      - source: gate_multimodal_attention
+        target: save:multimodal_attention
+      - source: gate_multimodal_cognitive_load
+        target: save:multimodal_cognitive_load
+      - source: gate_multimodal_arousal
+        target: save:multimodal_arousal
+      - source: gate_eeg_stress
+        target: save:eeg_stress
+      - source: gate_eeg_attention
+        target: save:eeg_attention
+      - source: gate_eeg_cognitive_load
+        target: save:eeg_cognitive_load
+      - source: gate_eeg_arousal
+        target: save:eeg_arousal
+      - source: gate_eeg_bandpower
+        target: save:eeg_bandpower
+      - source: gate_audio
+        target: save:audio
+      - source: gate_motion
+        target: save:motion
+      - source: gate_facial_expressions
+        target: save:facial_metrics
+      - source: gate_facial_blendshapes
+        target: save:facial_blendshapes
+      - source: gate_eeg_emotiv_metrics
+        target: save:eeg_emotiv_metrics
+      - source: gate_facial_emotions
+        target: save:facial_emotions
+
+      # UI connection for each gate control
+      - source: ui:events
+        target: gate_events:events
+      - source: ui:events
+        target: gate_eeg_raw:events
+      - source: ui:events
+        target: gate_ppg_raw:events
+      - source: ui:events
+        target: gate_eeg_filtered:events
+      - source: ui:events
+        target: gate_ppg_filtered:events
+      - source: ui:events
+        target: gate_multimodal_stress:events
+      - source: ui:events
+        target: gate_multimodal_attention:events
+      - source: ui:events
+        target: gate_multimodal_cognitive_load:events
+      - source: ui:events
+        target: gate_multimodal_arousal:events
+      - source: ui:events
+        target: gate_eeg_stress:events
+      - source: ui:events
+        target: gate_eeg_attention:events
+      - source: ui:events
+        target: gate_eeg_cognitive_load:events
+      - source: ui:events
+        target: gate_eeg_arousal:events
+      - source: ui:events
+        target: gate_eeg_bandpower:events
+      - source: ui:events
+        target: gate_audio:events
+      - source: ui:events
+        target: gate_motion:events
+      - source: ui:events
+        target: gate_facial_expressions:events
+      - source: ui:events
+        target: gate_facial_blendshapes:events
+      - source: ui:events
+        target: gate_eeg_emotiv_metrics:events
+      - source: ui:events
+        target: gate_facial_emotions:events
+
+    rate: 10

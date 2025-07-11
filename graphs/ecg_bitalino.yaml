@@ -1,0 +1,28 @@
+graphs:
+
+  - id: bitalino
+    nodes:
+    - id: bitalino
+      module: timeflux_bitalino.nodes.driver
+      class: Bitalino
+      params:
+        port: {{ BITALINO }}
+        rate: 100
+        sensors:
+          A1: ECG
+    - id: pub_bitalino
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: bitalino_signal
+    - id: pub_offsets
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: bitalino_offsets
+    edges:
+    - source: bitalino
+      target: pub_bitalino
+    - source: bitalino:offsets
+      target: pub_offsets
+    rate: 20

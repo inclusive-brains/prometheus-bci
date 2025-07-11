@@ -1,0 +1,88 @@
+graphs:
+
+  # Metric calculation graph
+  - id: PPG
+    nodes:
+      - id: sub_ppg
+        module: timeflux.nodes.zmq
+        class: Sub
+        params:
+          topics: [ppg_filtered]
+      - id: peak_detector
+        module: timeflux_dsp.nodes.peaks
+        class: LocalDetect
+        params:
+          delta: 0.3
+          tol: 0.05
+      - id: event_to_signal
+        module: timeflux.nodes.events
+        class: EventToSignal
+        params:
+          label: 'peak'
+          keys: null
+      - id: rolling
+        module: timeflux.nodes.window
+        class: Slide
+        params:
+          length: 10
+          step: 1
+          rate: 1
+      - id: hrv_calculator
+        module: nodes.PPG
+        class: HRVTimeDomainCalculator
+      - id: select_column
+        module: timeflux.nodes.query
+        class: LocQuery
+        params:
+          key: ["HRV_SDNN", "HRV_RMSSD", "HRV_pNN50", "HRV_SDSD", "HRV_MeanNN"]
+          axis: 1
+      - id: attention_metric
+        module: nodes.PPG
+        class: AttentionMetric
+        params:
+          weights: {'HRV_SDNN': 0.30, 'HRV_RMSSD': 0.40, 'HRV_pNN50': 0.30}
+      - id: arousal_metric
+        module: nodes.PPG
+        class: ArousalMetric
+        params:
+          weights: {'HRV_SDSD': 0.33, 'HRV_RMSSD': 0.33, 'HRV_MeanNN': 0.34}
+      - id: pub_attention_metric
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_attention_metric
+      - id: pub_arousal_metric
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_arousal_metric
+      - id: display
+        module: timeflux.nodes.debug
+        class: Display
+      - id: pub_hrv
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: hrv_data
+    edges:
+      - source: sub_ppg:ppg_filtered
+        target: peak_detector
+      - source: peak_detector
+        target: event_to_signal
+      - source: event_to_signal
+        target: rolling
+      - source: rolling
+        target: hrv_calculator
+      - source: hrv_calculator
+        target: select_column
+      - source: select_column
+        target: pub_hrv
+      - source: select_column
+        target: attention_metric
+      - source: attention_metric
+        target: pub_attention_metric
+      - source: select_column
+        target: arousal_metric
+      - source: arousal_metric
+        target: pub_arousal_metric
+    rate: 1

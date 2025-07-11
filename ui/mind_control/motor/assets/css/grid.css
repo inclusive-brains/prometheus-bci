@@ -1,0 +1,119 @@
+  /*************/
+ /* VARIABLES */
+/*************/
+
+:root {
+    --font-size: 15px;
+    --font-color-center: white;
+    --background-color-center: #1E90FF;
+    --font-color-side: white;
+    --background-color-side: #00BFFF;
+    --font-color-active: white;
+    --background-color-active: #008000;
+    --grid-border-color: gray;
+    /*--grid-border-size: 1px;*/
+    --grid-border-size: 0px;
+    --grid-width: 100%;
+    --grid-height: 100%;
+    --grid-padding: 50px;
+    --grid-background-color: white;
+}
+
+
+  /***************/
+ /* MAIN LAYOUT */
+/***************/
+
+#wrapper {
+
+    /* Full with, full height */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+
+    /* Grid settings */
+    display: grid;
+    grid-template-rows: auto max-content;
+    grid-template-columns: auto;
+    grid-template-areas: "main";
+
+}
+
+#main { grid-area: main; }
+
+#main {
+    padding: 50px;
+}
+
+  /***************/
+ /* SYMBOL GRID */
+/***************/
+
+#grid {
+    display: grid;
+    top: 0; left: 0; right: 0; bottom: 0;
+    grid-template-columns: repeat(6, 1fr); /* Will be overwritten by JavaScript */
+    grid-auto-rows: 1fr;
+    width: var(--grid-width);
+    height: var(--grid-height);
+    padding: var(--grid-padding);
+}
+
+.cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    font-size: var(--font-size);
+    border: var(--grid-border-size) var(--grid-border-color) solid;
+    background-color: var(--grid-background-color);
+}
+
+.cell.center {
+    color: var(--font-color-center);
+    background-color: var(--background-color-center);
+}
+
+.cell.left {
+    color: var(--font-color-side);
+    background-color: var(--background-color-side);
+    z-index: 1;
+}
+
+.cell.left::before {
+    content: "";
+    position: absolute;
+    /*left:  calc(-100% / 3 - 2px);*/
+    left:  calc(-100% / 3 + 1px);
+    width:  calc(100% / 3);
+    height: calc(100%);
+    background: var(--background-color-side);
+    clip-path: polygon(100% 100%, 50% 50%, 100% 0%);
+    border: var(--grid-border-size) var(--background-color-side) solid;
+}
+
+.cell.right {
+    color: var(--font-color-side);
+    background-color: var(--background-color-side);
+    z-index: 1;
+}
+
+.cell.right::after {
+    content: "";
+    position: absolute;
+    /*right:  calc(-100% / 3 - 1px);*/
+    right:  calc(-100% / 3 + 1px);
+    width:  calc(100% / 3);
+    height: 100%;
+    background:  var(--background-color-side);
+    clip-path: polygon(0% 0%, 50% 50%, 0% 100%);
+    border: var(--grid-border-size) var(--background-color-side) solid;
+}
+
+.cell.active {
+    color: var(--font-color-active);
+    background-color: var(--background-color-active);
+}
+

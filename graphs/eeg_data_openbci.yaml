@@ -1,0 +1,60 @@
+graphs:
+
+#Ne prend pas encore les bands
+  - id: OpenBCI
+    nodes:
+    - id: acquire
+      module: timeflux_openbci.nodes.driver
+      class: OpenBCI
+      params:
+        board: cyton
+        serial_port: /dev/cu.usbserial-DQ0084BO
+        channels: [ F3, F4, C3, Cz, C4, P3, Pz, P4]
+        gain: 24
+    - id: select
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+        key: [ F3, F4, C3, Cz, C4, P3, Pz, P4]
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Reindex
+    - id: notch
+      module: timeflux_dsp.nodes.filters
+      class: IIRLineFilter
+      params:
+        rate: 250
+    - id: bandpass
+      module: timeflux_dsp.nodes.filters
+      class: IIRFilter
+      params:
+        filter_type: bandpass
+        frequencies: [0.1, 40]
+        order: 2
+    - id: display
+      module: timeflux.nodes.debug
+      class: Display
+    - id: pub_raw
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_raw
+    - id: pub_filtered
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_filtered
+    edges:
+    - source: acquire
+      target: pub_raw
+    - source: acquire
+      target: select
+    - source: select
+      target: dejitter
+    - source: dejitter
+      target: notch
+    - source: notch
+      target: bandpass
+    - source: bandpass
+      target: pub_filtered
+    rate: 10

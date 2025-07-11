@@ -1,0 +1,138 @@
+graphs:
+
+  - id: emotiv
+    nodes:
+    - id: raw
+      module: timeflux.nodes.lsl
+      class: Receive
+      params:
+        prop: name
+        value: EmotivDataStream-EEG
+    - id: motion
+      module: timeflux.nodes.lsl
+      class: Receive
+      params:
+        prop: name
+        value: EmotivDataStream-Motion
+    - id: metrics
+      module: timeflux.nodes.lsl
+      class: Receive
+      params:
+        prop: name
+        value: EmotivDataStream-Performance-Metrics
+    - id: publish_raw
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_raw
+    - id: publish_filtered
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_filtered
+    - id: publish_motion
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: motion
+    - id: publish_emotiv_metrics
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_emotiv_metrics
+    - id: select
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+        key: [AF3, AF4, T7, T8, Pz]
+    - id: select_motion
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+        key: [Q0, Q1, Q2, Q3, ACCZ, ACCY, ACCX, MAGX, MAGY, MAGZ]
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Reindex
+    - id: bandpass
+      module: timeflux_dsp.nodes.filters
+      class: IIRFilter
+      params:
+        filter_type: bandpass
+        frequencies: [0.1, 40]
+        order: 2
+    - id: filter_bank
+      module: timeflux_dsp.nodes.filters
+      class: FilterBank
+      params:
+        filters:
+          'delta': {frequencies: [1, 4], order: 3}
+          'theta': {frequencies: [5, 7], order: 3}
+          'alpha': {frequencies: [8, 12], order: 3}
+          'beta':  {frequencies: [13, 20], order: 3}
+          'gamma': {frequencies: [25, 40], order: 3}
+        design: butter
+    - id: band_powers
+      module: nodes.eeg_bandpower
+      class: Power
+      params:
+        length: 3
+        step: 1
+    - id: mean_band_powers
+      module: nodes.eeg_bandpower
+      class: MeanBandPower
+      params:
+        length: 3
+        step: 1
+    - id: mean_fullband_powers
+      module: nodes.eeg_bandpower
+      class: MeanFullBandPower
+      params:
+        length: 3
+        step: 1
+    - id: pub_bands
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower
+    - id: publish_mean_band_powers
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower_mean
+    - id: publish_mean_fullband_powers
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower_mean_fullband
+    edges:
+      - source: raw
+        target: select
+      - source: select
+        target: dejitter
+      - source: dejitter
+        target: bandpass
+      - source: bandpass
+        target: filter_bank
+      - source: filter_bank
+        target: band_powers
+      - source: band_powers
+        target: pub_bands
+      - source: bandpass
+        target: publish_filtered
+      - source: dejitter
+        target: publish_raw
+      - source: motion
+        target: select_motion
+      - source: select_motion
+        target: publish_motion
+      - source: metrics
+        target: publish_emotiv_metrics
+      - source: band_powers
+        target: mean_band_powers
+      - source: mean_band_powers
+        target: publish_mean_band_powers
+      - source: band_powers
+        target: mean_fullband_powers
+      - source: mean_fullband_powers
+        target: publish_mean_fullband_powers
+    rate: 10

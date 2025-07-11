@@ -1,0 +1,190 @@
+graphs:
+
+- id: Motor
+  nodes:
+  - id: sub
+    module: timeflux.nodes.zmq
+    class: Sub
+    params:
+      topics: [ eeg_filtered, events ]
+  - id: epoch
+    module: timeflux.nodes.epoch
+    class: Samples
+    params:
+      trigger: trial_begins
+      length: 0.9
+  - id: window
+    module: timeflux.nodes.window
+    class: Slide
+    params:
+      length: 0.9
+      step: 0.1
+  - id: classification
+    module: timeflux.nodes.ml
+    class: Pipeline
+    params:
+      mode: predict_proba
+      meta_label: [ epoch, context, id ]
+      event_start_accumulation: motor-training_begins
+      event_stop_accumulation: motor-training_ends
+      event_start_training: motor-training_ends
+      steps:
+        - module: timeflux.estimators.transformers.shape
+          class: Transpose
+          args:
+            axes: [ 0, 2, 1 ]
+        - module: pyriemann.estimation
+          class: Covariances
+          args:
+            estimator: oas
+        - module: pyriemann.tangentspace
+          class: TangentSpace
+          args:
+            metric: riemann
+        # - module: sklearn.linear_model
+        #   class: LogisticRegression
+        #   args:
+        #     penalty: elasticnet
+        #     l1_ratio: 0.15
+        #     intercept_scaling: 1000.0
+        #     solver: saga
+        - module: sklearn.linear_model
+          class: LogisticRegression
+          args:
+            penalty: l2
+            solver: lbfgs
+  # - id: predict
+  #   module: nodes.asap
+  #   class: Accumulate
+  #   params:
+  #     threshold: 3 # For two classes, equivalent to 75% confidence
+  #     recovery: 15 # For a 100ms window, equivalent to 1.5s recovery between two predictions
+  #     source: motor
+  - id: predict
+    module: nodes.predict
+    class: Accumulate
+    params:
+      threshold: 3    # For two classes, equivalent to 75% confidence
+      recovery: 20    # For a 100ms window, equivalent to 2s recovery between two predictions
+      buffer_size: 10 # Prevent excessive accumulation
+      scorer: sum     # Sum is slower than product, and should avoid bayesian explosion
+      feedback: true  # Provides continuous predictions
+      source: motor
+  - id: pub
+    module: timeflux.nodes.zmq
+    class: Pub
+    params:
+      topic: model
+  # - id: display
+  #   module: timeflux.nodes.debug
+  #   class: Display
+  edges:
+    - source: sub:eeg_filtered
+      target: epoch
+    - source: sub:eeg_filtered
+      target: window
+    - source: sub:events
+      target: epoch:events
+    - source: sub:events
+      target: classification:events
+    - source: epoch:*
+      target: classification:training
+    - source: window:*
+      target: classification
+    - source: classification:events
+      target: predict:model
+    - source: predict
+      target: pub
+    - source: sub:events
+      target: predict:reset
+    # - source: predict
+    #   target: display
+  rate: 10
+
+- id: Blink
+  nodes:
+  - id: sub
+    module: timeflux.nodes.zmq
+    class: Sub
+    params:
+      topics: [ eeg_filtered, events ]
+  - id: extract
+    module: timeflux.nodes.query
+    class: Match
+    params:
+      expression: "^A*F|T"
+  - id: epoch
+    module: timeflux.nodes.epoch
+    class: Samples
+    params:
+      trigger: stim
+      length: 2.5
+  - id: window
+    module: timeflux.nodes.window
+    class: Slide
+    params:
+      length: 2.5
+      step: 1
+  - id: classification
+    module: timeflux.nodes.ml
+    class: Pipeline
+    params:
+      mode: predict_proba
+      meta_label: [ epoch, context, status ]
+      event_start_accumulation: blink-training_begins
+      event_stop_accumulation: blink-training_ends
+      event_start_training: blink-training_ends
+      steps:
+        - module: estimators.mne
+          class: Vectorizer
+        - module: sklearn.preprocessing
+          class: StandardScaler
+          args:
+            with_std: false
+        - module: estimators.eog
+          class: EOGFeature
+        - module: sklearn.svm
+          class: SVC
+          args:
+            kernel: rbf
+            probability: true
+            C: 1.0
+  - id: predict
+    module: nodes.predict
+    class: Accumulate
+    params:
+      buffer_size: 1
+      threshold: 4
+      recovery: 0.8
+      classes: [ 1 ] # ignore recovery for resting state
+      source: blink
+  - id: pub
+    module: timeflux.nodes.zmq
+    class: Pub
+    params:
+      topic: model
+  # - id: display
+  #   module: timeflux.nodes.debug
+  #   class: Display
+  edges:
+    - source: sub:eeg_filtered
+      target: extract
+    - source: extract
+      target: epoch
+    - source: extract
+      target: window
+    - source: sub:events
+      target: epoch:events
+    - source: sub:events
+      target: classification:events
+    - source: epoch:*
+      target: classification:training
+    - source: window:*
+      target: classification
+    - source: classification:events
+      target: predict:model
+    - source: predict
+      target: pub
+    # - source: predict
+    #   target: display
+  rate: 10

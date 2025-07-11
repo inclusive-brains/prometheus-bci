@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Multimodal Metrics - Inclusive Brains</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="assets/css/bs-theme-overrides.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming"></script>
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/js/app.js"></script>
+    <script type="text/javascript" src="assets/js/smoothie.js"></script>
+    <style>
+        #wrapper .sidebar {
+            width: 350px !important;
+        }
+        .sidebar-subitem-active {
+            background-color: #ce1126; /* Choisir une couleur de fond pour l'élément actif */
+            color: #FFF; /* Choisir une couleur de texte pour l'élément actif */
+            border-radius: 5px;
+        }
+
+        .bg-dark-blue {
+            background-color: #181414 !important;
+        }
+
+        .bg-red {
+            background-color: #ce1126 !important;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar bg-dark-blue text-start align-items-start sidebar sidebar-dark accordion p-0 navbar-dark" data-bs-theme="light">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#"><img src="assets/img/ib_logo.png" width="170" height="70" style="width: 182px;height: 72px;margin-right: 0px;margin-top: 0px;padding-top: 0px;padding-bottom: 0px;margin-bottom: -44px;"></a>
+                <ul class="navbar-nav text-light" id="accordionSidebar" style="padding-top: 20px;">
+                    <li class="border-top my-3"></li>
+                    <li class="mb-1">
+                        <a href="/dashboard" class="btn align-items-center btn-toggle rounded fs-5 link-light">
+                            <i class="fas fa-tachometer-alt me-1"></i> Data Monitoring
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#realtime-detections-collapse" aria-expanded="true"><i class="fas fa-wave-square me-1"></i> Agents</button>
+                        <div id="realtime-detections-collapse" class="collapse show">
+                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start sidebar-subitem-active" href="/brain_metrics">Brainwaves</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/heart_metrics">Heart activity</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/facial_expressions">Facial Expressions</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/head_motions">Head Movements</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#mind-control-collapse" aria-expanded="true"><i class="fas fa-gamepad me-1"></i>Mental Commands </button>
+                        <div id="mind-control-collapse" class="collapse show">
+                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/mind_control_training">Mind Control calibration</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/obi1">Mind Keyboard</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/prometheus">Prometheus BCI - v1</a></li>
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/prometheus_2">Prometheus BCI - v2 </a></li>                            
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#experiments-collapse" aria-expanded="true"><i class="fas fa-flask me-1"></i> Experiments </button>
+                        <div id="experiments-collapse" class="collapse show">
+                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
+                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/n_back">N-back experiment</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light" style="padding-bottom: 0px;height: 105px;">
+                    <div class="container-fluid">
+                        <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <ul class="navbar-nav flex-nowrap ms-auto">
+                            <li class="nav-item dropdown d-sm-none no-arrow">
+                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><i class="fas fa-search"></i></a>
+                                <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in" aria-labelledby="searchDropdown">
+                                    <form class="me-auto navbar-search w-100">
+                                        <div class="input-group">
+                                            <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
+                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow">
+                                    <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">Prometheus_BCI UI v0.1</span><img class="border rounded-circle img-profile" src="assets/img/prometheus_logo.png"></a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-dark mb-0">Brain Activity</h3><a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Generate Report</a>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-7 col-xl-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary fw-bold m-0">BRAIN DATA - EEG - Filtered</h6>
+                                    <div class="dropdown no-arrow">
+                                        <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
+                                        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="eegChartsContainer">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-7 col-xl-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary fw-bold m-0">EEG Bandpower</h6>
+                                    <div class="dropdown no-arrow">
+                                        <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
+                                        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="eegBandpowerContainer">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-7 col-xl-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary fw-bold m-0">EEG Bandpower - Mean</h6>
+                                    <div class="dropdown no-arrow">
+                                        <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
+                                        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="eegBandpowerMeanFullbandBarChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-7 col-xl-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="text-primary fw-bold m-0">EEG Bandpower - Mean</h6>
+                                    <div class="dropdown no-arrow">
+                                        <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
+                                        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                                            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
+                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="eegBandpowerContainerMean">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Copyright © Inclusive Brains 2024</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/theme.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+graphs:
+
+# Multimodal metric computation graph
+  - id: Multimodal
+    nodes:
+      - id: sub_ppg_metrics
+        module: timeflux.nodes.zmq
+        class: Sub
+        params:
+          topics: [ppg_attention_metric,ppg_arousal_metric]
+      - id: sub_eeg_metrics
+        module: timeflux.nodes.zmq
+        class: Sub
+        params:
+          topics: [eeg_attention_metric,eeg_arousal_metric]
+      - id: sub_facial_metrics
+        module: timeflux.nodes.zmq
+        class: Sub
+        params:
+          topics: [facial_metrics]
+      - id: attention_metric_multimodal
+        module: nodes.Metric_Multimodal
+        class: MultimodalMetric
+        params:
+          metrics_weights: {'PPG_Attention_Metric': 0.1, 'eeg_attention': 0.4, 'attention': 0.5}
+          multimodal_metric: 'multimodal_attention'
+      - id: arousal_metric_multimodal
+        module: nodes.Metric_Multimodal
+        class: MultimodalMetric
+        params:
+          metrics_weights: {'PPG_Arousal_Metric': 0.2, 'eeg_arousal': 0.3, 'vigilance': 0.5}
+          multimodal_metric: 'multimodal_arousal'
+      - id: pub_multimodal_attention
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+          topic: multimodal_attention
+      - id: pub_multimodal_arousal
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+          topic: multimodal_arousal
+    edges:
+      - source: sub_ppg_metrics:ppg_attention_metric
+        target: attention_metric_multimodal:i_ppg
+      - source: sub_facial_metrics:facial_metrics
+        target: attention_metric_multimodal:i_facial
+      - source: sub_eeg_metrics:eeg_attention_metric
+        target: attention_metric_multimodal:i_eeg
+      - source: attention_metric_multimodal
+        target: pub_multimodal_attention
+      - source: sub_ppg_metrics:ppg_arousal_metric
+        target: arousal_metric_multimodal:i_ppg
+      - source: sub_facial_metrics:facial_metrics
+        target: arousal_metric_multimodal:i_facial
+      - source: sub_eeg_metrics:eeg_arousal_metric
+        target: arousal_metric_multimodal:i_eeg
+      - source: arousal_metric_multimodal
+        target: pub_multimodal_arousal

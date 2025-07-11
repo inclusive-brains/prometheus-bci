@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/js/train.js"></script>
+    <script defer src="assets/js/grid.js"></script>
+    <script defer src="assets/js/main.js"></script>
+    <link rel="stylesheet" href="assets/css/fonts.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/train.css">
+    <link rel="stylesheet" href="assets/css/grid.css">
+    <title>BCI</title>
+  </head>
+  <body class="no_cursor">
+
+    <!-- Intro -->
+    <img src="assets/media/logo.jpg" id="logo" width="30%" class="center">
+
+    <!-- Calibration -->
+    <div id="message" class="center"></div>
+    <div id="ready" class="bottom">Press any key to continue.</div>
+    <div id="marker" class="marker center hidden no_cursor"></div>
+    <div id="media"></div>
+    <div id="dot" class="dot center hidden"></div>
+
+    <!-- Grid -->
+    <img src="assets/media/loading.png" id="loading" class="center hidden">
+    <div id="wrapper" class="hidden">
+      <div id="main">
+        <div id="grid"></div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div id="metrics" class="hidden">
+      <div id="cognitive_load"></div>
+    </div>
+
+    <!-- Settings -->
+    <div id="overlay" class="hidden">
+      <div id="settings">
+        <div>
+          <label for="threshold-slider">Threshold</label>
+          <input type="range" min="1.1" max="8" step="0.1" value="2" class="slider" id="threshold-slider">
+          <span class="value" id="threshold-value">2</span>
+        </div>
+        <div>
+          <label for="buffer_size-slider">Buffer size</label>
+          <input type="range" min="1" max="500" step="1" value="10" class="slider" id="buffer_size-slider">
+          <span class="value" id="buffer_size-value">10</span>
+        </div>
+        <div>
+          <label for="recovery-slider">Recovery</label>
+          <input type="range" min="0" max="100" step="1" value="10" class="slider" id="recovery-slider">
+          <span class="value" id="recovery-value">10</span>
+        </div>
+<!--         <div>
+          <label for="bias-slider">Bias</label>
+          <input type="range" min="0" max="1" step="0.001" value="0.5" class="slider" id="bias-slider">
+          <span class="value" id="bias-value">0.5</span>
+        </div> -->
+        <div>
+          <label for="scorer">Scorer</label>
+          <select id="scorer"><option value="sum">Sum</option><option value="prod">Product</option></select>
+        </div>
+        <div>
+          <label for="feedback">Feedback</label>
+          <select id="feedback"><option value="1">Yes</option><option value="0">No</option></select>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
