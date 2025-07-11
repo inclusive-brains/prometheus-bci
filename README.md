@@ -1,4 +1,5 @@
 > **ℹ️ A comprehensive GitBook user manual is currently being created. This README will soon be complemented by a full online documentation!**
+> **💡 A scientific article will soon be published detailing our research and EEG classification methods underlying Prometheus BCI.
 
 # 🧠⚡ Prometheus BCI
 
