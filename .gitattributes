@@ -1,2 +1,2 @@
 *.py linguist-language=Python
-ui/* linguist-documentation
+ui/** linguist-documentation
