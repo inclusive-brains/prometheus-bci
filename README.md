@@ -9,7 +9,7 @@ Prometheus BCI is an advanced platform for the collection and analysis of multim
 
 ---
 
-## 🌟 Tribute to Nathalie and Pierre
+## 🌟 A Tribute to Nathalie and Pierre
 
 Prometheus BCI’s first interface was born from a unique challenge: enabling **Nathalie Labrégère** to interact with an exoskeleton arm and carry the Olympic flame on May 9, 2024, in Marseille.
 
