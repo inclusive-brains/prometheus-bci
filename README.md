@@ -1,4 +1,4 @@
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-pending-yellow)
 ![Version](https://img.shields.io/badge/version-0.1-blue)
 ![Licence](https://img.shields.io/badge/licence-CC--BY--NC%204.0-lightgrey)
 
