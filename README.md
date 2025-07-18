@@ -1,3 +1,7 @@
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![Version](https://img.shields.io/badge/version-0.1-blue)
+![Licence](https://img.shields.io/badge/licence-CC--BY--NC%204.0-lightgrey)
+
 > **ℹ️ A comprehensive GitBook user manual is currently being created. This README will soon be complemented by a full online documentation!**
 > **💡 A scientific article will soon be published detailing our research and EEG classification methods underlying Prometheus BCI.**
 
