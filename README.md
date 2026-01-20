@@ -1,5 +1,5 @@
 ![Tests](https://img.shields.io/badge/tests-pending-yellow)
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-inclusive--brains%2Fprometheus--bci-blue?style=for-the-badge)](https://deepwiki.com/inclusive-brains/prometheus-bci)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-inclusive--brains%2Fprometheus--bci-blue)](https://deepwiki.com/inclusive-brains/prometheus-bci)
 
 > **ℹ️ A comprehensive GitBook user manual is currently being created. This README will soon be complemented by a full online documentation!**
 > **💡 A scientific article will soon be published detailing our research and EEG classification methods underlying Prometheus BCI.**
