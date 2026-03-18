@@ -11,7 +11,9 @@ import:
   - graphs/eeg_metrics.yaml
   - graphs/multimodal_metrics.yaml
   - graphs/debug.yaml
+  {% if CAMERA_ENABLE == "true" %}
   - graphs/camera_facial_expressions.yaml
+  {% endif %}
   {% if OSC_ENABLE == "true" %}
   - graphs/osc.yaml
   {% endif %}

@@ -2,7 +2,7 @@ import re
 import pandas as pd
 import numpy as np
 from scipy.signal import welch
-from scipy.integrate import simps
+from scipy.integrate import simpson as simps
 from timeflux.core.node import Node
 from timeflux.core.exceptions import WorkerInterrupt
 from timeflux.helpers.port import make_event

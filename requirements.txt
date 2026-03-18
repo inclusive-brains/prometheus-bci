@@ -6,3 +6,9 @@ timeflux_bitalino>=0.3.0
 pyriemann>=0.3.0
 sounddevice>=0.4.6
 neurokit2>=0.2.7
+opencv-python==4.9.0.80
+opencv-contrib-python==4.9.0.80
+mediapipe>=0.10.0
+filterpy>=1.4.5
+pyautogui>=0.9.54
+deepface>=0.0.93
