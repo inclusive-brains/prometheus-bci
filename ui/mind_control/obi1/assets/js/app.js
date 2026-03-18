@@ -3,11 +3,7 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
-    // Update connection status in sidebar
-    const dot = document.getElementById('statusDot');
-    const text = document.getElementById('statusText');
-    if (dot) dot.classList.add('connected');
-    if (text) text.textContent = 'Connected';
+    updateConnectionStatus('connected');
 });
 
 // Subscribe to audio data stream

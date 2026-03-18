@@ -3,10 +3,7 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
-    var dot = document.getElementById('statusDot');
-    var txt = document.getElementById('statusText');
-    if (dot) { dot.classList.add('connected'); dot.classList.remove('disconnected'); }
-    if (txt) { txt.textContent = 'Connected'; }
+    updateConnectionStatus('connected');
 });
 
 io.subscribe('ppg_filtered');

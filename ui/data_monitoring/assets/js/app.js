@@ -4,19 +4,11 @@ let io = new IO();
 
 // Connection status
 io.on('connect', function () {
-    const dot = document.getElementById('statusDot');
-    const text = document.getElementById('statusText');
-    dot.classList.add('connected');
-    dot.classList.remove('disconnected');
-    text.textContent = 'Connected';
+    updateConnectionStatus('connected');
 });
 
 io.on('disconnect', function () {
-    const dot = document.getElementById('statusDot');
-    const text = document.getElementById('statusText');
-    dot.classList.remove('connected');
-    dot.classList.add('disconnected');
-    text.textContent = 'Disconnected';
+    updateConnectionStatus('disconnected');
 });
 
 io.subscribe('eeg_raw');

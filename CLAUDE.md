@@ -21,7 +21,22 @@ make update     # Upgrade dependencies
 
 **Run without hardware**: Set `EEG_DEVICE=dummy` and `PPG_DEVICE=fake` in `.env` — all UIs and classifiers work with synthetic data.
 
-**Tests**: `pytest` (test infra in `tests/`, config in `tests/conftest.py`)
+**Tests**: `python -m pytest tests/ -v` (test infra in `tests/`, mocks for timeflux/neurokit2 in `tests/conftest.py`)
+
+### Docker
+
+```bash
+make docker-build    # Build the production image (multi-stage, python:3.10-slim)
+make docker-run      # Simulation mode — dummy EEG + fake PPG, no hardware needed
+make docker-run-hw   # Hardware mode — USB/Bluetooth devices (Linux only)
+make docker-stop     # Stop containers
+make docker-test     # Run unit tests inside a container
+make docker-logs     # Follow container logs
+```
+
+**Docker files**: `Dockerfile` (prod, multi-stage), `Dockerfile.test` (test runner), `docker-compose.yml` (3 services: `prometheus`, `prometheus-hw`, `tests`), `.dockerignore`
+
+**Hardware in Docker (Linux only)**: The `prometheus-hw` service uses `privileged: true`, `network_mode: host`, and device mounts (`/dev/video0`, `/var/run/dbus`). USB serial devices (OpenBCI, BITalino) must be uncommented in `docker-compose.yml` under `devices:`. macOS/Windows cannot forward USB/Bluetooth to Docker — use native install instead.
 
 ## Important: UI Structure
 
@@ -86,3 +101,8 @@ Emotiv Insight/Epoch X+, OpenBCI Cyton, Conscious Labs, generic LSL, and dummy (
 - `graphs/classification/motor_and_blink.yaml` — Full ML pipeline definition
 - `scripts/setup_ui.py` — Interactive .env configuration UI
 - `ui/common/assets/js/timeflux.js` — WebSocket client library shared across all UIs
+- `Dockerfile` — Multi-stage production image (builder + runtime)
+- `Dockerfile.test` — Lightweight image for running pytest
+- `docker-compose.yml` — Services: `prometheus` (simulation), `prometheus-hw` (hardware), `tests`
+- `tests/conftest.py` — Mocks for timeflux, neurokit2 and other heavy deps so tests run without them
+- `tests/test_regression.py` — Non-regression: locks default values, known outputs, schema stability

@@ -4,17 +4,13 @@ let io = new IO();
 
 io.on('connect', function () {
     console.log('Connected');
-    document.getElementById('statusDot').classList.add('connected');
-    document.getElementById('statusDot').classList.remove('disconnected');
-    document.getElementById('statusText').textContent = 'Connected';
+    updateConnectionStatus('connected');
     document.getElementById('streamStatus').textContent = 'Streaming';
     document.querySelector('.header-badge').classList.add('recording');
 });
 
 io.on('disconnect', function () {
-    document.getElementById('statusDot').classList.remove('connected');
-    document.getElementById('statusDot').classList.add('disconnected');
-    document.getElementById('statusText').textContent = 'Disconnected';
+    updateConnectionStatus('disconnected');
     document.getElementById('streamStatus').textContent = 'Offline';
     document.querySelector('.header-badge').classList.remove('recording');
 });

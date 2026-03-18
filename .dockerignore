@@ -1,0 +1,15 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.gitignore
+.pytest_cache
+.venv
+*.egg-info
+data/
+logs/
+models/
+*.hdf5
+*.pkl
+.DS_Store
+CLAUDE.md

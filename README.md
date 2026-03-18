@@ -88,6 +88,63 @@ make run      # Opens the configuration UI, then launches the application
 | `make logs`    | Display the latest log file                              |
 | `make help`    | Show all available commands                              |
 
+### Docker
+
+Prometheus BCI can also run in a Docker container — useful for reproducible deployments, CI, or running on a server without installing dependencies locally.
+
+#### Quick Start (simulation mode)
+
+```bash
+make docker-build   # Build the image
+make docker-run     # Launch with dummy EEG + fake PPG (no hardware needed)
+```
+
+The Timeflux UI is then available at http://localhost:8002/.
+
+#### Available Docker Commands
+
+| Command             | Description                                              |
+|---------------------|----------------------------------------------------------|
+| `make docker-build` | Build the Docker image                                   |
+| `make docker-run`   | Launch in simulation mode (dummy EEG, fake PPG)          |
+| `make docker-run-hw`| Launch with hardware access (USB/Bluetooth EEG, camera)  |
+| `make docker-stop`  | Stop the container                                       |
+| `make docker-test`  | Run the unit tests inside a container                    |
+| `make docker-logs`  | Follow the container logs                                |
+
+#### Hardware Mode (Linux only)
+
+To use real EEG headsets, cameras, or BITalino in Docker, you need direct access to host devices. This is **only supported on Linux** — Docker Desktop on macOS and Windows does not support USB/Bluetooth passthrough.
+
+```bash
+make docker-run-hw
+```
+
+This starts the `prometheus-hw` service with:
+- `privileged: true` — full device access
+- `network_mode: host` — direct Bluetooth/network (needed for EMOTIV Cortex API)
+- `/dev/video0` mapped — webcam access
+- `/var/run/dbus` mounted — host Bluetooth stack (EMOTIV, OpenBCI Ganglion)
+
+To add your USB serial device (OpenBCI Cyton, BITalino), edit `docker-compose.yml` and uncomment the relevant line:
+
+```yaml
+devices:
+  - /dev/video0:/dev/video0
+  # - /dev/ttyUSB0:/dev/ttyUSB0    # OpenBCI Cyton
+  # - /dev/ttyACM0:/dev/ttyACM0    # BITalino
+```
+
+> **Tip:** Run `ls /dev/tty*` after plugging in your device to find the correct path.
+
+#### macOS / Windows Users
+
+On macOS and Windows, Docker Desktop runs inside a lightweight VM and **cannot forward USB or Bluetooth devices** to containers. For real hardware on these platforms, use the native installation:
+
+```bash
+make setup && make run
+```
+
 ### Manual Installation
 
 #### 1. Prerequisites
@@ -298,6 +355,10 @@ prometheus-bci/
 ├── .env                    # Environment variables
 ├── Makefile                # Build & run automation
 ├── requirements.txt        # Python dependencies
+├── Dockerfile              # Production container (multi-stage)
+├── Dockerfile.test         # Test runner container
+├── docker-compose.yml      # Simulation, hardware & test services
+├── .dockerignore           # Docker build exclusions
 ├── nodes/                  # Custom Timeflux processing nodes
 │   ├── classification/     # Accumulator, Bayesian classifiers
 │   ├── eeg/                # Band power, metrics, ratios
@@ -310,6 +371,7 @@ prometheus-bci/
 │   ├── classification/     # Motor imagery & blink detection
 │   ├── metrics/            # EEG, PPG, multimodal metrics
 │   └── output/             # Debug & OSC output
+├── tests/                  # Unit & regression tests (pytest)
 ├── ui/                     # Web interfaces
 │   ├── real_time_detections/   # EEG quality, brain/heart metrics, facial expressions, head motions
 │   ├── mind_control/       # Motor imagery training UIs
