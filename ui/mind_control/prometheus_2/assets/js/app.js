@@ -3,9 +3,14 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
+    // Update sidebar connection status
+    var dot = document.getElementById('statusDot');
+    var text = document.getElementById('statusText');
+    if (dot) dot.classList.add('connected');
+    if (text) text.textContent = 'Connected';
 });
 
-// Souscrire au flux de données facial_metrics
+// Subscribe to data streams
 io.subscribe('facial_metrics');
 io.subscribe('multimodal_attention');
 
@@ -13,8 +18,24 @@ document.addEventListener('DOMContentLoaded', function () {
     var charts = {};
     var timeSeries = {};
 
+    // Dark theme chart options
+    var darkChartOptions = {
+        millisPerPixel: 10,
+        responsive: true,
+        grid: {
+            fillStyle: 'rgba(15, 15, 18, 0.6)',
+            strokeStyle: 'rgba(255, 255, 255, 0.04)',
+            borderVisible: false,
+            millisPerLine: 7000
+        },
+        labels: {
+            fillStyle: 'rgba(160,160,171,0.7)'
+        },
+        tooltipLine: {
+            strokeStyle: '#7ab3bd'
+        }
+    };
 
-    // Créer un élément conteneur pour les graphiques des métriques faciales si ce n'est pas déjà fait
     var container = document.getElementById('facialMetricsContainer');
     if (!container) {
         container = document.createElement('div');
@@ -26,30 +47,26 @@ document.addEventListener('DOMContentLoaded', function () {
         var data = message;
         for (var timestamp in data) {
             for (var metric in data[timestamp]) {
-                // Vérifier si le graphique pour la métrique existe déjà, sinon le créer.
                 if (!charts[metric]) {
-                    // Créer un nouvel élément canvas pour la métrique
                     var canvas = document.createElement('canvas');
                     canvas.id = 'facialMetricChart' + metric;
-                    canvas.style.width = '50%';
+                    canvas.style.width = '100%';
                     canvas.style.height = '50px';
                     container.appendChild(canvas);
 
-                    // Initialiser le graphique Smoothie pour la métrique
-                    charts[metric] = new SmoothieChart({
-                        millisPerPixel: 10,
-                        responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: metric, fontSize: 21, verticalAlign: 'top' }
-                    });
+                    charts[metric] = new SmoothieChart(Object.assign({}, darkChartOptions, {
+                        title: { fillStyle: '#5ca8b5', text: metric, fontSize: 12, fontFamily: "'JetBrains Mono', monospace", verticalAlign: 'top' }
+                    }));
                     timeSeries[metric] = new TimeSeries();
                     charts[metric].streamTo(document.getElementById('facialMetricChart' + metric), 1000);
-                    charts[metric].addTimeSeries(timeSeries[metric], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+                    charts[metric].addTimeSeries(timeSeries[metric], {
+                        lineWidth: 1.5,
+                        strokeStyle: '#7ab3bd',
+                        fillStyle: 'rgba(92,168,181,0.05)',
+                        interpolation: 'bezier'
+                    });
                 }
 
-                // Ajouter les données à la série temporelle de la métrique
                 if (timeSeries[metric]) {
                     timeSeries[metric].append(parseInt(timestamp), data[timestamp][metric]);
                 }
@@ -60,46 +77,79 @@ document.addEventListener('DOMContentLoaded', function () {
     io.on('multimodal_attention', (data) => {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
-        let attention = data[lastKey].multimodal_attention; // Assurez-vous que cela correspond à la clé réelle
+        let attention = data[lastKey].multimodal_attention;
 
-        // Limiter le pourcentage d'attention à deux décimales
-        let attentionPercentage = (attention * 100).toFixed(2); // Convertir en pourcentage et formater
-        document.querySelector('#attention_title span').textContent = `${attentionPercentage}%`;
-        let attentionProgressBar = document.querySelector('#attention_progress');
-        attentionProgressBar.style.width = `${attentionPercentage}%`;
-        attentionProgressBar.setAttribute('aria-valuenow', attentionPercentage);
-        attentionProgressBar.textContent = `${attentionPercentage}%`; // Mise à jour du texte pour les lecteurs d'écran
+        let attentionPercentage = (attention * 100).toFixed(2);
+
+        // Update attention bar
+        var titleEl = document.getElementById('attention_title');
+        if (titleEl) titleEl.textContent = 'Attention';
+
+        var valueEl = document.getElementById('attention_value');
+        if (valueEl) valueEl.textContent = attentionPercentage + '%';
+
+        var progressEl = document.getElementById('attention_progress');
+        if (progressEl) progressEl.style.width = attentionPercentage + '%';
     });
 
     var metricsChart = new SmoothieChart({
         millisPerPixel: 50,
         responsive: true,
         timestampFormatter: SmoothieChart.timeFormatter,
-        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-        maxValue: 1, // Les métriques sont normalement de 0 à 1
+        grid: {
+            fillStyle: 'rgba(15, 15, 18, 0.6)',
+            strokeStyle: 'rgba(255, 255, 255, 0.04)',
+            borderVisible: false,
+            millisPerLine: 7000
+        },
+        labels: {
+            fillStyle: 'rgba(160,160,171,0.7)'
+        },
+        maxValue: 1,
         minValue: 0
     });
 
     var attentionSeries = new TimeSeries();
-    metricsChart.addTimeSeries(attentionSeries, { lineWidth: 2, strokeStyle: '#012030', interpolation: 'bezier' });
+    metricsChart.addTimeSeries(attentionSeries, {
+        lineWidth: 2,
+        strokeStyle: '#7ab3bd',
+        fillStyle: 'rgba(92,168,181,0.08)',
+        interpolation: 'bezier'
+    });
 
-        // Diffuser le graphique dans l'élément HTML correspondant
-    metricsChart.streamTo(document.getElementById("metricsChart"), 1000);
+    var metricsChartEl = document.getElementById("metricsChart");
+    if (metricsChartEl) {
+        metricsChart.streamTo(metricsChartEl, 1000);
+    }
 
-    // Fonctions pour traiter et afficher les données de chaque métrique dans le graphique
     function processMetric(data, series, metricName) {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let metricValue = data[lastKey][metricName];
-        if (metricValue !== undefined) { // Vérifiez si la valeur de la métrique est définie
+        if (metricValue !== undefined) {
             series.append(new Date().getTime(), metricValue);
         }
     }
 
     io.on('multimodal_attention', (data) => {
         processMetric(data, attentionSeries, 'multimodal_attention');
-    });   
 
-    
+        // Drive the 3D robot arm from BCI attention data
+        var robot = window.robotViewer && window.robotViewer.get();
+        if (robot) {
+            var keys = Object.keys(data);
+            var lastKey = keys[keys.length - 1];
+            var attention = data[lastKey].multimodal_attention;
+            var attThreshold = parseFloat(document.getElementById('attentionThresholdInput')?.value || 0.75);
+            var vigThreshold = parseFloat(document.getElementById('vigilanceThresholdInput')?.value || 0.2);
+
+            if (attention >= attThreshold) {
+                robot.moveUp();
+            } else if (attention <= vigThreshold) {
+                robot.moveDown();
+            } else {
+                robot.stop();
+            }
+        }
+    });
 });

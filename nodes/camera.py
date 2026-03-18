@@ -231,9 +231,6 @@ class UnifiedFacialMetricsAndTracking(Node):
         self.previous_timestamp = None
         self.scale_factor = scale_factor
 
-        self.mp_face_detection = mp.solutions.face_detection
-        self.mp_face_mesh = mp.solutions.face_mesh
-        self.mp_drawing = mp.solutions.drawing_utils
         self.prev_x, self.prev_y = 0, 0
         self.movement_threshold = 2
         self.amplification_factor = 3
@@ -241,8 +238,6 @@ class UnifiedFacialMetricsAndTracking(Node):
         self.tracking_enabled = False
         self.smile_detected = False
         self.kf = self._initialize_kalman_filter()
-        self.face_detection = self.mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5)
-        self.face_mesh = self.mp_face_mesh.FaceMesh(max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
     def _initialize_kalman_filter(self):
         kf = KalmanFilter(dim_x=4, dim_z=2)
@@ -383,41 +378,38 @@ class UnifiedFacialMetricsAndTracking(Node):
         else:
             self._send_default_values()
 
-        results_detection = self.face_detection.process(rgb_frame)
-        results_mesh = self.face_mesh.process(rgb_frame)
-        if results_detection.detections and results_mesh.multi_face_landmarks and self.tracking_enabled:
-            for detection, landmarks in zip(results_detection.detections, results_mesh.multi_face_landmarks):
-                bboxC = detection.location_data.relative_bounding_box
-                h, w, _ = frame.shape
-                x, y, w, h = int(bboxC.xmin * w), int(bboxC.ymin * h), int(bboxC.width * w), int(bboxC.height * h)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                center_x, center_y = x + w // 2, y + h // 2
-                if self.prev_x == 0 and self.prev_y == 0:
-                    self.prev_x, self.prev_y = center_x, center_y
-                z = np.array([center_x, center_y])
-                self.kf.predict()
-                self.kf.update(z)
-                kalman_x, kalman_y = self.kf.x[:2]
-                smoothed_x = self._smooth_movement(kalman_x, self.prev_x, self.smooth_factor)
-                smoothed_y = self._smooth_movement(kalman_y, self.prev_y, self.smooth_factor)
-                threading.Thread(target=self._move_cursor, args=(smoothed_x, smoothed_y)).start()
-                if self._is_smiling(landmarks.landmark):
-                    print("Smile detected")
-                    if not self.smile_detected:
-                        pyautogui.click()
-                        self.smile_detected = True
-                else:
-                    self.smile_detected = False
+        # Cursor tracking using already-detected landmarks from mp.tasks
+        if detection_result and detection_result.face_landmarks and self.tracking_enabled:
+            landmarks = detection_result.face_landmarks[0]
+            h_frame, w_frame, _ = frame.shape
+            # Compute bounding box from landmarks
+            xs = [lm.x for lm in landmarks]
+            ys = [lm.y for lm in landmarks]
+            x_min, x_max = min(xs), max(xs)
+            y_min, y_max = min(ys), max(ys)
+            center_x = int((x_min + x_max) / 2 * w_frame)
+            center_y = int((y_min + y_max) / 2 * h_frame)
+            if self.prev_x == 0 and self.prev_y == 0:
+                self.prev_x, self.prev_y = center_x, center_y
+            z = np.array([center_x, center_y])
+            self.kf.predict()
+            self.kf.update(z)
+            kalman_x, kalman_y = self.kf.x[:2]
+            smoothed_x = self._smooth_movement(kalman_x, self.prev_x, self.smooth_factor)
+            smoothed_y = self._smooth_movement(kalman_y, self.prev_y, self.smooth_factor)
+            threading.Thread(target=self._move_cursor, args=(smoothed_x, smoothed_y)).start()
+            if self._is_smiling(landmarks):
+                if not self.smile_detected:
+                    pyautogui.click()
+                    self.smile_detected = True
+            else:
+                self.smile_detected = False
         cv2.imshow('Face Tracking', frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             raise WorkerInterrupt
         elif key == ord('$'):
             self.tracking_enabled = not self.tracking_enabled
-            if self.tracking_enabled:
-                print("Tracking enabled")
-            else:
-                print("Tracking disabled")
 
     def terminate(self):
         self._cap.release()

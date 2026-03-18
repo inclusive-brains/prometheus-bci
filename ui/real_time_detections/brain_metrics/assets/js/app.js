@@ -3,163 +3,276 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
+    document.getElementById('statusDot').classList.add('connected');
+    document.getElementById('statusDot').classList.remove('disconnected');
+    document.getElementById('statusText').textContent = 'Connected';
+    document.getElementById('streamStatus').textContent = 'Streaming';
+    document.querySelector('.header-badge').classList.add('recording');
 });
 
-// Souscrire aux flux de données brutes EEG, PPG et EEG Bandpower
+io.on('disconnect', function () {
+    document.getElementById('statusDot').classList.remove('connected');
+    document.getElementById('statusDot').classList.add('disconnected');
+    document.getElementById('statusText').textContent = 'Disconnected';
+    document.getElementById('streamStatus').textContent = 'Offline';
+    document.querySelector('.header-badge').classList.remove('recording');
+});
+
+// Subscribe to data streams
 io.subscribe('eeg_filtered');
 io.subscribe('eeg_stress_metric');
 io.subscribe('eeg_cognitiveload_metric');
 io.subscribe('eeg_attention_metric');
 io.subscribe('eeg_arousal_metric');
 io.subscribe('eeg_bandpower');
+io.subscribe('eeg_bandpower_mean');
+io.subscribe('eeg_bandpower_mean_fullband');
 
 document.addEventListener('DOMContentLoaded', function () {
-    var charts = {};
-    var timeSeries = {};
+    // Dark theme config for Smoothie charts
+    var darkGrid = {
+        fillStyle: 'rgba(15, 15, 18, 0.6)',
+        strokeStyle: 'rgba(255, 255, 255, 0.04)',
+        millisPerLine: 7000,
+        borderVisible: false
+    };
+    var darkLabels = { fillStyle: '#a0a0ab', fontSize: 10 };
 
-    // Function to create chart for a metric, blendshape, or bandpower
-    function createChart(container, type, metric) {
-        if (!charts[metric]) {
-            // Créer un nouvel élément canvas pour la métrique
+    // ---- EEG Filtered Signal Charts ----
+    var eegCharts = {};
+    var eegTimeSeries = {};
+
+    function createEegChart(container, metric) {
+        if (!eegCharts[metric]) {
+            // Remove empty state if present
+            var empty = document.getElementById('emptyStateEeg');
+            if (empty) empty.remove();
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'chart-item';
+
+            var label = document.createElement('span');
+            label.className = 'chart-label';
+            label.textContent = metric;
+            wrapper.appendChild(label);
+
             var canvas = document.createElement('canvas');
-            canvas.id = type + 'Chart' + metric;
-            canvas.style.width = '50%';
-            canvas.style.height = '50px';
-            container.appendChild(canvas);
+            canvas.id = 'eegChart_' + metric;
+            wrapper.appendChild(canvas);
+            container.appendChild(wrapper);
 
-            // Initialiser le graphique Smoothie pour la métrique
-            charts[metric] = new SmoothieChart({
+            eegCharts[metric] = new SmoothieChart({
                 millisPerPixel: 10,
                 responsive: true,
-                grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                tooltipLine: { strokeStyle: '#000000' },
-                title: { fillStyle: '#012030', text: metric, fontSize: 21, verticalAlign: 'top' }
+                grid: darkGrid,
+                labels: darkLabels,
+                tooltipLine: { strokeStyle: '#7ab3bd' },
+                title: { text: '', fontSize: 0 }
             });
-            timeSeries[metric] = new TimeSeries();
-            charts[metric].streamTo(document.getElementById(type + 'Chart' + metric), 1000);
-            charts[metric].addTimeSeries(timeSeries[metric], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+            eegTimeSeries[metric] = new TimeSeries();
+            eegCharts[metric].streamTo(canvas, 1000);
+            eegCharts[metric].addTimeSeries(eegTimeSeries[metric], {
+                lineWidth: 1.5,
+                strokeStyle: '#7ab3bd',
+                interpolation: 'bezier'
+            });
         }
     }
 
-    // Function to handle data updates for a given type (metric, blendshape, or bandpower)
-    function handleDataUpdate(containerId, type, message) {
-        var data = message;
-        var container = document.getElementById(containerId);
-        for (var timestamp in data) {
-            for (var metric in data[timestamp]) {
-                // Vérifier si le graphique pour la métrique existe déjà, sinon le créer.
-                createChart(container, type, metric);
+    io.on('eeg_filtered', (message) => {
+        var container = document.getElementById('eegChartsContainer');
+        for (var timestamp in message) {
+            for (var metric in message[timestamp]) {
+                createEegChart(container, metric);
+                if (eegTimeSeries[metric]) {
+                    eegTimeSeries[metric].append(parseInt(timestamp), message[timestamp][metric]);
+                }
+            }
+        }
+    });
 
-                // Ajouter les données à la série temporelle de la métrique
-                if (timeSeries[metric]) {
-                    timeSeries[metric].append(parseInt(timestamp), data[timestamp][metric]);
+    // ---- EEG Bandpower Charts ----
+    var bpCharts = {};
+    var bpTimeSeries = {};
+
+    function createBandpowerChart(container, metric) {
+        if (!bpCharts[metric]) {
+            var empty = document.getElementById('emptyStateBandpower');
+            if (empty) empty.remove();
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'chart-item';
+
+            var label = document.createElement('span');
+            label.className = 'chart-label';
+            label.textContent = metric;
+            wrapper.appendChild(label);
+
+            var canvas = document.createElement('canvas');
+            canvas.id = 'bpChart_' + metric;
+            wrapper.appendChild(canvas);
+            container.appendChild(wrapper);
+
+            bpCharts[metric] = new SmoothieChart({
+                millisPerPixel: 10,
+                responsive: true,
+                grid: darkGrid,
+                labels: darkLabels,
+                tooltipLine: { strokeStyle: '#8b7db5' },
+                title: { text: '', fontSize: 0 }
+            });
+            bpTimeSeries[metric] = new TimeSeries();
+            bpCharts[metric].streamTo(canvas, 1000);
+            bpCharts[metric].addTimeSeries(bpTimeSeries[metric], {
+                lineWidth: 1.5,
+                strokeStyle: '#8b7db5',
+                interpolation: 'bezier'
+            });
+        }
+    }
+
+    io.on('eeg_bandpower', (message) => {
+        var container = document.getElementById('eegBandpowerContainer');
+        for (var timestamp in message) {
+            for (var metric in message[timestamp]) {
+                createBandpowerChart(container, metric);
+                if (bpTimeSeries[metric]) {
+                    bpTimeSeries[metric].append(parseInt(timestamp), message[timestamp][metric]);
+                }
+            }
+        }
+    });
+
+    // ---- EEG Bandpower Mean — Smoothie Charts ----
+    var bpMeanCharts = {};
+    var bpMeanTimeSeries = {};
+
+    function createBandpowerMeanChart(container, chartKey) {
+        if (!bpMeanCharts[chartKey]) {
+            var empty = document.getElementById('emptyStateBandpowerMean');
+            if (empty) empty.remove();
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'chart-item';
+
+            var label = document.createElement('span');
+            label.className = 'chart-label';
+            label.textContent = chartKey;
+            wrapper.appendChild(label);
+
+            var canvas = document.createElement('canvas');
+            canvas.id = 'bpMeanChart_' + chartKey;
+            wrapper.appendChild(canvas);
+            container.appendChild(wrapper);
+
+            bpMeanCharts[chartKey] = new SmoothieChart({
+                millisPerPixel: 10,
+                responsive: true,
+                grid: darkGrid,
+                labels: darkLabels,
+                tooltipLine: { strokeStyle: '#c49545' },
+                title: { text: '', fontSize: 0 }
+            });
+            bpMeanTimeSeries[chartKey] = new TimeSeries();
+            bpMeanCharts[chartKey].streamTo(canvas, 1000);
+            bpMeanCharts[chartKey].addTimeSeries(bpMeanTimeSeries[chartKey], {
+                lineWidth: 1.5,
+                strokeStyle: '#c49545',
+                interpolation: 'bezier'
+            });
+        }
+    }
+
+    function processBandpowerMeanData(message, prefix) {
+        var container = document.getElementById('eegBandpowerContainerMean');
+        for (var timestamp in message) {
+            for (var band in message[timestamp]) {
+                var chartKey = prefix + '_' + band;
+                createBandpowerMeanChart(container, chartKey);
+                if (bpMeanTimeSeries[chartKey]) {
+                    bpMeanTimeSeries[chartKey].append(parseInt(timestamp), message[timestamp][band]);
                 }
             }
         }
     }
 
-    io.on('eeg_filtered', (message) => {
-        handleDataUpdate('eegChartsContainer', 'eeg', message);
+    io.on('eeg_bandpower_mean', (message) => {
+        processBandpowerMeanData(message, 'eeg_bandpower_mean');
     });
 
-    io.on('eeg_bandpower', (message) => {
-        handleDataUpdate('eegBandpowerContainer', 'eegBandpower', message);
+    io.on('eeg_bandpower_mean_fullband', (message) => {
+        processBandpowerMeanData(message, 'eeg_bandpower_mean_fullband');
     });
 
+    // ---- Metric Cards — Update values and progress bars ----
     io.on('eeg_stress_metric', (data) => {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let stress = data[lastKey].eeg_stress;
-
-        // Limiter le pourcentage de stress à deux décimales
-        let stressPercentage = (stress * 100).toFixed(2); // Convertir en pourcentage et formater
-        document.querySelector('#stress_title span').textContent = `${stressPercentage}%`;
-        let stressProgressBar = document.querySelector('#stress_progress');
-        stressProgressBar.style.width = `${stressPercentage}%`;
-        stressProgressBar.setAttribute('aria-valuenow', stressPercentage);
-        stressProgressBar.textContent = `${stressPercentage}%`; // Mise à jour du texte pour les lecteurs d'écran
+        let pct = (stress * 100).toFixed(2);
+        document.getElementById('stress_value').innerHTML = pct + '<span class="metric-unit">%</span>';
+        document.getElementById('stress_bar').style.width = pct + '%';
     });
 
     io.on('eeg_cognitiveload_metric', (data) => {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let cognitiveLoad = data[lastKey].eeg_cognitive_load;
-
-        // Limiter le pourcentage de stress à deux décimales
-        let cognitiveLoadPercentage = (cognitiveLoad * 100).toFixed(2); // Convertir en pourcentage et formater
-        document.querySelector('#cognitive_load_title span').textContent = `${cognitiveLoadPercentage}%`;
-        let cognitiveLoadProgressBar = document.querySelector('#cognitive_load_progress');
-        cognitiveLoadProgressBar.style.width = `${cognitiveLoadPercentage}%`;
-        cognitiveLoadProgressBar.setAttribute('aria-valuenow', cognitiveLoadPercentage);
-        cognitiveLoadProgressBar.textContent = `${cognitiveLoadPercentage}%`; // Mise à jour du texte pour les lecteurs d'écran
+        let pct = (cognitiveLoad * 100).toFixed(2);
+        document.getElementById('cognitive_value').innerHTML = pct + '<span class="metric-unit">%</span>';
+        document.getElementById('cognitive_bar').style.width = pct + '%';
     });
 
-    
     io.on('eeg_attention_metric', (data) => {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
-        let attention = data[lastKey].eeg_attention; // Assurez-vous que cela correspond à la clé réelle
-
-        // Limiter le pourcentage d'attention à deux décimales
-        let attentionPercentage = (attention * 100).toFixed(2); // Convertir en pourcentage et formater
-        document.querySelector('#attention_title span').textContent = `${attentionPercentage}%`;
-        let attentionProgressBar = document.querySelector('#attention_progress');
-        attentionProgressBar.style.width = `${attentionPercentage}%`;
-        attentionProgressBar.setAttribute('aria-valuenow', attentionPercentage);
-        attentionProgressBar.textContent = `${attentionPercentage}%`; // Mise à jour du texte pour les lecteurs d'écran
+        let attention = data[lastKey].eeg_attention;
+        let pct = (attention * 100).toFixed(2);
+        document.getElementById('attention_value').innerHTML = pct + '<span class="metric-unit">%</span>';
+        document.getElementById('attention_bar').style.width = pct + '%';
     });
 
     io.on('eeg_arousal_metric', (data) => {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
-        let arousal = data[lastKey].eeg_arousal; // Assurez-vous que cela correspond à la clé réelle
-
-        // Limiter le pourcentage d'arousal à deux décimales
-        let arousalPercentage = (arousal * 100).toFixed(2); // Convertir en pourcentage et formater
-        document.querySelector('#arousal_title span').textContent = `${arousalPercentage}%`;
-        let arousalProgressBar = document.querySelector('#arousal_progress');
-        arousalProgressBar.style.width = `${arousalPercentage}%`;
-        arousalProgressBar.setAttribute('aria-valuenow', arousalPercentage);
-        arousalProgressBar.textContent = `${arousalPercentage}%`; // Mise à jour du texte pour les lecteurs d'écran
+        let arousal = data[lastKey].eeg_arousal;
+        let pct = (arousal * 100).toFixed(2);
+        document.getElementById('arousal_value').innerHTML = pct + '<span class="metric-unit">%</span>';
+        document.getElementById('arousal_bar').style.width = pct + '%';
     });
 
+    // ---- Metrics Time Series — Combined Smoothie Chart ----
     var metricsChart = new SmoothieChart({
         millisPerPixel: 50,
         responsive: true,
         timestampFormatter: SmoothieChart.timeFormatter,
-        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-        maxValue: 1, // Les métriques sont normalement de 0 à 1
+        grid: darkGrid,
+        labels: darkLabels,
+        maxValue: 1,
         minValue: 0
     });
 
-    // Créer des séries temporelles pour chaque métrique
     var stressSeries = new TimeSeries();
     var cognitiveLoadSeries = new TimeSeries();
     var attentionSeries = new TimeSeries();
     var arousalSeries = new TimeSeries();
 
-    // Associer les séries temporelles au graphique avec différentes couleurs
-    metricsChart.addTimeSeries(stressSeries, { lineWidth: 2, strokeStyle: '#ff6347', interpolation: 'bezier' });
-    metricsChart.addTimeSeries(cognitiveLoadSeries, { lineWidth: 2, strokeStyle: '#ffa500', interpolation: 'bezier' });
-    metricsChart.addTimeSeries(attentionSeries, { lineWidth: 2, strokeStyle: '#012030', interpolation: 'bezier' });
-    metricsChart.addTimeSeries(arousalSeries, { lineWidth: 2, strokeStyle: '#4682b4', interpolation: 'bezier' });
+    metricsChart.addTimeSeries(stressSeries, { lineWidth: 2, strokeStyle: '#c46060', interpolation: 'bezier' });
+    metricsChart.addTimeSeries(cognitiveLoadSeries, { lineWidth: 2, strokeStyle: '#8b7db5', interpolation: 'bezier' });
+    metricsChart.addTimeSeries(attentionSeries, { lineWidth: 2, strokeStyle: '#7ab3bd', interpolation: 'bezier' });
+    metricsChart.addTimeSeries(arousalSeries, { lineWidth: 2, strokeStyle: '#c49545', interpolation: 'bezier' });
 
-    // Diffuser le graphique dans l'élément HTML correspondant
-    metricsChart.streamTo(document.getElementById("metricsChart"), 1000);
+    metricsChart.streamTo(document.getElementById('metricsChart'), 1000);
 
-    // Fonctions pour traiter et afficher les données de chaque métrique dans le graphique
     function processMetric(data, series, metricName) {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let metricValue = data[lastKey][metricName];
-        if (metricValue !== undefined) { // Vérifiez si la valeur de la métrique est définie
+        if (metricValue !== undefined) {
             series.append(new Date().getTime(), metricValue);
         }
     }
 
-    // Écouteurs pour chaque métrique
     io.on('eeg_stress_metric', (data) => {
         processMetric(data, stressSeries, 'eeg_stress');
     });
@@ -176,62 +289,7 @@ document.addEventListener('DOMContentLoaded', function () {
         processMetric(data, arousalSeries, 'eeg_arousal');
     });
 
-});
-
-// Souscrire uniquement aux flux de données eeg_bandpower_mean et eeg_bandpower_mean_fullband
-io.subscribe('eeg_bandpower_mean');
-io.subscribe('eeg_bandpower_mean_fullband');
-
-document.addEventListener('DOMContentLoaded', function () {
-    var bandpowerCharts = {};
-    var bandpowerTimeSeries = {};
-
-    // Conteneur pour les graphiques des EEG bandpower
-    var bandpowerContainer = document.getElementById('eegBandpowerContainerMean');
-
-    function processBandpowerData(data, key) {
-        for (var timestamp in data) {
-            for (var band in data[timestamp]) {
-                var value = data[timestamp][band];
-                
-                var chartKey = key + "_" + band;
-                
-                if (!bandpowerCharts[chartKey]) {
-                    var canvas = document.createElement('canvas');
-                    canvas.id = 'eegBandpowerChart' + chartKey;
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100px';
-                    bandpowerContainer.appendChild(canvas);
-
-                    bandpowerCharts[chartKey] = new SmoothieChart({
-                        millisPerPixel: 10,
-                        responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: chartKey, fontSize: 21, verticalAlign: 'top' }
-                    });
-                    bandpowerTimeSeries[chartKey] = new TimeSeries();
-                    bandpowerCharts[chartKey].streamTo(document.getElementById('eegBandpowerChart' + chartKey), 1000);
-                    bandpowerCharts[chartKey].addTimeSeries(bandpowerTimeSeries[chartKey], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
-                }
-                if (bandpowerTimeSeries[chartKey]) {
-                    bandpowerTimeSeries[chartKey].append(parseInt(timestamp), value);
-                }
-            }
-        }
-    }
-
-    io.on('eeg_bandpower_mean', (message) => {
-        processBandpowerData(message, 'eeg_bandpower_mean');
-    });
-
-    io.on('eeg_bandpower_mean_fullband', (message) => {
-        processBandpowerData(message, 'eeg_bandpower_mean_fullband');
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
+    // ---- EEG Bandpower Mean — Bar Chart (Chart.js) ----
     var eegFullbandCtx = document.getElementById('eegBandpowerMeanFullbandBarChart').getContext('2d');
     var eegFullbandBarChart;
 
@@ -239,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function () {
         var labels = [];
         var values = [];
 
-        // Extraire les données
         for (var timestamp in data) {
             for (var band in data[timestamp]) {
                 labels.push(band);
@@ -247,13 +304,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Si le graphique existe déjà, mettez à jour les données
         if (eegFullbandBarChart) {
             eegFullbandBarChart.data.labels = labels;
             eegFullbandBarChart.data.datasets[0].data = values;
             eegFullbandBarChart.update();
         } else {
-            // Sinon, créez un nouveau graphique
             eegFullbandBarChart = new Chart(eegFullbandCtx, {
                 type: 'bar',
                 data: {
@@ -261,15 +316,44 @@ document.addEventListener('DOMContentLoaded', function () {
                     datasets: [{
                         label: 'EEG Bandpower - Mean Fullband',
                         data: values,
-                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(92, 168, 181, 0.3)',
+                        borderColor: '#5ca8b5',
+                        borderWidth: 1,
+                        borderRadius: 4
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#a0a0ab',
+                                font: { family: "'JetBrains Mono', monospace", size: 11 }
+                            }
+                        }
+                    },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(39,39,47,0.5)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#a0a0ab',
+                                font: { family: "'JetBrains Mono', monospace", size: 10 }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(39,39,47,0.5)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#a0a0ab',
+                                font: { family: "'JetBrains Mono', monospace", size: 10 }
+                            }
                         }
                     }
                 }
@@ -277,11 +361,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Écoute des données sur le flux "eeg_bandpower_mean_fullband"
     io.on('eeg_bandpower_mean_fullband', (message) => {
-        console.log('EEG Bandpower Mean Fullband data received:', message);  // Debugging
+        console.log('EEG Bandpower Mean Fullband data received:', message);
         updateEegFullbandBarChart(message);
     });
 });
-
-

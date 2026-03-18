@@ -3,56 +3,83 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
+    var dot = document.getElementById('statusDot');
+    var text = document.getElementById('statusText');
+    if (dot) dot.classList.add('connected');
+    if (text) text.textContent = 'Connected';
 });
 
-// Souscrire aux flux de données brutes EEG et PPG
+// Subscribe to motion data stream
 io.subscribe('motion');
 
 document.addEventListener('DOMContentLoaded', function () {
     var charts = {};
     var timeSeries = {};
+    var emptyState = document.getElementById('emptyState');
 
     io.on('motion', (message) => {
         var data = message;
+
+        // Hide empty state on first data
+        if (emptyState) {
+            emptyState.style.display = 'none';
+            emptyState = null;
+        }
+
         for (var timestamp in data) {
             for (var sensor in data[timestamp]) {
-                // Vérifier si le graphique pour l'électrode existe déjà, sinon le créer.
+                // Create chart for this sensor if it does not exist yet
                 if (!charts[sensor]) {
-                    // Créer un nouvel élément canvas pour l'électrode
+                    var chartItem = document.createElement('div');
+                    chartItem.className = 'chart-item';
+
+                    var label = document.createElement('span');
+                    label.className = 'chart-label';
+                    label.textContent = sensor;
+
                     var canvas = document.createElement('canvas');
                     canvas.id = 'motionChart' + sensor;
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100px';
-                    document.getElementById('motionChartsContainer').appendChild(canvas);
 
-                    // Initialiser le graphique Smoothie pour l'électrode
+                    chartItem.appendChild(label);
+                    chartItem.appendChild(canvas);
+                    document.getElementById('motionChartsContainer').appendChild(chartItem);
+
+                    // Initialise dark-themed Smoothie chart
                     charts[sensor] = new SmoothieChart({
                         millisPerPixel: 10,
                         responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: sensor, fontSize: 21, verticalAlign: 'top' }
+                        grid: {
+                            fillStyle: 'rgba(15, 15, 18, 0.6)',
+                            strokeStyle: 'rgba(255, 255, 255, 0.04)',
+                            borderVisible: false,
+                            millisPerLine: 7000
+                        },
+                        labels: {
+                            fillStyle: '#63636e',
+                            fontSize: 10,
+                            fontFamily: 'JetBrains Mono, monospace'
+                        },
+                        tooltipLine: { strokeStyle: '#7ab3bd' },
+                        title: {
+                            fillStyle: '#5ca8b5',
+                            text: '',
+                            fontSize: 0,
+                            verticalAlign: 'top'
+                        }
                     });
                     timeSeries[sensor] = new TimeSeries();
                     charts[sensor].streamTo(document.getElementById('motionChart' + sensor), 1000);
-                    charts[sensor].addTimeSeries(timeSeries[sensor], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+                    charts[sensor].addTimeSeries(timeSeries[sensor], {
+                        lineWidth: 1.5,
+                        strokeStyle: '#7ab3bd',
+                        interpolation: 'bezier'
+                    });
                 }
 
-                // Ajouter les données à la série temporelle de l'électrode
+                // Append data to the time series
                 if (timeSeries[sensor]) {
                     timeSeries[sensor].append(parseInt(timestamp), data[timestamp][sensor]);
                 }
-            }
-        }
-    });
-
-    // Traiter les données PPG brutes
-    io.on('motion', (message) => {
-        var data = message;
-        for (var timestamp in data) {
-            if (ppgTimeSeries) {
-                ppgTimeSeries.append(parseInt(timestamp), data[timestamp]['0']);
             }
         }
     });

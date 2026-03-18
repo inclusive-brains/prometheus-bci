@@ -3,9 +3,13 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
+    var dot = document.getElementById('statusDot');
+    var text = document.getElementById('statusText');
+    if (dot) dot.classList.add('connected');
+    if (text) text.textContent = 'Connected';
 });
 
-// Souscrire aux flux de données facial_metrics, facial_blendshapes, et facial_emotions
+// Subscribe to facial data streams
 io.subscribe('facial_metrics');
 io.subscribe('facial_blendshapes');
 io.subscribe('facial_emotions');
@@ -18,32 +22,72 @@ document.addEventListener('DOMContentLoaded', function () {
     var emotionsCharts = {};
     var emotionsTimeSeries = {};
 
-    // Conteneurs pour les graphiques des métriques faciales, blendshapes, et émotions
     var metricsContainer = document.getElementById('facialMetricsContainer');
     var blendshapesContainer = document.getElementById('facialBlendshapesContainer');
     var emotionsContainer = document.getElementById('facialEmotionsContainer');
 
+    var metricsEmptyState = document.getElementById('metricsEmptyState');
+    var blendshapesEmptyState = document.getElementById('blendshapesEmptyState');
+    var emotionsEmptyState = document.getElementById('emotionsEmptyState');
+
+    // Dark Smoothie chart options
+    var darkChartOptions = {
+        millisPerPixel: 10,
+        responsive: true,
+        grid: {
+            fillStyle: 'rgba(15, 15, 18, 0.6)',
+            strokeStyle: 'rgba(255, 255, 255, 0.04)',
+            borderVisible: false,
+            millisPerLine: 7000
+        },
+        labels: {
+            fillStyle: '#63636e',
+            fontSize: 10,
+            fontFamily: 'JetBrains Mono, monospace'
+        },
+        tooltipLine: { strokeStyle: '#7ab3bd' },
+        title: {
+            fillStyle: '#5ca8b5',
+            text: '',
+            fontSize: 0,
+            verticalAlign: 'top'
+        }
+    };
+
+    var darkLineStyle = {
+        lineWidth: 1.5,
+        strokeStyle: '#7ab3bd',
+        interpolation: 'bezier'
+    };
+
     function processMetricsData(data) {
+        // Hide empty state on first data
+        if (metricsEmptyState) {
+            metricsEmptyState.style.display = 'none';
+            metricsEmptyState = null;
+        }
+
         for (var timestamp in data) {
             for (var metric in data[timestamp]) {
                 if (!metricsCharts[metric]) {
+                    var chartItem = document.createElement('div');
+                    chartItem.className = 'chart-item';
+
+                    var label = document.createElement('span');
+                    label.className = 'chart-label';
+                    label.textContent = metric;
+
                     var canvas = document.createElement('canvas');
                     canvas.id = 'facialMetricChart' + metric;
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100px';
-                    metricsContainer.appendChild(canvas);
 
-                    metricsCharts[metric] = new SmoothieChart({
-                        millisPerPixel: 10,
-                        responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: metric, fontSize: 21, verticalAlign: 'top' }
-                    });
+                    chartItem.appendChild(label);
+                    chartItem.appendChild(canvas);
+                    metricsContainer.appendChild(chartItem);
+
+                    metricsCharts[metric] = new SmoothieChart(Object.assign({}, darkChartOptions));
                     metricsTimeSeries[metric] = new TimeSeries();
                     metricsCharts[metric].streamTo(document.getElementById('facialMetricChart' + metric), 1000);
-                    metricsCharts[metric].addTimeSeries(metricsTimeSeries[metric], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+                    metricsCharts[metric].addTimeSeries(metricsTimeSeries[metric], Object.assign({}, darkLineStyle));
                 }
                 if (metricsTimeSeries[metric]) {
                     metricsTimeSeries[metric].append(parseInt(timestamp), data[timestamp][metric]);
@@ -53,26 +97,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function processBlendshapesData(data) {
+        if (blendshapesEmptyState) {
+            blendshapesEmptyState.style.display = 'none';
+            blendshapesEmptyState = null;
+        }
+
         for (var timestamp in data) {
             for (var blendshape in data[timestamp]) {
                 if (!blendshapesCharts[blendshape]) {
+                    var chartItem = document.createElement('div');
+                    chartItem.className = 'chart-item';
+                    chartItem.style.display = 'inline-block';
+                    chartItem.style.width = '50%';
+
+                    var label = document.createElement('span');
+                    label.className = 'chart-label';
+                    label.textContent = blendshape;
+
                     var canvas = document.createElement('canvas');
                     canvas.id = 'facialBlendshapeChart' + blendshape;
-                    canvas.style.width = '50%';
                     canvas.style.height = '50px';
-                    blendshapesContainer.appendChild(canvas);
 
-                    blendshapesCharts[blendshape] = new SmoothieChart({
-                        millisPerPixel: 10,
-                        responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: blendshape, fontSize: 21, verticalAlign: 'top' }
-                    });
+                    chartItem.appendChild(label);
+                    chartItem.appendChild(canvas);
+                    blendshapesContainer.appendChild(chartItem);
+
+                    var blendOpts = Object.assign({}, darkChartOptions);
+                    blendOpts.grid = Object.assign({}, darkChartOptions.grid, { millisPerLine: 7000 });
+
+                    blendshapesCharts[blendshape] = new SmoothieChart(blendOpts);
                     blendshapesTimeSeries[blendshape] = new TimeSeries();
                     blendshapesCharts[blendshape].streamTo(document.getElementById('facialBlendshapeChart' + blendshape), 1000);
-                    blendshapesCharts[blendshape].addTimeSeries(blendshapesTimeSeries[blendshape], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+                    blendshapesCharts[blendshape].addTimeSeries(blendshapesTimeSeries[blendshape], Object.assign({}, darkLineStyle, { strokeStyle: '#8b7db5' }));
                 }
                 if (blendshapesTimeSeries[blendshape]) {
                     blendshapesTimeSeries[blendshape].append(parseInt(timestamp), data[timestamp][blendshape]);
@@ -82,26 +138,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function processEmotionsData(data) {
+        if (emotionsEmptyState) {
+            emotionsEmptyState.style.display = 'none';
+            emotionsEmptyState = null;
+        }
+
         for (var timestamp in data) {
             for (var emotion in data[timestamp]) {
                 if (!emotionsCharts[emotion]) {
+                    var chartItem = document.createElement('div');
+                    chartItem.className = 'chart-item';
+
+                    var label = document.createElement('span');
+                    label.className = 'chart-label';
+                    label.textContent = emotion;
+
                     var canvas = document.createElement('canvas');
                     canvas.id = 'facialEmotionChart' + emotion;
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100px';
-                    emotionsContainer.appendChild(canvas);
 
-                    emotionsCharts[emotion] = new SmoothieChart({
-                        millisPerPixel: 10,
-                        responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 1000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: emotion, fontSize: 21, verticalAlign: 'top' }
-                    });
+                    chartItem.appendChild(label);
+                    chartItem.appendChild(canvas);
+                    emotionsContainer.appendChild(chartItem);
+
+                    var emotionOpts = Object.assign({}, darkChartOptions);
+                    emotionOpts.grid = Object.assign({}, darkChartOptions.grid, { millisPerLine: 1000 });
+
+                    emotionsCharts[emotion] = new SmoothieChart(emotionOpts);
                     emotionsTimeSeries[emotion] = new TimeSeries();
                     emotionsCharts[emotion].streamTo(document.getElementById('facialEmotionChart' + emotion), 1000);
-                    emotionsCharts[emotion].addTimeSeries(emotionsTimeSeries[emotion], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+                    emotionsCharts[emotion].addTimeSeries(emotionsTimeSeries[emotion], Object.assign({}, darkLineStyle, { strokeStyle: '#c49545' }));
                 }
                 if (emotionsTimeSeries[emotion]) {
                     emotionsTimeSeries[emotion].append(parseInt(timestamp), data[timestamp][emotion]);
@@ -119,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     io.on('facial_emotions', (message) => {
-        console.log('Emotions data received:', message);  // Debugging
         processEmotionsData(message);
     });
 });

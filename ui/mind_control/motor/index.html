@@ -3,73 +3,155 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calibration — Prometheus BCI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/prometheus.css">
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/train.js"></script>
     <script defer src="assets/js/grid.js"></script>
     <script defer src="assets/js/main.js"></script>
-    <link rel="stylesheet" href="assets/css/fonts.css">
-    <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="assets/css/train.css">
-    <link rel="stylesheet" href="assets/css/grid.css">
-    <title>BCI</title>
   </head>
   <body class="no_cursor">
 
-    <!-- Intro -->
-    <img src="assets/media/logo.jpg" id="logo" width="30%" class="center">
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+          <div class="logo-mark">P</div>
+          <div class="logo-text">
+            <span class="logo-title">Prometheus</span>
+            <span class="logo-subtitle">BCI Platform</span>
+          </div>
+        </div>
 
-    <!-- Calibration -->
-    <div id="message" class="center"></div>
-    <div id="ready" class="bottom">Press any key to continue.</div>
-    <div id="marker" class="marker center hidden no_cursor"></div>
-    <div id="media"></div>
-    <div id="dot" class="dot center hidden"></div>
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <span class="nav-section-label">Monitor</span>
+            <a href="/dashboard" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              Dashboard
+            </a>
+          </div>
 
-    <!-- Grid -->
-    <img src="assets/media/loading.png" id="loading" class="center hidden">
-    <div id="wrapper" class="hidden">
-      <div id="main">
-        <div id="grid"></div>
-      </div>
-    </div>
+          <div class="nav-section">
+            <span class="nav-section-label">Signals</span>
+            <a href="/brain_metrics" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
+              Brainwaves
+            </a>
+            <a href="/heart_metrics" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Heart Activity
+            </a>
+            <a href="/facial_expressions" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              Facial Expressions
+            </a>
+            <a href="/head_motions" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              Head Movements
+            </a>
+          </div>
 
-    <!-- Metrics -->
-    <div id="metrics" class="hidden">
-      <div id="cognitive_load"></div>
-    </div>
+          <div class="nav-section">
+            <span class="nav-section-label">Control</span>
+            <a href="/mind_control_training" class="nav-item active">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+              Calibration
+            </a>
+            <a href="/obi1" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+              Mind Keyboard
+            </a>
+            <a href="/prometheus" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/></svg>
+              Prometheus v1
+            </a>
+            <a href="/prometheus_2" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/></svg>
+              Prometheus v2
+            </a>
+            <a href="/robotic_arm" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/><path d="M18 8v6a2 2 0 0 1-2 2H8"/><path d="M8 16l-4 4"/><path d="M8 16l4 4"/><path d="M4 4h4v4H4z"/></svg>
+                Robotic Arm
+            </a>
+          </div>
 
-    <!-- Settings -->
-    <div id="overlay" class="hidden">
-      <div id="settings">
-        <div>
-          <label for="threshold-slider">Threshold</label>
-          <input type="range" min="1.1" max="8" step="0.1" value="2" class="slider" id="threshold-slider">
-          <span class="value" id="threshold-value">2</span>
+          <div class="nav-section">
+            <span class="nav-section-label">Experiments</span>
+            <a href="/n_back" class="nav-item">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              N-back Task
+            </a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="connection-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span class="status-text" id="statusText">Connecting...</span>
+          </div>
         </div>
-        <div>
-          <label for="buffer_size-slider">Buffer size</label>
-          <input type="range" min="1" max="500" step="1" value="10" class="slider" id="buffer_size-slider">
-          <span class="value" id="buffer_size-value">10</span>
+      </aside>
+
+      <!-- Main training area -->
+      <main class="main-content training-area">
+
+        <!-- Intro -->
+        <img src="assets/media/logo.jpg" id="logo" width="30%" class="center">
+
+        <!-- Calibration -->
+        <div id="message" class="center"></div>
+        <div id="ready" class="bottom">Press any key to continue.</div>
+        <div id="marker" class="marker center hidden no_cursor"></div>
+        <div id="media"></div>
+        <div id="dot" class="dot center hidden"></div>
+
+        <!-- Grid -->
+        <img src="assets/media/loading.png" id="loading" class="center hidden">
+        <div id="wrapper" class="hidden">
+          <div id="main">
+            <div id="grid"></div>
+          </div>
         </div>
-        <div>
-          <label for="recovery-slider">Recovery</label>
-          <input type="range" min="0" max="100" step="1" value="10" class="slider" id="recovery-slider">
-          <span class="value" id="recovery-value">10</span>
+
+        <!-- Metrics -->
+        <div id="metrics" class="hidden">
+          <div id="cognitive_load"></div>
         </div>
-<!--         <div>
-          <label for="bias-slider">Bias</label>
-          <input type="range" min="0" max="1" step="0.001" value="0.5" class="slider" id="bias-slider">
-          <span class="value" id="bias-value">0.5</span>
-        </div> -->
-        <div>
-          <label for="scorer">Scorer</label>
-          <select id="scorer"><option value="sum">Sum</option><option value="prod">Product</option></select>
+
+        <!-- Settings -->
+        <div id="overlay" class="hidden">
+          <div id="settings">
+            <div class="settings-title">Parameters</div>
+            <div class="setting-row">
+              <label for="threshold-slider">Threshold</label>
+              <input type="range" min="1.1" max="8" step="0.1" value="2" class="slider" id="threshold-slider">
+              <span class="value" id="threshold-value">2</span>
+            </div>
+            <div class="setting-row">
+              <label for="buffer_size-slider">Buffer size</label>
+              <input type="range" min="1" max="500" step="1" value="10" class="slider" id="buffer_size-slider">
+              <span class="value" id="buffer_size-value">10</span>
+            </div>
+            <div class="setting-row">
+              <label for="recovery-slider">Recovery</label>
+              <input type="range" min="0" max="100" step="1" value="10" class="slider" id="recovery-slider">
+              <span class="value" id="recovery-value">10</span>
+            </div>
+            <div class="setting-row">
+              <label for="scorer">Scorer</label>
+              <select id="scorer"><option value="sum">Sum</option><option value="prod">Product</option></select>
+            </div>
+            <div class="setting-row">
+              <label for="feedback">Feedback</label>
+              <select id="feedback"><option value="1">Yes</option><option value="0">No</option></select>
+            </div>
+          </div>
         </div>
-        <div>
-          <label for="feedback">Feedback</label>
-          <select id="feedback"><option value="1">Yes</option><option value="0">No</option></select>
-        </div>
-      </div>
+
+      </main>
     </div>
 
   </body>

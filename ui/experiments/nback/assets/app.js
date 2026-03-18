@@ -2,6 +2,14 @@
 
 let io = new IO();
 
+// Update connection status in sidebar
+io.on('connect', () => {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (dot) dot.classList.add('connected');
+    if (text) text.textContent = 'Connected';
+});
+
 load_settings().then(settings => {
     let nback = new NBack(io, settings.nback);
     nback.start();

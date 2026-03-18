@@ -3,28 +3,53 @@
 let io = new IO();
 io.on('connect', function () {
     console.log('Connected');
+    // Update connection status in sidebar
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (dot) dot.classList.add('connected');
+    if (text) text.textContent = 'Connected';
 });
 
-// Souscrire aux flux de données brutes EEG et PPG
+// Subscribe to audio data stream
 io.subscribe('audio');
 
 document.addEventListener('DOMContentLoaded', function () {
     var charts = {};
     var timeSeries = {};
 
-    // Créer un graphique et une série temporelle pour l'audio
+    // Create Smoothie chart for audio — dark theme
     var audioChart = new SmoothieChart({
         millisPerPixel: 10,
         responsive: true,
-        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-        tooltipLine: { strokeStyle: '#000000' },
-        title: { fillStyle: '#8a2be2', text: 'audio_0', fontSize: 21, verticalAlign: 'top' }
+        grid: {
+            fillStyle: 'rgba(15, 15, 18, 0.6)',
+            strokeStyle: 'rgba(34, 211, 238, 0.06)',
+            millisPerLine: 7000,
+            verticalSections: 4,
+            borderVisible: false
+        },
+        labels: {
+            fillStyle: '#63636e',
+            fontSize: 10,
+            fontFamily: 'JetBrains Mono, monospace'
+        },
+        tooltipLine: { strokeStyle: '#7ab3bd' },
+        title: {
+            fillStyle: '#5ca8b5',
+            text: 'audio_0',
+            fontSize: 11,
+            verticalAlign: 'top'
+        },
+        maxValueScale: 1.1,
+        minValueScale: 1.1
     });
     var audioTimeSeries = new TimeSeries();
     audioChart.streamTo(document.getElementById("audioChart"), 1000);
-    audioChart.addTimeSeries(audioTimeSeries, { lineWidth: 2, strokeStyle: '#8a2be2', interpolation: 'bezier' });
-
+    audioChart.addTimeSeries(audioTimeSeries, {
+        lineWidth: 1.5,
+        strokeStyle: '#7ab3bd',
+        interpolation: 'bezier'
+    });
 
     io.on('audio', (message) => {
         var data = message;

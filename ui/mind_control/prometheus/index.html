@@ -1,348 +1,336 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="en">
-
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Multimodal Metrics - Inclusive Brains</title>
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/bs-theme-overrides.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prometheus BCI — v1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/prometheus.css">
+    <!-- Importmap MUST be before any type="module" scripts -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.181.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.181.0/examples/jsm/",
+            "mujoco_wasm": "https://unpkg.com/mujoco-js@0.0.7/dist/mujoco_wasm.js"
+        }
+    }
+    </script>
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/app.js"></script>
-    <script defer src="assets/js/smoothie.js"></script>
+    <script type="text/javascript" src="assets/js/smoothie.js"></script>
     <script src="assets/mediapipe/camera_utils.js"></script>
     <script src="assets/mediapipe/control_utils.js"></script>
     <script src="assets/mediapipe/drawing_utils.js"></script>
     <script src="assets/mediapipe/face_mesh.js"></script>
-    <script src="assets/mediapipe/vision_bundle.js"
-            crossorigin="anonymous"></script>
+    <script src="assets/mediapipe/vision_bundle.js" crossorigin="anonymous"></script>
     <script type="module" src="assets/js/main.js"></script>
     <script type="module" src="assets/js/mediapipe.js"></script>
-    <style>
-        #wrapper .sidebar {
-            width: 350px !important;
-        }
-
-        .sidebar-subitem-active {
-            background-color: #ce1126; /* Choisir une couleur de fond pour l'élément actif */
-            color: #FFF; /* Choisir une couleur de texte pour l'élément actif */
-            border-radius: 5px;
-        }
-
-        .bg-dark-blue {
-            background-color: #181414 !important;
-        }
-
-        .bg-red {
-            background-color: #ce1126 !important;
-        }
-
-        .hidden {
-        display: none;
-        }
-
-    </style>
-
+    <script type="module" src="assets/js/robot-init.js"></script>
 </head>
+<body>
 
-<body id="page-top">
-    <div id="wrapper">
-        <nav class="navbar bg-dark-blue text-start align-items-start sidebar sidebar-dark accordion p-0 navbar-dark" data-bs-theme="light">
-            <div class="container-fluid d-flex flex-column p-0">
-                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#"><img src="assets/img/ib_logo.png" width="170" height="70" style="width: 182px;height: 72px;margin-right: 0px;margin-top: 0px;padding-top: 0px;padding-bottom: 0px;margin-bottom: -44px;"></a>
-                <ul class="navbar-nav text-light" id="accordionSidebar" style="padding-top: 20px;">
-                    <li class="border-top my-3"></li>
-                    <li class="mb-1">
-                        <a href="/dashboard" class="btn align-items-center btn-toggle rounded fs-5 link-light">
-                            <i class="fas fa-tachometer-alt me-1"></i> Data Monitoring
-                        </a>
-                    </li>
-                    <li class="mb-1">
-                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#realtime-detections-collapse" aria-expanded="true"><i class="fas fa-wave-square me-1"></i> Agents</button>
-                        <div id="realtime-detections-collapse" class="collapse show">
-                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/brain_metrics">Brainwaves</a></li>
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/heart_metrics">Heart activity</a></li>
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/facial_expressions">Facial Expressions</a></li>
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/head_motions">Head Movements</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="mb-1">
-                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#mind-control-collapse" aria-expanded="true"><i class="fas fa-gamepad me-1"></i>Mental Commands </button>
-                        <div id="mind-control-collapse" class="collapse show">
-                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/mind_control_training">Mind Control calibration</a></li>
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/obi1">Mind Keyboard</a></li>
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start sidebar-subitem-active" href="/prometheus">Prometheus BCI - v1</a></li>
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/prometheus_2">Prometheus BCI - v2 </a></li>                            
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="mb-1">
-                        <button class="btn align-items-center btn-toggle rounded fs-5 link-light" data-bs-toggle="collapse" data-bs-target="#experiments-collapse" aria-expanded="true"><i class="fas fa-flask me-1"></i> Experiments </button>
-                        <div id="experiments-collapse" class="collapse show">
-                            <ul class="list-unstyled fw-normal btn-toggle-nav pb-1 small">
-                                <li><a style="padding-left: 48px;" class="nav-link fs-6 text-start" href="/n_back">N-back experiment</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">P</div>
+            <div class="logo-text">
+                <span class="logo-title">Prometheus</span>
+                <span class="logo-subtitle">BCI Platform</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-section-label">Monitor</span>
+                <a href="/dashboard" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Dashboard
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Signals</span>
+                <a href="/brain_metrics" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
+                    Brainwaves
+                </a>
+                <a href="/heart_metrics" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Heart Activity
+                </a>
+                <a href="/facial_expressions" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    Facial Expressions
+                </a>
+                <a href="/head_motions" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    Head Movements
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Control</span>
+                <a href="/mind_control_training" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    Calibration
+                </a>
+                <a href="/obi1" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+                    Mind Keyboard
+                </a>
+                <a href="/prometheus" class="nav-item active">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/></svg>
+                    Prometheus v1
+                </a>
+                <a href="/prometheus_2" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/></svg>
+                    Prometheus v2
+                </a>
+                <a href="/robotic_arm" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/><path d="M18 8v6a2 2 0 0 1-2 2H8"/><path d="M8 16l-4 4"/><path d="M8 16l4 4"/><path d="M4 4h4v4H4z"/></svg>
+                    Robotic Arm
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Experiments</span>
+                <a href="/n_back" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    N-back Task
+                </a>
             </div>
         </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light" style="padding-bottom: 0px;height: 105px;">
-                    <div class="container-fluid">
-                        <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
-                        <ul class="navbar-nav flex-nowrap ms-auto">
-                            <li class="nav-item dropdown d-sm-none no-arrow">
-                                <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><i class="fas fa-search"></i></a>
-                                <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in" aria-labelledby="searchDropdown">
-                                    <form class="me-auto navbar-search w-100">
-                                        <div class="input-group">
-                                            <input class="bg-light form-control border-0 small" type="text" placeholder="Search for ...">
-                                            <div class="input-group-append"><button class="btn btn-primary py-0" type="button"><i class="fas fa-search"></i></button></div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </li>
-                            <div class="d-none d-sm-block topbar-divider"></div>
-                            <li class="nav-item dropdown no-arrow">
-                                <div class="nav-item dropdown no-arrow">
-                                    <a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">Prometheus_BCI UI v0.1</span><img class="border rounded-circle img-profile" src="assets/img/prometheus_logo.png"></a>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="container-fluid">
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="alert alert-info" role="alert">
-                                <h4 class="alert-heading">Prometheus BCI - v1</h4>
-                                <hr>
-                                <p>
-                                    This page provides an initial example of the Prometheus BCI platform. 
-                                    This first version of the interface was designed to allow Nathalie Labrégère to interact with the exoskeleton arm and carry the Olympic flame on May 9, 2024, in Marseille. 
-                                    Due to her motor and cerebral disabilities, Nathalie could not use motor imagery-based commands; her sole means of interaction with the outside world is through her facial expressions.
-                                </p>
-                                <p class="mb-0">The following sections will enable you to monitor metric changes over time and adjust control settings by selecting a facial expression to integrate into the multimodal brain metric.</p>
-                                <hr>
-                                <div class="text-center mb-3">
-                                    <!-- Chemin de votre image -->
-                                    <img src="assets/img/prometheus_nathalie.jpg" alt="Nathalie Labrégère portant la torche olympique" class="img-fluid" style="max-width: 50%; height: auto;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>                    
-                    <div class="row">
-                        <div class="col-lg-6 col-xl-12 mb-4">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="text-primary fw-bold m-0">Facemesh</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div id="liveView" class="videoView">
-                                        <button id="webcamButton" class="mdc-button mdc-button--raised">
-                                            <span class="mdc-button__ripple"></span>
-                                            <span class="mdc-button__label">ENABLE WEBCAM</span>
-                                        </button>
-                                        <div style="position: relative;">
-                                            <video id="webcam" style="position: absolute; left: 0; top: 0;" autoplay playsinline></video>
-                                            <canvas class="output_canvas" id="output_canvas" style="position: absolute; left: 0; top: 0;"></canvas>
-                                        </div>
-                                    </div>
-                                    <div class="blend-shapes">
-                                        <ul class="blend-shapes-list" id="video-blend-shapes"></ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-xl-12 mb-4">
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="text-primary fw-bold m-0">Multimodal Detections - Percentage of change over time</h6>
-                                </div>
-                                <div class="card-body">
-                                    <h4 id="attention_title" class="small fw-bold">Attention<span class="float-end">60%</span></h4>
-                                    <div class="progress mb-4">
-                                        <div id="attention_progress" class="progress-bar bg-primary" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"><span class="visually-hidden">60%</span></div>
-                                    </div>
-                                    <div id="messageContainer" style="position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; display: none;">
-                                        <span id="messageText"></span>
-                                    </div>                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-lg-6 col-xl-12 mb-4">
-                          <div class="card shadow mb-4">
-                              <div class="card-header py-3">
-                                  <h6 class="text-primary fw-bold m-0">Exosqueleton Connection </h6>
-                              </div>
-                              <div class="card-body">
-                                  <div class="container-fluid">
-                                      <!-- Boutons Up et Down sur la même ligne -->
-                                      <div class="row justify-content-center">
-                                          <div class="col-6">
-                                              <button class="btn btn-secondary w-100 py-4" id="connectButton">Exosqueleton connection</button>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-lg-6 col-xl-12 mb-4">
-                          <div class="card shadow mb-4">
-                              <div class="card-header py-3">
-                                  <h6 class="text-primary fw-bold m-0">Exosqueleton Arm Control -- Manual</h6>
-                              </div>
-                              <div class="card-body">
-                                  <div class="container-fluid">
-                                      <!-- Boutons Up et Down sur la même ligne -->
-                                      <div class="row justify-content-center">
-                                          <div class="col-auto">
-                                              <button class="btn btn-primary mb-2" id="sendCommandButtonB">Up</button>
-                                              <button class="btn btn-primary mb-2" id="sendCommandButtonA">Down</button>
-                                              <button class="btn btn-danger mb-2" id="sendCommandButtonC">Stop</button>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
 
-                  <div class="row">
-                    <div class="col-lg-6 col-xl-12 mb-4">
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="text-primary fw-bold m-0">Exoskeleton Arm Control Settings</h6>
-                            </div>
-                            <div class="card-body">
-                                <form id="controlSettingsForm" class="row g-3">
-                                    <!-- Ligne pour le contrôle global -->
-                                    <div class="col-12 d-flex align-items-center">
-                                        <div class="col-md-4">
-                                            <label class="form-label mb-0">Control Metric</label>
-                                            <input type="text" class="form-control" id="controlMetric" value="Multimodal Attention" readonly>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="thresholdInput" class="form-label mb-0">Control Threshold</label>
-                                            <input type="number" class="form-control" id="thresholdInput" step="0.01" value="0.8">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label mb-0">Control Value</label>
-                                            <input type="number" class="form-control" id="controlValue" value="0" readonly>
-                                        </div>
-                                    </div>
-                
-                                    <!-- Ligne pour l'action Up: Métrique, Threshold et Valeur en temps réel -->
-                                    <div class="col-12 d-flex align-items-center">
-                                        <div class="col-md-4">
-                                            <label for="upMetricSelect" class="form-label mb-0">Select Up Metric</label>
-                                            <select class="form-control" id="upMetricSelect">
-                                                <!-- Options générées dynamiquement par JavaScript -->
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="upExpressionThreshold" class="form-label mb-0">Up Action Threshold</label>
-                                            <input type="number" class="form-control" id="upExpressionThreshold" step="0.01" value="0.8">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label mb-0">Up Metric Value</label>
-                                            <input type="number" class="form-control" id="upMetricValue" value="0" readonly>
-                                        </div>
-                                    </div>
-                
-                                    <!-- Ligne pour l'action Down: Métrique, Threshold et Valeur en temps réel -->
-                                    <div class="col-12 d-flex align-items-center">
-                                        <div class="col-md-4">
-                                            <label for="downMetricSelect" class="form-label mb-0">Select Down Metric</label>
-                                            <select class="form-control" id="downMetricSelect">
-                                                <!-- Options générées dynamiquement par JavaScript -->
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="downExpressionThreshold" class="form-label mb-0">Down Action Threshold</label>
-                                            <input type="number" class="form-control" id="downExpressionThreshold" step="0.01" value="0.8">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label mb-0">Down Metric Value</label>
-                                            <input type="number" class="form-control" id="downMetricValue" value="0" readonly>
-                                        </div>
-                                    </div>
-                
-                                    <!-- Bouton Appliquer centré -->
-                                    <div class="col-12 d-flex justify-content-center">
-                                        <button type="button" class="btn btn-primary" id="applySettingsButton">Apply changes</button>
-                                    </div>
-                                </form>
-                            </div>
+        <div class="sidebar-footer">
+            <div class="connection-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText">Connecting...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">Prometheus BCI — v1</h1>
+                <p class="page-description">Facial expression-driven exoskeleton control interface</p>
+            </div>
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                <span class="badge-label">Live</span>
+            </div>
+        </header>
+
+        <div class="content-grid">
+
+            <!-- Info Banner -->
+            <div class="info-banner">
+                <h3>About this interface</h3>
+                <p>This first version of the Prometheus BCI platform was designed to allow Nathalie Labregere to interact with the exoskeleton arm and carry the Olympic flame on May 9, 2024, in Marseille. Due to her motor and cerebral disabilities, Nathalie could not use motor imagery-based commands; her sole means of interaction with the outside world is through her facial expressions.</p>
+                <p>The following sections enable you to monitor metric changes over time and adjust control settings by selecting a facial expression to integrate into the multimodal brain metric.</p>
+                <img src="assets/img/prometheus_nathalie.jpg" alt="Nathalie Labregere carrying the Olympic torch">
+            </div>
+
+            <!-- Facemesh -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Facemesh</h2>
+                    <span class="panel-badge">Camera</span>
+                </div>
+                <div class="panel-body">
+                    <div id="liveView" class="videoView">
+                        <button id="webcamButton" class="btn-webcam">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            ENABLE WEBCAM
+                        </button>
+                        <div class="webcam-container">
+                            <video id="webcam" autoplay playsinline></video>
+                            <canvas class="output_canvas" id="output_canvas"></canvas>
                         </div>
+                    </div>
+                    <div class="blend-shapes">
+                        <ul class="blend-shapes-list" id="video-blend-shapes"></ul>
                     </div>
                 </div>
-                                
-                    <div class="row">
-                        <div class="col-lg-6 col-xl-12 mb-4">
-                            <div class="card shadow mb-4">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h6 class="text-primary fw-bold m-0">Facial Expressions</h6>
-                                        <div class="dropdown no-arrow">
-                                            <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
-                                            <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                                                <p class="text-center dropdown-header">dropdown header:</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row" id="facialMetricsContainer">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-7 col-xl-12">
-                            <div class="card shadow mb-4">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h6 class="text-primary fw-bold m-0">Facial Blendshapes</h6>
-                                    <div class="dropdown no-arrow">
-                                        <button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v text-gray-400"></i></button>
-                                        <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                                            <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
-                                            <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row" id="facialBlendshapesContainer">
-                                    </div>
-                                </div>
-                            </div>
-                          </div>
-                        </div>
-                    </div>
-            <footer class="bg-white sticky-footer">
-                <div class="container my-auto">
-                    <div class="text-center my-auto copyright"><span>Copyright © Inclusive Brains 2024</span></div>
+            </section>
+
+            <!-- Attention Progress -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Multimodal Attention</h2>
+                    <span class="panel-badge">Live</span>
                 </div>
-            </footer>
-        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
-    </div>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/chart.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
-    <script src="assets/js/theme.js"></script>
+                <div class="panel-body">
+                    <div class="attention-bar">
+                        <span class="attention-label" id="attention_title">Attention</span>
+                        <div class="attention-track">
+                            <div class="attention-fill" id="attention_progress" style="width: 60%;"></div>
+                        </div>
+                        <span class="attention-value" id="attention_value">60%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Toast message container -->
+            <div class="toast-message" id="messageContainer">
+                <span id="messageText"></span>
+            </div>
+
+            <!-- Exoskeleton Connection -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Exoskeleton Connection</h2>
+                </div>
+                <div class="panel-body">
+                    <button class="btn-exo connect" id="connectButton">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        Connect to Exoskeleton
+                    </button>
+                </div>
+            </section>
+
+            <!-- Manual Arm Control -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Exoskeleton Arm Control — Manual</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="exo-controls">
+                        <button class="btn-exo up" id="sendCommandButtonB">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                            Up
+                        </button>
+                        <button class="btn-exo down" id="sendCommandButtonA">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                            Down
+                        </button>
+                        <button class="btn-exo stop" id="sendCommandButtonC">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                            Stop
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3D Robot Viewer -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Robot Arm — 3D View</h2>
+                    <span class="panel-badge" id="robotStatus">Loading</span>
+                </div>
+                <div class="panel-body" style="padding: 0; position: relative;">
+                    <div id="robot3dContainer" style="width: 100%; height: 70vh; min-height: 500px; background: #09090b; border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden;">
+                        <div id="robotLoadingOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 10; background: rgba(9,9,11,0.85); backdrop-filter: blur(8px);">
+                            <div style="width: 32px; height: 32px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                            <span id="robotLoadingText" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">Initializing physics engine...</span>
+                        </div>
+                    </div>
+                    <div id="robotCommandIndicator" style="position: absolute; bottom: 12px; left: 12px; display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(15,15,18,0.8); border: 1px solid var(--border-default); border-radius: 20px; font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); z-index: 5;">
+                        <span id="robotCommandDot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--text-tertiary);"></span>
+                        <span id="robotCommandText">Idle</span>
+                    </div>
+                </div>
+            </section>
+
+            <style>
+                @keyframes spin { to { transform: rotate(360deg); } }
+            </style>
+
+            <!-- Control Settings -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Exoskeleton Arm Control Settings</h2>
+                </div>
+                <div class="panel-body">
+                    <form id="controlSettingsForm">
+                        <!-- Control metric row -->
+                        <div class="settings-grid" style="margin-bottom: 16px;">
+                            <div class="form-group">
+                                <label>Control Metric</label>
+                                <input type="text" id="controlMetric" value="Multimodal Attention" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Control Threshold</label>
+                                <input type="number" id="thresholdInput" step="0.01" value="0.8">
+                            </div>
+                            <div class="form-group">
+                                <label>Control Value</label>
+                                <input type="number" id="controlValue" value="0" readonly>
+                            </div>
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <!-- Up action row -->
+                        <div class="settings-grid" style="margin: 16px 0;">
+                            <div class="form-group">
+                                <label>Select Up Metric</label>
+                                <select id="upMetricSelect"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Up Action Threshold</label>
+                                <input type="number" id="upExpressionThreshold" step="0.01" value="0.8">
+                            </div>
+                            <div class="form-group">
+                                <label>Up Metric Value</label>
+                                <input type="number" id="upMetricValue" value="0" readonly>
+                            </div>
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <!-- Down action row -->
+                        <div class="settings-grid" style="margin: 16px 0;">
+                            <div class="form-group">
+                                <label>Select Down Metric</label>
+                                <select id="downMetricSelect"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Down Action Threshold</label>
+                                <input type="number" id="downExpressionThreshold" step="0.01" value="0.8">
+                            </div>
+                            <div class="form-group">
+                                <label>Down Metric Value</label>
+                                <input type="number" id="downMetricValue" value="0" readonly>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button type="button" class="btn-apply" id="applySettingsButton">Apply Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Facial Expressions Charts -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Facial Expressions</h2>
+                    <span class="panel-badge">Live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="charts-scroll" id="facialMetricsContainer"></div>
+                </div>
+            </section>
+
+            <!-- Facial Blendshapes Charts -->
+            <section class="panel" style="margin: 0;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Facial Blendshapes</h2>
+                    <span class="panel-badge">Live</span>
+                </div>
+                <div class="panel-body">
+                    <div class="charts-scroll" id="facialBlendshapesContainer"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
 </body>
 </html>
-

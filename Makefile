@@ -6,7 +6,7 @@ PYTHON_VERSION = 3.10
 APP_CONFIG = app.yaml
 PORT = 8002
 
-.PHONY: help install setup run clean update logs
+.PHONY: help install setup run clean update logs config
 
 help: ## Afficher l'aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -22,7 +22,10 @@ install: ## Installer les dépendances Python
 update: ## Mettre à jour les dépendances
 	conda run -n $(ENV_NAME) pip install -U -r requirements.txt
 
-run: ## Lancer l'application Timeflux
+config: ## Ouvrir l'interface de configuration .env
+	@python3 scripts/setup_ui.py
+
+run: config ## Configurer puis lancer l'application Timeflux
 	@mkdir -p logs data
 	conda run -n $(ENV_NAME) timeflux -d $(APP_CONFIG)
 

@@ -1,81 +1,116 @@
 "use strict";
 
 let io = new IO();
+
+// Connection status
 io.on('connect', function () {
-    console.log('Connected');
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    dot.classList.add('connected');
+    dot.classList.remove('disconnected');
+    text.textContent = 'Connected';
 });
 
-// Souscrire uniquement au flux de données brutes EEG
+io.on('disconnect', function () {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    dot.classList.remove('connected');
+    dot.classList.add('disconnected');
+    text.textContent = 'Disconnected';
+});
+
 io.subscribe('eeg_raw');
 
 document.addEventListener('DOMContentLoaded', function () {
-    var charts = {};
-    var timeSeries = {};
+    const charts = {};
+    const timeSeries = {};
+    const container = document.getElementById('eegChartsContainer');
+    const emptyState = document.getElementById('emptyState');
 
-    io.on('eeg_raw', (message) => {
-        var data = message;
-        for (var timestamp in data) {
-            for (var sensor in data[timestamp]) {
-                // Vérifier si le graphique pour l'électrode existe déjà, sinon le créer.
+    io.on('eeg_raw', (data) => {
+        // Hide empty state on first data
+        if (emptyState && emptyState.parentNode) {
+            emptyState.style.display = 'none';
+        }
+
+        for (const timestamp in data) {
+            for (const sensor in data[timestamp]) {
                 if (!charts[sensor]) {
-                    // Créer un nouvel élément canvas pour l'électrode
-                    var canvas = document.createElement('canvas');
-                    canvas.id = 'eegChart' + sensor;
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100px';
-                    document.getElementById('eegChartsContainer').appendChild(canvas);
+                    // Create chart wrapper
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'chart-item';
 
-                    // Initialiser le graphique Smoothie pour l'électrode
+                    const label = document.createElement('span');
+                    label.className = 'chart-label';
+                    label.textContent = sensor;
+                    wrapper.appendChild(label);
+
+                    const canvas = document.createElement('canvas');
+                    canvas.id = 'eegChart_' + sensor;
+                    wrapper.appendChild(canvas);
+
+                    container.appendChild(wrapper);
+
+                    // Dark themed Smoothie chart
                     charts[sensor] = new SmoothieChart({
-                        millisPerPixel: 10,
+                        millisPerPixel: 8,
                         responsive: true,
-                        grid: { fillStyle: '#ffffff', strokeStyle: 'rgba(201,201,201,0.38)', millisPerLine: 7000 },
-                        labels: { fillStyle: 'rgba(0,0,0,0.68)' },
-                        tooltipLine: { strokeStyle: '#000000' },
-                        title: { fillStyle: '#012030', text: sensor, fontSize: 21, verticalAlign: 'top' }
+                        interpolation: 'bezier',
+                        grid: {
+                            fillStyle: 'rgba(15, 15, 18, 0.6)',
+                            strokeStyle: 'rgba(255, 255, 255, 0.03)',
+                            borderVisible: false,
+                            millisPerLine: 5000,
+                            verticalSections: 3,
+                        },
+                        labels: {
+                            disabled: true,
+                        },
+                        tooltip: false,
+                        minValueScale: 1.05,
+                        maxValueScale: 1.05,
                     });
+
                     timeSeries[sensor] = new TimeSeries();
-                    charts[sensor].streamTo(document.getElementById('eegChart' + sensor), 1000);
-                    charts[sensor].addTimeSeries(timeSeries[sensor], { lineWidth: 1, strokeStyle: '#012030', interpolation: 'bezier' });
+                    charts[sensor].streamTo(canvas, 1000);
+                    charts[sensor].addTimeSeries(timeSeries[sensor], {
+                        lineWidth: 1,
+                        strokeStyle: '#7ab3bd',
+                        interpolation: 'bezier',
+                    });
                 }
 
-                // Ajouter les données à la série temporelle de l'électrode
                 if (timeSeries[sensor]) {
                     timeSeries[sensor].append(parseInt(timestamp), data[timestamp][sensor]);
                 }
             }
         }
     });
+
+    // Controls
+    const startBtn = document.getElementById('startButton');
+    const stopBtn = document.getElementById('stopButton');
+    const markBtn = document.getElementById('markButton');
+    const badge = document.querySelector('.header-badge');
+    const statusLabel = document.getElementById('recordingStatus');
+
+    startBtn.addEventListener('click', function () {
+        io.event('start');
+        startBtn.classList.add('active');
+        badge.classList.add('recording');
+        statusLabel.textContent = 'Recording';
+    });
+
+    stopBtn.addEventListener('click', function () {
+        io.event('stop');
+        startBtn.classList.remove('active');
+        badge.classList.remove('recording');
+        statusLabel.textContent = 'Idle';
+    });
+
+    markBtn.addEventListener('click', function () {
+        io.event('marker');
+        markBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => { markBtn.style.transform = ''; }, 150);
+    });
 });
-
-// Ajouter les gestionnaires d'événements pour les boutons
-document.addEventListener('DOMContentLoaded', function () {
-    const startButton = document.getElementById('startButton');
-    const stopButton = document.getElementById('stopButton');
-    const markButton = document.getElementById('markButton');
-
-    startButton.addEventListener('click', function () {
-        sendStartEvent();
-    });
-
-    stopButton.addEventListener('click', function () {
-        sendStopEvent();
-    });
-
-    markButton.addEventListener('click', function () {
-        sendMarkerEvent();
-    });
-});
-
-// Définition des fonctions d'événements
-function sendStartEvent() {
-    io.event('start');
-}
-
-function sendStopEvent() {
-    io.event('stop');
-}
-
-function sendMarkerEvent() {
-    io.event('marker');
-}
