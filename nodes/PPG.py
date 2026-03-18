@@ -339,7 +339,7 @@ class HRVTimeDomainCalculator(Node):
         if self.i.ready():
             for time, row in self.i.data.iterrows():
                 if self.last_peak_time is not None:
-                    rr_interval = (time - self.last_peak_time).total_seconds() * 100  # Convert to milliseconds
+                    rr_interval = (time - self.last_peak_time).total_seconds() * 1000  # Convert to milliseconds
                     self.rr_intervals.append(rr_interval)
                 self.last_peak_time = time
 

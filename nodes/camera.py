@@ -158,7 +158,7 @@ class EmotionNode(Node):
         self.cap = cv2.VideoCapture(0)
         if not self.cap.isOpened():
             self.logger.error("Error: Unable to open camera.")
-            raise Exception("Error: Unable to open camera.")
+            raise ValueError("Unable to open camera.")
         
         # Variables
         self.previous_time = pd.Timestamp.utcnow()
@@ -357,21 +357,23 @@ class UnifiedFacialMetricsAndTracking(Node):
                     vigilance = self._calculate_vigilance(EAR)
                     stress = self._calculate_stress(head_speed, avg_eye_speed)
 
-                data = {
-                    'head_speed': head_speed,
-                    'left_eye_speed': left_eye_speed,
-                    'right_eye_speed': right_eye_speed,
-                    'avg_eye_speed': avg_eye_speed,
-                    'left_EAR': left_EAR,
-                    'right_EAR': right_EAR,
-                    'EAR': EAR,
-                    'attention': attention,
-                    'vigilance': vigilance,
-                    'stress': stress
-                }
-                
-                df = pd.DataFrame([data]).astype(np.float64)
-                self.o.set(df.values, timestamps=[current_timestamp], names=df.columns.tolist())
+                    data = {
+                        'head_speed': head_speed,
+                        'left_eye_speed': left_eye_speed,
+                        'right_eye_speed': right_eye_speed,
+                        'avg_eye_speed': avg_eye_speed,
+                        'left_EAR': left_EAR,
+                        'right_EAR': right_EAR,
+                        'EAR': EAR,
+                        'attention': attention,
+                        'vigilance': vigilance,
+                        'stress': stress
+                    }
+
+                    df = pd.DataFrame([data]).astype(np.float64)
+                    self.o.set(df.values, timestamps=[current_timestamp], names=df.columns.tolist())
+                else:
+                    self._send_default_values()
 
             self.previous_landmarks = face_landmarks
             self.previous_timestamp = current_timestamp
