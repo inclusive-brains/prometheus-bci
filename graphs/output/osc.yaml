@@ -8,7 +8,7 @@ graphs:
       params:
         topics: [ model, metrics ]
     - id: format
-      module: nodes.osc
+      module: nodes.output.osc
       class: Format
     - id: commands
       module: timeflux.nodes.osc

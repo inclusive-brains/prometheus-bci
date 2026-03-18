@@ -1,7 +1,7 @@
 graphs:
   - nodes:
       - id: camera
-        module: nodes.camera
+        module: nodes.vision.camera
         class: UnifiedFacialMetricsAndTracking
       - id: publish_facial_expressions
         module: timeflux.nodes.zmq
@@ -9,7 +9,7 @@ graphs:
         params:
           topic: facial_metrics
       - id: blendshapes
-        module: nodes.camera
+        module: nodes.vision.camera
         class: FaceBlendshapes
       - id: publish_blendshapes
         module: timeflux.nodes.zmq
@@ -17,7 +17,7 @@ graphs:
         params:
           topic: facial_blendshapes
       - id: emotions
-        module: nodes.camera
+        module: nodes.vision.camera
         class: EmotionNode
       - id: publish_emotions
         module: timeflux.nodes.zmq

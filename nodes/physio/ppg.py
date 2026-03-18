@@ -91,7 +91,7 @@ class RespiratorySignalExtractor(Node):
                 # Output the respiratory signal
                 self.o.data = pd.DataFrame({'rsp_signal': rsp_signal}, index=self.i.data.index)
             else:
-                print("Not enough peaks detected to extract respiratory signal")
+                self.logger.warning("Not enough peaks detected to extract respiratory signal")
                 self.o.data = None
         else:
             self.o.data = None
@@ -134,7 +134,7 @@ class RespiratoryMetricsCalculator(Node):
                     'respiratory_variance': [variance]
                 }, index=[self.i.data.index[-1]])
             else:
-                print("Unable to calculate respiratory metrics")
+                self.logger.warning("Unable to calculate respiratory metrics")
                 self.o.data = None
         else:
             self.o.data = None
@@ -160,7 +160,7 @@ class RespiratoryRateCalculator(Node):
             if respiratory_rate is not None:
                 self.o.data = pd.DataFrame({'respiratory_rate': [respiratory_rate]}, index=[self.i.data.index[-1]])
             else:
-                print("Unable to calculate respiratory rate")
+                self.logger.warning("Unable to calculate respiratory rate")
                 self.o.data = None
         else:
             self.o.data = None
@@ -195,7 +195,7 @@ class StressCalculator(Node):
     def update(self):
         if self.i.ready():
             if 'respiratory_rate' not in self.i.data.columns:
-                print("Error: 'respiratory_rate' column not found in input data")
+                self.logger.error("'respiratory_rate' column not found in input data")
                 self.o.data = None
                 return
             
@@ -236,7 +236,7 @@ class CognitiveLoadCalculator(Node):
     def update(self):
         if self.i.ready():
             if 'respiratory_rate' not in self.i.data.columns:
-                print("Error: 'respiratory_rate' column not found in input data")
+                self.logger.error("'respiratory_rate' column not found in input data")
                 self.o.data = None
                 return
             
@@ -277,7 +277,7 @@ class AwakenessCalculator(Node):
     def update(self):
         if self.i.ready():
             if 'respiratory_rate' not in self.i.data.columns:
-                print("Error: 'respiratory_rate' column not found in input data")
+                self.logger.error("'respiratory_rate' column not found in input data")
                 self.o.data = None
                 return
             
@@ -318,7 +318,7 @@ class AttentionCalculator(Node):
     def update(self):
         if self.i.ready():
             if 'respiratory_rate' not in self.i.data.columns:
-                print("Error: 'respiratory_rate' column not found in input data")
+                self.logger.error("'respiratory_rate' column not found in input data")
                 self.o.data = None
                 return
             

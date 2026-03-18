@@ -14,10 +14,10 @@ graphs:
           value_max: 120
           seed: 1
       - id: eda_simulation_node
-        module: nodes.PPG 
+        module: nodes.physio.ppg 
         class: EDASimulator
       - id: ecg_simulation_node
-        module: nodes.PPG 
+        module: nodes.physio.ppg 
         class: ECGSimulator
       - id: bandpass_filter
         module: timeflux_dsp.nodes.filters

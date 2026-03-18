@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EEG Quality — Prometheus BCI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/prometheus.css">
+    <script type="text/javascript" src="assets/js/smoothie.js"></script>
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">P</div>
+            <div class="logo-text">
+                <span class="logo-title">Prometheus</span>
+                <span class="logo-subtitle">BCI Platform</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-section-label">Monitor</span>
+                <a href="/dashboard" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Dashboard
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Signals</span>
+                <a href="/brain_metrics" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
+                    Brainwaves
+                </a>
+                <a href="/eeg_quality" class="nav-item active">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                    EEG Quality
+                </a>
+                <a href="/heart_metrics" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Heart Activity
+                </a>
+                <a href="/facial_expressions" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    Facial Expressions
+                </a>
+                <a href="/head_motions" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    Head Movements
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Control</span>
+                <a href="/mind_control_training" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    Calibration
+                </a>
+                <a href="/obi1" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>
+                    Mind Keyboard
+                </a>
+                <a href="/prometheus" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/></svg>
+                    Prometheus v1
+                </a>
+                <a href="/prometheus_2" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/></svg>
+                    Prometheus v2
+                </a>
+                <a href="/robotic_arm" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/><path d="M18 8v6a2 2 0 0 1-2 2H8"/><path d="M8 16l-4 4"/><path d="M8 16l4 4"/><path d="M4 4h4v4H4z"/></svg>
+                    Robotic Arm
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-label">Experiments</span>
+                <a href="/n_back" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    N-back Task
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="connection-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText">Connecting...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">EEG Quality</h1>
+                <p class="page-description">Signal integrity and electrode contact monitoring</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="overall-quality" id="overallQuality">
+                    <span class="quality-label">Signal Quality</span>
+                    <span class="quality-value" id="overallQualityValue">—%</span>
+                </div>
+                <div class="header-badge">
+                    <span class="badge-dot"></span>
+                    <span class="badge-label" id="streamStatus">Idle</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Head Map + Electrode Cards -->
+        <div style="padding: 20px 32px 0;">
+            <div class="quality-layout">
+                <!-- Head Topographic Map -->
+                <div class="head-map-container">
+                    <div class="head-map-panel">
+                        <svg id="headMap" viewBox="0 0 300 320" class="head-map-svg">
+                            <!-- Head outline -->
+                            <ellipse cx="150" cy="155" rx="115" ry="130" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                            <!-- Nose indicator -->
+                            <path d="M150 20 L143 35 L157 35 Z" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+                            <!-- Ears -->
+                            <path d="M35 145 Q25 130 30 115 Q35 100 40 115 Q35 130 35 145" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <path d="M265 145 Q275 130 270 115 Q265 100 260 115 Q265 130 265 145" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+                            <!-- Electrode positions (10-20 system for Emotiv Insight: AF3, AF4, T7, T8, Pz) -->
+                            <!-- AF3 — Left frontal -->
+                            <g class="electrode-node" id="electrode_AF3" data-electrode="AF3">
+                                <circle class="electrode-glow" cx="110" cy="75" r="22" fill="none"/>
+                                <circle class="electrode-ring" cx="110" cy="75" r="14" fill="none" stroke-width="1.5"/>
+                                <circle class="electrode-dot" cx="110" cy="75" r="7"/>
+                                <text class="electrode-label" x="110" y="105" text-anchor="middle">AF3</text>
+                            </g>
+
+                            <!-- AF4 — Right frontal -->
+                            <g class="electrode-node" id="electrode_AF4" data-electrode="AF4">
+                                <circle class="electrode-glow" cx="190" cy="75" r="22" fill="none"/>
+                                <circle class="electrode-ring" cx="190" cy="75" r="14" fill="none" stroke-width="1.5"/>
+                                <circle class="electrode-dot" cx="190" cy="75" r="7"/>
+                                <text class="electrode-label" x="190" y="105" text-anchor="middle">AF4</text>
+                            </g>
+
+                            <!-- T7 — Left temporal -->
+                            <g class="electrode-node" id="electrode_T7" data-electrode="T7">
+                                <circle class="electrode-glow" cx="60" cy="155" r="22" fill="none"/>
+                                <circle class="electrode-ring" cx="60" cy="155" r="14" fill="none" stroke-width="1.5"/>
+                                <circle class="electrode-dot" cx="60" cy="155" r="7"/>
+                                <text class="electrode-label" x="60" y="185" text-anchor="middle">T7</text>
+                            </g>
+
+                            <!-- T8 — Right temporal -->
+                            <g class="electrode-node" id="electrode_T8" data-electrode="T8">
+                                <circle class="electrode-glow" cx="240" cy="155" r="22" fill="none"/>
+                                <circle class="electrode-ring" cx="240" cy="155" r="14" fill="none" stroke-width="1.5"/>
+                                <circle class="electrode-dot" cx="240" cy="155" r="7"/>
+                                <text class="electrode-label" x="240" y="185" text-anchor="middle">T8</text>
+                            </g>
+
+                            <!-- Pz — Parietal midline -->
+                            <g class="electrode-node" id="electrode_Pz" data-electrode="Pz">
+                                <circle class="electrode-glow" cx="150" cy="215" r="22" fill="none"/>
+                                <circle class="electrode-ring" cx="150" cy="215" r="14" fill="none" stroke-width="1.5"/>
+                                <circle class="electrode-dot" cx="150" cy="215" r="7"/>
+                                <text class="electrode-label" x="150" y="245" text-anchor="middle">Pz</text>
+                            </g>
+
+                            <!-- Connection lines between electrodes -->
+                            <line x1="110" y1="75" x2="190" y2="75" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="110" y1="75" x2="60" y2="155" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="190" y1="75" x2="240" y2="155" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="60" y1="155" x2="150" y2="215" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="240" y1="155" x2="150" y2="215" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4,4"/>
+                        </svg>
+                        <div class="head-map-legend">
+                            <div class="legend-item"><span class="legend-dot good"></span> Good</div>
+                            <div class="legend-item"><span class="legend-dot fair"></span> Fair</div>
+                            <div class="legend-item"><span class="legend-dot poor"></span> Poor</div>
+                            <div class="legend-item"><span class="legend-dot off"></span> No contact</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Electrode Quality Cards -->
+                <div class="electrode-cards">
+                    <div class="electrode-card" id="card_AF3">
+                        <div class="electrode-card-header">
+                            <span class="electrode-card-name">AF3</span>
+                            <span class="electrode-card-status" id="status_AF3">—</span>
+                        </div>
+                        <div class="electrode-card-location">Left Frontal</div>
+                        <div class="electrode-card-value" id="quality_AF3">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill electrode-bar" id="bar_AF3" style="width: 0%;"></div>
+                        </div>
+                        <div class="electrode-card-snr">
+                            <span class="snr-label">SNR</span>
+                            <span class="snr-value" id="snr_AF3">— dB</span>
+                        </div>
+                    </div>
+
+                    <div class="electrode-card" id="card_AF4">
+                        <div class="electrode-card-header">
+                            <span class="electrode-card-name">AF4</span>
+                            <span class="electrode-card-status" id="status_AF4">—</span>
+                        </div>
+                        <div class="electrode-card-location">Right Frontal</div>
+                        <div class="electrode-card-value" id="quality_AF4">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill electrode-bar" id="bar_AF4" style="width: 0%;"></div>
+                        </div>
+                        <div class="electrode-card-snr">
+                            <span class="snr-label">SNR</span>
+                            <span class="snr-value" id="snr_AF4">— dB</span>
+                        </div>
+                    </div>
+
+                    <div class="electrode-card" id="card_T7">
+                        <div class="electrode-card-header">
+                            <span class="electrode-card-name">T7</span>
+                            <span class="electrode-card-status" id="status_T7">—</span>
+                        </div>
+                        <div class="electrode-card-location">Left Temporal</div>
+                        <div class="electrode-card-value" id="quality_T7">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill electrode-bar" id="bar_T7" style="width: 0%;"></div>
+                        </div>
+                        <div class="electrode-card-snr">
+                            <span class="snr-label">SNR</span>
+                            <span class="snr-value" id="snr_T7">— dB</span>
+                        </div>
+                    </div>
+
+                    <div class="electrode-card" id="card_T8">
+                        <div class="electrode-card-header">
+                            <span class="electrode-card-name">T8</span>
+                            <span class="electrode-card-status" id="status_T8">—</span>
+                        </div>
+                        <div class="electrode-card-location">Right Temporal</div>
+                        <div class="electrode-card-value" id="quality_T8">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill electrode-bar" id="bar_T8" style="width: 0%;"></div>
+                        </div>
+                        <div class="electrode-card-snr">
+                            <span class="snr-label">SNR</span>
+                            <span class="snr-value" id="snr_T8">— dB</span>
+                        </div>
+                    </div>
+
+                    <div class="electrode-card" id="card_Pz">
+                        <div class="electrode-card-header">
+                            <span class="electrode-card-name">Pz</span>
+                            <span class="electrode-card-status" id="status_Pz">—</span>
+                        </div>
+                        <div class="electrode-card-location">Parietal Midline</div>
+                        <div class="electrode-card-value" id="quality_Pz">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill electrode-bar" id="bar_Pz" style="width: 0%;"></div>
+                        </div>
+                        <div class="electrode-card-snr">
+                            <span class="snr-label">SNR</span>
+                            <span class="snr-value" id="snr_Pz">— dB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signal Quality Timeline -->
+        <section class="panel" style="flex: none; min-height: 260px;">
+            <div class="panel-header">
+                <h2 class="panel-title">Signal Quality — Timeline</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-item">
+                    <canvas id="qualityTimelineChart" style="width:100% !important; height:180px !important;"></canvas>
+                </div>
+                <div class="quality-legend" id="qualityLegend"></div>
+            </div>
+        </section>
+
+        <!-- EEG Raw Signals per electrode -->
+        <section class="panel" style="flex: none; min-height: 280px;">
+            <div class="panel-header">
+                <h2 class="panel-title">EEG — Raw Signal per Electrode</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body" id="eegChartsContainer">
+                <div class="empty-state" id="emptyStateEeg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
+                    <p>Waiting for EEG data stream...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bandpower per electrode -->
+        <section class="panel" style="flex: none; min-height: 280px;">
+            <div class="panel-header">
+                <h2 class="panel-title">Frequency Spectrum — per Electrode</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body" id="eegBandpowerContainer">
+                <div class="empty-state" id="emptyStateBandpower">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48"><rect x="4" y="14" width="4" height="6" rx="1"/><rect x="10" y="10" width="4" height="10" rx="1"/><rect x="16" y="6" width="4" height="14" rx="1"/></svg>
+                    <p>Waiting for bandpower data...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

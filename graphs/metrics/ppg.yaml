@@ -28,7 +28,7 @@ graphs:
           step: 1
           rate: 1
       - id: hrv_calculator
-        module: nodes.PPG
+        module: nodes.physio.ppg
         class: HRVTimeDomainCalculator
       - id: select_column
         module: timeflux.nodes.query
@@ -37,12 +37,12 @@ graphs:
           key: ["HRV_SDNN", "HRV_RMSSD", "HRV_pNN50", "HRV_SDSD", "HRV_MeanNN"]
           axis: 1
       - id: attention_metric
-        module: nodes.PPG
+        module: nodes.physio.ppg
         class: AttentionMetric
         params:
           weights: {'HRV_SDNN': 0.30, 'HRV_RMSSD': 0.40, 'HRV_pNN50': 0.30}
       - id: arousal_metric
-        module: nodes.PPG
+        module: nodes.physio.ppg
         class: ArousalMetric
         params:
           weights: {'HRV_SDSD': 0.33, 'HRV_RMSSD': 0.33, 'HRV_MeanNN': 0.34}

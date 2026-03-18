@@ -15,14 +15,14 @@ graphs:
         length: 10
         step: 1
     - id: attention
-      module: nodes.EEG_ratio
+      module: nodes.eeg.ratio
       class: Ratio
       params:
         a: ["[A-Z]*[0-9]", [12, 22]]
         b: ["[A-Z]*[0-9]", [8, 13]]
         metric: eeg_attention
     - id: arousal
-      module: nodes.EEG_ratio
+      module: nodes.eeg.ratio
       class: Ratio
       params:
         a: ["[A-Z]*[0-9]", [8, 12]]
@@ -90,21 +90,21 @@ graphs:
         length: 10
         step: 1
     - id: eeg_motor_mu_theta
-      module: nodes.EEG_ratio
+      module: nodes.eeg.ratio
       class: Ratio
       params:
         a: ["^C*P*O|T", [8, 14]]
         b: ["^C*P*O|T", [4, 8]]
         metric: eeg_motor_mu_theta
     - id: eeg_motor_low_beta_alpha
-      module: nodes.EEG_ratio
+      module: nodes.eeg.ratio
       class: Ratio
       params:
         a: ["^C*P*O|T", [13, 22]]
         b: ["^C*P*O|T", [8, 13]]
         metric: eeg_motor_low_beta_alpha
     - id: eeg_motor_gamma_alpha
-      module: nodes.EEG_ratio
+      module: nodes.eeg.ratio
       class: Ratio
       params:
         a: ["[A-Z]*[0-9]", [30, 50]]

@@ -19,13 +19,13 @@ graphs:
         params:
           topics: [facial_metrics]
       - id: attention_metric_multimodal
-        module: nodes.Metric_Multimodal
+        module: nodes.vision.multimodal_metric
         class: MultimodalMetric
         params:
           metrics_weights: {'PPG_Attention_Metric': 0.1, 'eeg_attention': 0.4, 'attention': 0.5}
           multimodal_metric: 'multimodal_attention'
       - id: arousal_metric_multimodal
-        module: nodes.Metric_Multimodal
+        module: nodes.vision.multimodal_metric
         class: MultimodalMetric
         params:
           metrics_weights: {'PPG_Arousal_Metric': 0.2, 'eeg_arousal': 0.3, 'vigilance': 0.5}

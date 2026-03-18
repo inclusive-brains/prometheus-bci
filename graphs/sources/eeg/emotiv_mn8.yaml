@@ -44,12 +44,12 @@ graphs:
       module: timeflux.nodes.query
       class: LocQuery
       params:
-        key: [AF3, F7, F3, FC5, T7, P7, O1, O2, P8, T8, FC6, F4, F8, AF4]
+        key: [T7, T8]
     - id: select_motion
       module: timeflux.nodes.query
       class: LocQuery
       params:
-        key: [Q0, Q1, Q2, Q3, ACCZ, ACCY, ACCX, MAGX, MAGY, MAGZ]
+        key: [Q0, Q1, Q2, Q3]
     - id: dejitter
       module: timeflux.nodes.dejitter
       class: Reindex
@@ -72,28 +72,23 @@ graphs:
           'gamma': {frequencies: [25, 40], order: 3}
         design: butter
     - id: band_powers
-      module: nodes.eeg_bandpower
+      module: nodes.eeg.bandpower
       class: Power
       params:
         length: 3
         step: 1
     - id: mean_band_powers
-      module: nodes.eeg_bandpower
+      module: nodes.eeg.bandpower
       class: MeanBandPower
       params:
         length: 3
         step: 1
     - id: mean_fullband_powers
-      module: nodes.eeg_bandpower
+      module: nodes.eeg.bandpower
       class: MeanFullBandPower
       params:
         length: 3
         step: 1
-    - id: pub_bands
-      module: timeflux.nodes.zmq
-      class: Pub
-      params:
-        topic: eeg_bandpower
     - id: publish_mean_band_powers
       module: timeflux.nodes.zmq
       class: Pub
@@ -104,6 +99,11 @@ graphs:
       class: Pub
       params:
         topic: eeg_bandpower_mean_fullband
+    - id: pub_bands
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower
     edges:
       - source: raw
         target: select
@@ -112,13 +112,13 @@ graphs:
       - source: dejitter
         target: bandpass
       - source: bandpass
+        target: publish_filtered
+      - source: bandpass
         target: filter_bank
       - source: filter_bank
         target: band_powers
       - source: band_powers
         target: pub_bands
-      - source: bandpass
-        target: publish_filtered
       - source: dejitter
         target: publish_raw
       - source: motion

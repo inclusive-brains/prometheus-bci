@@ -943,15 +943,30 @@ async function saveAndLaunch() {{
             body: JSON.stringify(values),
         }});
         if (resp.ok) {{
-            showToast('Configuration saved — launching Prometheus...');
+            showToast('Configuration saved — starting Timeflux...');
+            // Countdown before redirect so user knows it's loading
+            let remaining = 8;
+            const countdown = setInterval(() => {{
+                remaining--;
+                if (remaining > 0) {{
+                    showToast(`Starting Timeflux... redirecting in ${{remaining}}s`);
+                }} else {{
+                    clearInterval(countdown);
+                }}
+            }}, 1000);
+            // Fade out the config UI
             setTimeout(() => {{
                 document.body.style.opacity = '0';
                 document.body.style.transition = 'opacity 0.5s';
-            }}, 1200);
+            }}, 6000);
+            // Shut down the config server after fade
+            setTimeout(() => {{
+                fetch('/shutdown');
+            }}, 7000);
+            // Wait for Timeflux to start before redirecting to dashboard
             setTimeout(() => {{
                 window.location.href = 'http://localhost:8002/dashboard';
-                fetch('/shutdown');
-            }}, 2000);
+            }}, 8000);
         }} else {{
             showToast('Error saving configuration', 'var(--red)');
         }}

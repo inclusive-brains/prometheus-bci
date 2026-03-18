@@ -1,6 +1,6 @@
 # Standard library imports
 from datetime import datetime
-import threading
+from concurrent.futures import ThreadPoolExecutor
 from collections import deque
 import traceback
 
@@ -238,6 +238,7 @@ class UnifiedFacialMetricsAndTracking(Node):
         self.tracking_enabled = False
         self.smile_detected = False
         self.kf = self._initialize_kalman_filter()
+        self._cursor_executor = ThreadPoolExecutor(max_workers=1)
 
     def _initialize_kalman_filter(self):
         kf = KalmanFilter(dim_x=4, dim_z=2)
@@ -399,7 +400,7 @@ class UnifiedFacialMetricsAndTracking(Node):
             kalman_x, kalman_y = self.kf.x[:2]
             smoothed_x = self._smooth_movement(kalman_x, self.prev_x, self.smooth_factor)
             smoothed_y = self._smooth_movement(kalman_y, self.prev_y, self.smooth_factor)
-            threading.Thread(target=self._move_cursor, args=(smoothed_x, smoothed_y)).start()
+            self._cursor_executor.submit(self._move_cursor, smoothed_x, smoothed_y)
             if self._is_smiling(landmarks):
                 if not self.smile_detected:
                     pyautogui.click()
@@ -414,5 +415,6 @@ class UnifiedFacialMetricsAndTracking(Node):
             self.tracking_enabled = not self.tracking_enabled
 
     def terminate(self):
+        self._cursor_executor.shutdown(wait=False)
         self._cap.release()
         cv2.destroyAllWindows()

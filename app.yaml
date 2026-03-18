@@ -1,21 +1,21 @@
 import:
-  - graphs/eeg_data_{{ EEG_DEVICE }}.yaml
+  - graphs/sources/eeg/{{ EEG_DEVICE }}.yaml
   {% if ECG %}
-  - graphs/ecg_bitalino.yaml
+  - graphs/sources/ecg/bitalino.yaml
   {% endif %}
   {% if PPG_DEVICE %}
-  - graphs/ppg_data_{{ PPG_DEVICE }}.yaml
+  - graphs/sources/ppg/{{ PPG_DEVICE }}.yaml
   {% endif %}
-  - graphs/classification.yaml
-  - graphs/ppg_metrics.yaml
-  - graphs/eeg_metrics.yaml
-  - graphs/multimodal_metrics.yaml
-  - graphs/debug.yaml
+  - graphs/classification/motor_and_blink.yaml
+  - graphs/metrics/ppg.yaml
+  - graphs/metrics/eeg.yaml
+  - graphs/metrics/multimodal.yaml
+  - graphs/output/debug.yaml
   {% if CAMERA_ENABLE == "true" %}
-  - graphs/camera_facial_expressions.yaml
+  - graphs/sources/camera/facial_expressions.yaml
   {% endif %}
   {% if OSC_ENABLE == "true" %}
-  - graphs/osc.yaml
+  - graphs/output/osc.yaml
   {% endif %}
 
 graphs:
@@ -189,6 +189,7 @@ graphs:
           heart_metrics: ./ui/real_time_detections/heart_metrics
           head_motions: ./ui/real_time_detections/head_motions
           brain_metrics: ./ui/real_time_detections/brain_metrics
+          eeg_quality: ./ui/real_time_detections/eeg_quality
           facial_expressions: ./ui/real_time_detections/facial_expressions
           n_back: ./ui/experiments/nback
           mind_control_training: ./ui/mind_control/motor
