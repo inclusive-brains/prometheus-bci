@@ -89,6 +89,20 @@ var SVG_NS = 'http://www.w3.org/2000/svg';
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ---- Methodology toggle ----
+    var toggleBtn = document.getElementById('methodologyToggle');
+    var content = document.getElementById('methodologyContent');
+    var panelHeader = toggleBtn.closest('.panel-header');
+
+    function toggleMethodology() {
+        var expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+        toggleBtn.setAttribute('aria-expanded', !expanded);
+        content.classList.toggle('open');
+    }
+
+    toggleBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleMethodology(); });
+    panelHeader.addEventListener('click', toggleMethodology);
+
     // ---- Dark theme config for Smoothie charts ----
     var darkGrid = {
         fillStyle: 'rgba(15, 15, 18, 0.6)',

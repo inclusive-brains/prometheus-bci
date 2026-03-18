@@ -191,6 +191,147 @@
             </div>
         </section>
 
+        <!-- Methodology -->
+        <section class="panel methodology-panel" style="flex: none;">
+            <div class="panel-header">
+                <h2 class="panel-title">Methodology — How Quality is Computed</h2>
+                <button class="methodology-toggle" id="methodologyToggle" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+            </div>
+            <div class="methodology-content" id="methodologyContent">
+                <div class="methodology-body">
+
+                    <p class="methodology-intro">
+                        The quality score (0–100%) is computed in real-time from the filtered EEG signal using a sliding window of 256 samples (~2s at 128 Hz). Four independent criteria are evaluated and summed.
+                    </p>
+
+                    <div class="methodology-grid">
+
+                        <div class="methodology-card">
+                            <div class="methodology-card-header">
+                                <span class="methodology-card-icon smoothness"></span>
+                                <div>
+                                    <h3 class="methodology-card-title">Temporal Smoothness</h3>
+                                    <span class="methodology-card-points">0 – 40 pts</span>
+                                </div>
+                            </div>
+                            <div class="methodology-card-body">
+                                <p>Lag-1 autocorrelation of the signal. Real EEG bandpass-filtered at 0.1–40 Hz is temporally smooth: consecutive samples are highly correlated (r &gt; 0.8). Random noise has near-zero autocorrelation.</p>
+                                <div class="methodology-formula">
+                                    <code>r = Cov(x[t], x[t+1]) / Var(x)</code>
+                                    <code>score = min(40, r &times; 50)</code>
+                                </div>
+                                <div class="methodology-examples">
+                                    <span class="example good">Real EEG: r &asymp; 0.9 &rarr; 40 pts</span>
+                                    <span class="example poor">White noise: r &asymp; 0.0 &rarr; 0 pts</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="methodology-card">
+                            <div class="methodology-card-header">
+                                <span class="methodology-card-icon hf-noise"></span>
+                                <div>
+                                    <h3 class="methodology-card-title">High-Frequency Noise Ratio</h3>
+                                    <span class="methodology-card-points">0 – 30 pts</span>
+                                </div>
+                            </div>
+                            <div class="methodology-card-body">
+                                <p>Compares sample-to-sample difference variance to overall signal variance. Approximates the proportion of high-frequency content without requiring FFT.</p>
+                                <div class="methodology-formula">
+                                    <code>HF ratio = Var(diff(x)) / (2 &times; Var(x))</code>
+                                </div>
+                                <div class="methodology-examples">
+                                    <span class="example good">Clean EEG: ratio &lt; 0.1 &rarr; 30 pts</span>
+                                    <span class="example poor">White noise: ratio &asymp; 1.0 &rarr; 0 pts</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="methodology-card">
+                            <div class="methodology-card-header">
+                                <span class="methodology-card-icon amplitude"></span>
+                                <div>
+                                    <h3 class="methodology-card-title">Amplitude Plausibility</h3>
+                                    <span class="methodology-card-points">0 – 15 pts</span>
+                                </div>
+                            </div>
+                            <div class="methodology-card-body">
+                                <p>Checks that the signal RMS falls within the expected range for EEG. Too low (&lt; 0.1 &micro;V) indicates no contact, too high (&gt; 500 &micro;V) suggests saturation or artifacts.</p>
+                                <div class="methodology-formula">
+                                    <code>RMS = &radic;(mean(x&sup2;))</code>
+                                </div>
+                                <div class="methodology-examples">
+                                    <span class="example good">0.5 – 150 &micro;V &rarr; 15 pts</span>
+                                    <span class="example fair">150 – 300 &micro;V &rarr; 8 pts</span>
+                                    <span class="example poor">&lt; 0.1 or &gt; 500 &rarr; 0 pts</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="methodology-card">
+                            <div class="methodology-card-header">
+                                <span class="methodology-card-icon stability"></span>
+                                <div>
+                                    <h3 class="methodology-card-title">Signal Stability</h3>
+                                    <span class="methodology-card-points">0 – 15 pts</span>
+                                </div>
+                            </div>
+                            <div class="methodology-card-body">
+                                <p>Crest factor: ratio of peak amplitude to RMS. Detects transient spikes and artifacts. A stable signal without large spikes scores higher.</p>
+                                <div class="methodology-formula">
+                                    <code>CF = max(|x - &mu;|) / RMS</code>
+                                </div>
+                                <div class="methodology-examples">
+                                    <span class="example good">CF &lt; 3 &rarr; 15 pts</span>
+                                    <span class="example fair">CF 3–5 &rarr; 10 pts</span>
+                                    <span class="example poor">CF &gt; 8 &rarr; 0 pts</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="methodology-snr">
+                        <h3 class="methodology-section-title">SNR Estimation</h3>
+                        <p>Signal-to-noise ratio is derived from the lag-1 autocorrelation coefficient, assuming an AR(1) signal model:</p>
+                        <div class="methodology-formula">
+                            <code>SNR = 10 &times; log<sub>10</sub>(r / (1 - r))&ensp;dB</code>
+                        </div>
+                        <p>This gives physically meaningful values: r = 0.9 &rarr; 9.5 dB, r = 0.5 &rarr; 0 dB, r &lt; 0.05 &rarr; capped at -10 dB.</p>
+                    </div>
+
+                    <div class="methodology-thresholds">
+                        <h3 class="methodology-section-title">Quality Thresholds</h3>
+                        <div class="thresholds-row">
+                            <div class="threshold-item good">
+                                <span class="threshold-dot good"></span>
+                                <span class="threshold-label">Good</span>
+                                <span class="threshold-range">&ge; 70%</span>
+                            </div>
+                            <div class="threshold-item fair">
+                                <span class="threshold-dot fair"></span>
+                                <span class="threshold-label">Fair</span>
+                                <span class="threshold-range">40 – 69%</span>
+                            </div>
+                            <div class="threshold-item poor">
+                                <span class="threshold-dot poor"></span>
+                                <span class="threshold-label">Poor</span>
+                                <span class="threshold-range">15 – 39%</span>
+                            </div>
+                            <div class="threshold-item off">
+                                <span class="threshold-dot off"></span>
+                                <span class="threshold-label">No contact</span>
+                                <span class="threshold-range">&lt; 15%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
     </main>
 </div>
 
