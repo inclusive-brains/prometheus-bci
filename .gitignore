@@ -4,4 +4,4 @@
 data/
 logs/
 __pycache__/
-robotics-pick-and-place/
+.pytest_cache

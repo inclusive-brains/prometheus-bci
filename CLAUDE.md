@@ -24,6 +24,8 @@ make update     # Upgrade dependencies
 
 **Tests**: `python -m pytest tests/ -v` (test infra in `tests/`, mocks for timeflux/neurokit2 in `tests/conftest.py`)
 
+**Testing policy**: Every new feature or bug fix **must** include unit tests. Add them in `tests/test_<module>.py`, test pure logic without hardware deps (use mocks from `conftest.py`), and add non-regression checks in `tests/test_regression.py` when changing defaults or schemas. Always run the full suite before committing.
+
 ### Docker
 
 ```bash

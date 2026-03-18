@@ -41,6 +41,16 @@ Any contribution -- from advanced Riemannian geometry, CSP or deep learning, to 
 To get started, simply fork the repository, create a feature branch, and propose your changes.
 If you are a researcher and want to add or benchmark new classification pipelines, please document your methods clearly (and share references if relevant).
 
+### Testing policy
+
+**Every new feature or bug fix must include corresponding unit tests.** Pull requests without tests will not be merged.
+
+- Add tests in `tests/` following the existing naming convention (`test_<module>.py`)
+- Run the full suite before submitting: `python -m pytest tests/ -v`
+- For new processing nodes or estimators: test the core logic (pure functions, calculations, edge cases)
+- For changes to default values or schemas: add a non-regression test in `tests/test_regression.py`
+- Tests must pass without hardware dependencies — use the mocks provided in `tests/conftest.py`
+
 Let's advance open science and BCI innovation together!
 
 ---
