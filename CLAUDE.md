@@ -12,6 +12,7 @@ Prometheus BCI is a brain-computer interface platform built on **Timeflux** for 
 make setup      # Create conda env (timeflux, python 3.10) + install deps
 make config     # Interactive .env editor in browser
 make run        # Launch setup_ui then timeflux daemon
+make sync-ui    # Propagate shared UI assets (CSS/JS) to all routes
 make logs       # Tail latest log file
 make clean      # Destroy conda env
 make update     # Upgrade dependencies
@@ -34,13 +35,31 @@ make docker-test     # Run unit tests inside a container
 make docker-logs     # Follow container logs
 ```
 
-**Docker files**: `Dockerfile` (prod, multi-stage), `Dockerfile.test` (test runner), `docker-compose.yml` (3 services: `prometheus`, `prometheus-hw`, `tests`), `.dockerignore`
+**Docker files** (all in `deploy/`): `Dockerfile` (prod, multi-stage), `Dockerfile.test` (test runner), `docker-compose.yml` (3 services: `prometheus`, `prometheus-hw`, `tests`), `.dockerignore`. The Makefile uses `docker compose -f deploy/docker-compose.yml` so all `make docker-*` commands work from the project root.
 
-**Hardware in Docker (Linux only)**: The `prometheus-hw` service uses `privileged: true`, `network_mode: host`, and device mounts (`/dev/video0`, `/var/run/dbus`). USB serial devices (OpenBCI, BITalino) must be uncommented in `docker-compose.yml` under `devices:`. macOS/Windows cannot forward USB/Bluetooth to Docker — use native install instead.
+**Hardware in Docker (Linux only)**: The `prometheus-hw` service uses `privileged: true`, `network_mode: host`, and device mounts (`/dev/video0`, `/var/run/dbus`). USB serial devices (OpenBCI, BITalino) must be uncommented in `deploy/docker-compose.yml` under `devices:`. macOS/Windows cannot forward USB/Bluetooth to Docker — use native install instead.
 
 ## Important: UI Structure
 
 Do not modify the directory structure of `ui/`. Each UI folder follows a convention imposed by Timeflux (`index.html` + `assets/`), and routes are registered in `app.yaml`. Renaming, moving, or restructuring UI folders will break Timeflux's static file serving and routing.
+
+### Shared UI Assets
+
+The navigation sidebar and design system are centralized in `ui/common/` and **copied** into each route's `assets/` folder:
+
+- `ui/common/assets/css/prometheus.css` → copied as `assets/css/shared.css` in each route
+- `ui/common/assets/js/nav-sidebar.js` → copied as `assets/js/nav-sidebar.js` in each route
+
+**Why copies instead of symlinks or absolute paths?** Timeflux UI uses aiohttp's `add_static()` which serves each route's `assets/` directory independently. It does not follow symlinks (`follow_symlinks=False` by default) and the `/common/assets/` absolute path is reserved for Timeflux's own built-in assets (like `timeflux.js`). Copies are the only reliable approach.
+
+**After modifying shared files**, run `make sync-ui` to propagate changes to all routes.
+
+The `<nav-sidebar>` Web Component handles the navigation sidebar. Each page only needs:
+```html
+<link rel="stylesheet" href="assets/css/shared.css">
+<script src="assets/js/nav-sidebar.js"></script>
+<nav-sidebar active="/route_name"></nav-sidebar>
+```
 
 ## Architecture
 
@@ -78,7 +97,7 @@ All runtime behavior is controlled via `.env` with Jinja2 substitution into `app
 
 ### UI Layer
 
-Vanilla JS frontends served by Timeflux UI (port 8002). Communication via WebSocket through `ui/common/assets/js/timeflux.js` (IO class). Key UIs:
+Vanilla JS frontends served by Timeflux UI (port 8002). Communication via WebSocket through `timeflux.js` (IO class). Shared design system and navigation are centralized in `ui/common/` using a `<nav-sidebar>` Web Component (no Shadow DOM, renders directly into the page DOM). Key UIs:
 
 - `/eeg_quality` — Smoothie Charts + SVG 10-20 head map
 - `/brain_metrics` — Frequency band powers, attention/arousal
@@ -101,8 +120,8 @@ Emotiv Insight/Epoch X+, OpenBCI Cyton, Conscious Labs, generic LSL, and dummy (
 - `graphs/classification/motor_and_blink.yaml` — Full ML pipeline definition
 - `scripts/setup_ui.py` — Interactive .env configuration UI
 - `ui/common/assets/js/timeflux.js` — WebSocket client library shared across all UIs
-- `Dockerfile` — Multi-stage production image (builder + runtime)
-- `Dockerfile.test` — Lightweight image for running pytest
-- `docker-compose.yml` — Services: `prometheus` (simulation), `prometheus-hw` (hardware), `tests`
+- `deploy/Dockerfile` — Multi-stage production image (builder + runtime)
+- `deploy/Dockerfile.test` — Lightweight image for running pytest
+- `deploy/docker-compose.yml` — Services: `prometheus` (simulation), `prometheus-hw` (hardware), `tests`
 - `tests/conftest.py` — Mocks for timeflux, neurokit2 and other heavy deps so tests run without them
 - `tests/test_regression.py` — Non-regression: locks default values, known outputs, schema stability

@@ -85,6 +85,7 @@ make run      # Opens the configuration UI, then launches the application
 | `make run`     | Configure and launch the Timeflux application            |
 | `make update`  | Update all dependencies                                  |
 | `make clean`   | Remove the conda environment                             |
+| `make sync-ui` | Synchronize shared UI assets (CSS, nav component) to all routes |
 | `make logs`    | Display the latest log file                              |
 | `make help`    | Show all available commands                              |
 
@@ -126,7 +127,7 @@ This starts the `prometheus-hw` service with:
 - `/dev/video0` mapped — webcam access
 - `/var/run/dbus` mounted — host Bluetooth stack (EMOTIV, OpenBCI Ganglion)
 
-To add your USB serial device (OpenBCI Cyton, BITalino), edit `docker-compose.yml` and uncomment the relevant line:
+To add your USB serial device (OpenBCI Cyton, BITalino), edit `deploy/docker-compose.yml` and uncomment the relevant line:
 
 ```yaml
 devices:
@@ -286,6 +287,22 @@ Prometheus BCI provides several real-time web interfaces, accessible at `http://
 | **N-back Task** | Cognitive experiment for working memory assessment |
 | **Data Monitoring** | Raw data stream inspection |
 
+### UI Architecture
+
+The frontend uses **vanilla JavaScript with a native Web Component** (`<nav-sidebar>`) to centralize the navigation sidebar across all 12 pages.
+
+**Why this approach?**
+
+Timeflux UI serves each route as an isolated static directory (`/{route}/assets/`). It uses aiohttp's `add_static()` which does not follow symlinks and reserves the `/common/assets/` path for its own built-in files (like `timeflux.js`). This makes it impossible to use a single shared directory or absolute paths for custom assets.
+
+Our solution: shared UI files live in `ui/common/` (the single source of truth) and are **copied** into each route's `assets/` folder via `make sync-ui`. This preserves Timeflux compatibility while eliminating sidebar duplication (~80 lines of HTML × 12 pages).
+
+**Editing shared UI files:**
+
+1. Edit the source in `ui/common/assets/css/prometheus.css` or `ui/common/assets/js/nav-sidebar.js`
+2. Run `make sync-ui` to propagate to all routes
+3. Page-specific styles remain in each route's own `assets/css/prometheus.css`
+
 ---
 
 ## Calibration
@@ -343,7 +360,7 @@ Raw EEG data and calibration events are recorded in HDF5 format in the `data` di
 | Computer vision | MediaPipe, OpenCV, DeepFace |
 | Communication | ZeroMQ, WebSocket, OSC, Lab Streaming Layer (LSL) |
 | Data storage | HDF5 (PyTables) |
-| Frontend | HTML5, JavaScript, MediaPipe Web, Smoothie Charts, Bootstrap |
+| Frontend | HTML5, JavaScript (vanilla + Web Components), Smoothie Charts, Chart.js, Three.js |
 
 ---
 
@@ -355,10 +372,11 @@ prometheus-bci/
 ├── .env                    # Environment variables
 ├── Makefile                # Build & run automation
 ├── requirements.txt        # Python dependencies
-├── Dockerfile              # Production container (multi-stage)
-├── Dockerfile.test         # Test runner container
-├── docker-compose.yml      # Simulation, hardware & test services
-├── .dockerignore           # Docker build exclusions
+├── deploy/                 # Docker deployment files
+│   ├── Dockerfile          # Production container (multi-stage)
+│   ├── Dockerfile.test     # Test runner container
+│   ├── docker-compose.yml  # Simulation, hardware & test services
+│   └── .dockerignore       # Docker build exclusions
 ├── nodes/                  # Custom Timeflux processing nodes
 │   ├── classification/     # Accumulator, Bayesian classifiers
 │   ├── eeg/                # Band power, metrics, ratios
@@ -372,13 +390,13 @@ prometheus-bci/
 │   ├── metrics/            # EEG, PPG, multimodal metrics
 │   └── output/             # Debug & OSC output
 ├── tests/                  # Unit & regression tests (pytest)
-├── ui/                     # Web interfaces
+├── ui/                     # Web interfaces (vanilla JS + Web Components)
+│   ├── common/             # Shared design system & nav component (source of truth)
 │   ├── real_time_detections/   # EEG quality, brain/heart metrics, facial expressions, head motions
 │   ├── mind_control/       # Motor imagery training UIs
 │   ├── robotic_arm/        # Robotic arm control
 │   ├── experiments/        # N-back cognitive task
-│   ├── data_monitoring/    # Stream inspection
-│   └── common/             # Shared assets
+│   └── data_monitoring/    # Stream inspection
 ├── scripts/                # Setup & configuration scripts
 ├── data/                   # Recorded sessions (HDF5)
 └── logs/                   # Application logs

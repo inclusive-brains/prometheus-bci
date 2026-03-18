@@ -2,33 +2,37 @@ services:
 
   # ── Simulation mode (dummy EEG, fake PPG, no camera) ─────────────────────
   prometheus:
-    build: .
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
     container_name: prometheus-bci
     ports:
       - "8002:8002"   # Timeflux UI
       - "8888:8888"   # Setup UI
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-      - ./models:/app/models
-      - ./.env:/app/.env
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../models:/app/models
+      - ../.env:/app/.env
     env_file:
-      - .env
+      - ../.env
     restart: unless-stopped
 
   # ── Full hardware mode (USB/Bluetooth EEG, camera, BITalino) ─────────────
   # Usage: docker compose --profile hardware up
   prometheus-hw:
-    build: .
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
     container_name: prometheus-bci-hw
     privileged: true
     network_mode: host
     ports: []
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-      - ./models:/app/models
-      - ./.env:/app/.env
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../models:/app/models
+      - ../.env:/app/.env
       # ── Bluetooth stack (EMOTIV, OpenBCI Ganglion) ──
       - /var/run/dbus:/var/run/dbus:ro
     devices:
@@ -39,30 +43,32 @@ services:
       # - /dev/ttyUSB0:/dev/ttyUSB0
       # - /dev/ttyACM0:/dev/ttyACM0
     env_file:
-      - .env
+      - ../.env
     restart: unless-stopped
     profiles:
       - hardware
 
   # ── Configuration UI only ────────────────────────────────────────────────
   config:
-    build: .
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
     container_name: prometheus-config
     command: python3 scripts/setup_ui.py
     ports:
       - "8888:8888"
     volumes:
-      - ./.env:/app/.env
+      - ../.env:/app/.env
     profiles:
       - config
 
   # ── Run tests ────────────────────────────────────────────────────────────
   tests:
     build:
-      context: .
-      dockerfile: Dockerfile.test
+      context: ..
+      dockerfile: deploy/Dockerfile.test
     container_name: prometheus-tests
     volumes:
-      - ./tests:/app/tests
+      - ../tests:/app/tests
     profiles:
       - test

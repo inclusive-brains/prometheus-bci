@@ -43,25 +43,27 @@ clean: ## Supprimer l'environnement conda
 logs: ## Afficher le dernier fichier de log
 	@ls -t logs/*.log 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "Aucun log trouvé"
 
-# ── Docker ──────────────────────────────────────────────────────────────────
+# ── Docker (config in deploy/) ──────────────────────────────────────────────
+
+COMPOSE = docker compose -f deploy/docker-compose.yml
 
 docker-build: ## Construire l'image Docker
-	docker compose build prometheus
+	$(COMPOSE) build prometheus
 
 docker-run: ## Lancer en mode simulation (dummy EEG, fake PPG)
 	@mkdir -p data logs models
-	docker compose up -d prometheus
+	$(COMPOSE) up -d prometheus
 
 docker-run-hw: ## Lancer avec accès au matériel (EEG USB/BT, caméra, BITalino)
 	@mkdir -p data logs models
-	docker compose --profile hardware up -d prometheus-hw
+	$(COMPOSE) --profile hardware up -d prometheus-hw
 
 docker-stop: ## Arrêter le conteneur
-	docker compose --profile hardware down
+	$(COMPOSE) --profile hardware down
 
 docker-test: ## Lancer les tests dans Docker
-	docker compose build tests
-	docker compose run --rm tests
+	$(COMPOSE) build tests
+	$(COMPOSE) run --rm tests
 
 docker-logs: ## Afficher les logs du conteneur
-	docker compose logs -f prometheus
+	$(COMPOSE) logs -f prometheus
