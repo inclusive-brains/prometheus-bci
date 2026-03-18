@@ -8,7 +8,7 @@
 
 ## Overview
 
-Prometheus BCI is an advanced platform for the collection and analysis of multimodal data, designed to support applications in neuroscience, biofeedback, and brain-computer interfaces (BCIs), based on Timeflux. It processes data from various devices and sensors, converting raw input into actionable metrics and insights for cognitive and physiological analysis.
+Prometheus BCI is an advanced platform for the collection and analysis of multimodal data, designed to support applications in neuroscience, biofeedback, and brain-computer interfaces (BCIs), based on Timeflux. It processes data from various devices and sensors — EEG, PPG, ECG, and camera — converting raw input into actionable metrics and insights for cognitive and physiological analysis.
 
 ---
 
@@ -47,17 +47,20 @@ Let's advance open science and BCI innovation together!
 
 ## Key Features
 
-1. **Data Collection**
-   *EEG, PPG, and facial expressions -- connect Emotiv, OpenBCI, smartwatches, or cameras.*
+1. **Multimodal Data Collection**
+   *EEG, PPG, ECG, and facial expressions -- connect Emotiv, OpenBCI, BITalino, EmotiBit, or cameras.*
 
 2. **Signal Processing**
-   *Filtering, feature extraction (EEG bands, HRV), state computation (stress, attention, etc).*
+   *Filtering, feature extraction (EEG bands, HRV), state computation (stress, attention, cognitive load, arousal).*
 
-3. **Metrics & Experiments**
-   *Multimodal metrics, N-back tasks, mental command classification (Riemannian geometry, CSP and non linear features soon).*
+3. **Real-Time Monitoring**
+   *Live dashboards for EEG signal quality, brain metrics, heart metrics, facial expressions, and head motions.*
 
-4. **Exoskeleton Control**
-   *Integrates EEG and facial signals for robotic exoskeleton control, including for users with limited mobility.*
+4. **Metrics & Experiments**
+   *Multimodal metrics, N-back cognitive tasks, mental command classification (Riemannian geometry, CSP and non-linear features soon).*
+
+5. **Exoskeleton & Robotic Arm Control**
+   *Integrates EEG and facial signals for robotic exoskeleton and robotic arm control, including for users with limited mobility.*
 
 ## Installation
 
@@ -69,7 +72,7 @@ A `Makefile` is provided to simplify installation and usage:
 git clone https://github.com/inclusive-brains/prometheus-bci.git
 cd prometheus-bci
 make setup    # Creates the conda environment and installs all dependencies
-make run      # Launches the application
+make run      # Opens the configuration UI, then launches the application
 ```
 
 ### Available Make Commands
@@ -78,7 +81,8 @@ make run      # Launches the application
 |----------------|----------------------------------------------------------|
 | `make setup`   | Create the conda environment (Python 3.10) and install dependencies |
 | `make install` | Install Python dependencies only                         |
-| `make run`     | Launch the Timeflux application                          |
+| `make config`  | Open the interactive `.env` configuration UI             |
+| `make run`     | Configure and launch the Timeflux application            |
 | `make update`  | Update all dependencies                                  |
 | `make clean`   | Remove the conda environment                             |
 | `make logs`    | Display the latest log file                              |
@@ -141,26 +145,52 @@ You can use the classic Timeflux monitoring interface or the Inclusive Brains UI
 
 ## Configuration
 
-The application is fully configurable via the `app.yaml` file and sub-graphs. For convenience, only the essential options are exposed in a `.env` environment file:
+The application is fully configurable via the `app.yaml` file and sub-graphs. The essential options are exposed in a `.env` environment file. You can edit this file directly or use the interactive configuration UI:
+
+```bash
+make config
+```
+
+### Devices
 
 | Setting             | Description                                                                                           | Default        |
 |---------------------|-------------------------------------------------------------------------------------------------------|---------------|
 | EEG_DEVICE          | EEG headset: dummy (random data), consciouslabs, openbci, emotiv_insight, emotiv_epochX               | dummy         |
 | PPG_DEVICE          | PPG device: fake (random data), emotibit                                                              | fake          |
-| CAMERA_ENABLE       | Enable or disable camera facial expressions                                                           | false         |
-| BASELINE_ENABLE     | Enable or disable baseline                                                                            | false         |
-| BASELINE_DURATION   | Duration of baseline in milliseconds                                                                  | 45000         |
-| MOTOR_ENABLE        | Enable or disable motor training                                                                      | true          |
+| ECG                 | BITalino serial port (leave empty to disable)                                                         | *(disabled)*  |
+| CAMERA_ENABLE       | Enable or disable camera facial expression detection                                                  | false         |
+
+### Training
+
+| Setting             | Description                                                                                           | Default        |
+|---------------------|-------------------------------------------------------------------------------------------------------|---------------|
+| BASELINE_ENABLE     | Record a resting-state baseline before training                                                       | false         |
+| BASELINE_DURATION   | Baseline duration in milliseconds                                                                     | 45000         |
+| MOTOR_ENABLE        | Enable motor imagery training paradigm                                                                | true          |
 | MOTOR_IMAGERY       | Motor imagery illustration: generic (arrows), rotation, extension, flexion                            | generic       |
-| MOTOR_BLOCKS        | Blocks per session                                                                                    | 20            |
-| MOTOR_TRIALS        | Trials per block                                                                                      | 10            |
-| BLINK_ENABLE        | Enable or disable blink training                                                                      | true          |
-| BLINK_TRIALS        | Total trials                                                                                          | 12            |
-| OSC_ENABLE          | Enable or disable OSC                                                                                 | false         |
-| OSC_IP              | OSC IP address                                                                                        | 127.0.0.1     |
-| OSC_PORT            | OSC server port                                                                                       | 5005          |
-| TIMEFLUX_LOG_FILE   | Log file path                                                                                         | ./logs/%Y%m%d-%H%M%S.log |
-| TIMEFLUX_DATA_PATH  | Data path                                                                                             | ./data        |
+| MOTOR_BLOCKS        | Number of blocks per session                                                                          | 20            |
+| MOTOR_TRIALS        | Number of trials per block                                                                            | 10            |
+| BLINK_ENABLE        | Enable blink detection training                                                                       | true          |
+| BLINK_TRIALS        | Total number of blink trials                                                                          | 12            |
+
+### Output
+
+| Setting             | Description                                                                                           | Default        |
+|---------------------|-------------------------------------------------------------------------------------------------------|---------------|
+| OSC_ENABLE          | Stream data via Open Sound Control protocol                                                           | false         |
+| OSC_IP              | Target OSC server IP                                                                                  | 127.0.0.1     |
+| OSC_PORT            | Target OSC server port                                                                                | 5005          |
+
+### Paths & Models
+
+| Setting             | Description                                                                                           | Default        |
+|---------------------|-------------------------------------------------------------------------------------------------------|---------------|
+| WARMUP_BLINK        | Path to warmup data for blink detection (optional)                                                    | *(disabled)*  |
+| WARMUP_MOTOR        | Path to warmup data for motor imagery (optional)                                                      | *(disabled)*  |
+| MODEL_BLINK         | Pre-computed blink model (skips training if set)                                                      | *(disabled)*  |
+| MODEL_MOTOR         | Pre-computed motor model (skips training if set)                                                      | *(disabled)*  |
+| TIMEFLUX_LOG_FILE   | Log file path pattern                                                                                 | ./logs/%Y%m%d-%H%M%S.log |
+| TIMEFLUX_DATA_PATH  | Directory for recorded data                                                                           | ./data        |
 
 ---
 
@@ -168,9 +198,36 @@ The application is fully configurable via the `app.yaml` file and sub-graphs. Fo
 
 This application is hardware-agnostic, as long as the EEG system provides high-quality data and a consistent electrode montage. Each device is defined as a sub-graph and should provide its own preprocessing pipeline (filtering, channel selection, etc.).
 
+### Supported Devices
+
+| Type   | Devices |
+|--------|---------|
+| EEG    | Emotiv Insight, Emotiv Epoch X, Emotiv Epoch+, Emotiv MN8, OpenBCI, ConsciousLabs |
+| PPG    | EmotiBit |
+| ECG    | BITalino |
+| Camera | Any webcam (via MediaPipe + DeepFace) |
+
 Generic LSL devices can be added easily.
 
 A random data graph is also available to test the interface without a real EEG device.
+
+---
+
+## Web Interfaces
+
+Prometheus BCI provides several real-time web interfaces, accessible at `http://localhost:8002/`:
+
+| Interface | Description |
+|-----------|-------------|
+| **EEG Quality** | Real-time EEG signal quality monitoring |
+| **Brain Metrics** | Live cognitive metrics (attention, cognitive load, arousal) |
+| **Heart Metrics** | Heart rate, HRV, and stress monitoring |
+| **Facial Expressions** | Real-time facial expression and emotion detection |
+| **Head Motions** | Head movement tracking |
+| **Motor Imagery Training** | Motor imagery calibration and training paradigm |
+| **Robotic Arm** | 3D visualization and robotic arm control interface |
+| **N-back Task** | Cognitive experiment for working memory assessment |
+| **Data Monitoring** | Raw data stream inspection |
 
 ---
 
@@ -178,9 +235,11 @@ A random data graph is also available to test the interface without a real EEG d
 
 A typical session begins with a calibration phase:
 
-- **Baseline:** Currently unused, but enabled by default to provide data for further analysis.
+- **Baseline:** Records a resting-state baseline for reference (optional).
 - **Motor imagery:** With an Emotiv Epoch X headset (14 channels), 100 to 120 repetitions per class are needed.
 - **Blinks:** Around 10-15 blinks followed by a rest period are sufficient for accurate classification.
+
+Pre-computed models can be loaded via the `MODEL_BLINK` and `MODEL_MOTOR` environment variables to skip calibration.
 
 ---
 
@@ -194,7 +253,7 @@ Raw EEG data and calibration events are recorded in HDF5 format in the `data` di
 
 ### Motor Imagery
 1. **Segment** EEG -> 900ms windows (100ms step)
-2. **Covariance Matrix** -> Tangent space projection
+2. **Covariance Matrix** -> Tangent space projection (Riemannian geometry)
 3. **Classification** -> Logistic regression
 4. **Decision** -> Probability buffer -> prediction if >75%
 5. **Refractory period** 1.5s
@@ -206,8 +265,62 @@ Raw EEG data and calibration events are recorded in HDF5 format in the `data` di
 4. **UI detection** -> Double/triple blinks in 1200ms
 5. **Refractory** 800ms
 
+### Facial Expressions
+1. **Capture** -> Webcam via OpenCV
+2. **Detection** -> MediaPipe Face Landmarker (52 blendshapes)
+3. **Emotion** -> DeepFace emotion recognition
+4. **Smoothing** -> Kalman filtering
+
 > **More models are coming soon:**
 > In the coming months, additional methods will be implemented, including non-linear techniques and CSP (Common Spatial Patterns).
+
+---
+
+## Tech Stack
+
+| Component | Technologies |
+|-----------|-------------|
+| Signal processing | Timeflux, Timeflux DSP, SciPy |
+| EEG classification | pyRiemann (Riemannian geometry), scikit-learn |
+| Physiological metrics | NeuroKit2, FilterPy |
+| Computer vision | MediaPipe, OpenCV, DeepFace |
+| Communication | ZeroMQ, WebSocket, OSC, Lab Streaming Layer (LSL) |
+| Data storage | HDF5 (PyTables) |
+| Frontend | HTML5, JavaScript, MediaPipe Web, Smoothie Charts, Bootstrap |
+
+---
+
+## Project Structure
+
+```
+prometheus-bci/
+├── app.yaml                # Main Timeflux configuration
+├── .env                    # Environment variables
+├── Makefile                # Build & run automation
+├── requirements.txt        # Python dependencies
+├── nodes/                  # Custom Timeflux processing nodes
+│   ├── classification/     # Accumulator, Bayesian classifiers
+│   ├── eeg/                # Band power, metrics, ratios
+│   ├── physio/             # PPG / HRV processing
+│   ├── vision/             # Camera, multimodal metrics
+│   └── output/             # OSC publisher
+├── estimators/             # ML feature extractors (EOG, MNE)
+├── graphs/                 # Timeflux signal processing pipelines
+│   ├── sources/            # Device-specific graphs (EEG, PPG, ECG, camera)
+│   ├── classification/     # Motor imagery & blink detection
+│   ├── metrics/            # EEG, PPG, multimodal metrics
+│   └── output/             # Debug & OSC output
+├── ui/                     # Web interfaces
+│   ├── real_time_detections/   # EEG quality, brain/heart metrics, facial expressions, head motions
+│   ├── mind_control/       # Motor imagery training UIs
+│   ├── robotic_arm/        # Robotic arm control
+│   ├── experiments/        # N-back cognitive task
+│   ├── data_monitoring/    # Stream inspection
+│   └── common/             # Shared assets
+├── scripts/                # Setup & configuration scripts
+├── data/                   # Recorded sessions (HDF5)
+└── logs/                   # Application logs
+```
 
 ## License
 

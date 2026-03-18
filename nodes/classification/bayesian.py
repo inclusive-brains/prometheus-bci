@@ -98,7 +98,7 @@ class BayesianAccumulation:
                 raise ValueError(
                     "Length of character_prior is different from n_characters"
                 )
-            self.class_prior = np.asarray(class_prior)
+            self.class_prior = np.asarray(class_prior, dtype=np.float64)
         self.class_prior /= self.class_prior.sum()
 
         self.class_proba = self.class_prior.copy()
