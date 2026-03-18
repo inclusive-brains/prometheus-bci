@@ -945,7 +945,7 @@ async function saveAndLaunch() {{
         if (resp.ok) {{
             showToast('Configuration saved — starting Timeflux...');
             // Countdown before redirect so user knows it's loading
-            let remaining = 8;
+            let remaining = 15;
             const countdown = setInterval(() => {{
                 remaining--;
                 if (remaining > 0) {{
@@ -958,15 +958,15 @@ async function saveAndLaunch() {{
             setTimeout(() => {{
                 document.body.style.opacity = '0';
                 document.body.style.transition = 'opacity 0.5s';
-            }}, 6000);
+            }}, 13000);
             // Shut down the config server after fade
             setTimeout(() => {{
                 fetch('/shutdown');
-            }}, 7000);
+            }}, 14000);
             // Wait for Timeflux to start before redirecting to dashboard
             setTimeout(() => {{
                 window.location.href = 'http://localhost:8002/dashboard';
-            }}, 8000);
+            }}, 15000);
         }} else {{
             showToast('Error saving configuration', 'var(--red)');
         }}
