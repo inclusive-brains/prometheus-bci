@@ -18,6 +18,12 @@
 .content-grid::-webkit-scrollbar-track { background: transparent; }
 .content-grid::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
 
+/* Panels inside content-grid must size to content, not share height */
+.content-grid .panel {
+    flex: none;
+    margin: 0;
+}
+
 /* ---- Info Banner ---- */
 
 .info-banner {

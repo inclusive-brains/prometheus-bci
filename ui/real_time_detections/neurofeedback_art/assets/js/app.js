@@ -4,12 +4,13 @@
    Neurofeedback Art — Generative Orb
    ════════════════════════════════════════════════════════════════
    A luminous orb whose shape, color, particles and aura respond
-   in real-time to EEG cognitive metrics:
+   in real-time to multimodal cognitive metrics (EEG + PPG + facial).
+   Focus (attention) is the primary visual driver:
 
-     Attention  → orb coherence (smooth vs turbulent surface)
-     Arousal    → particle speed & count, pulse rate
+     Attention  → orb size, brightness, glow, particle count, surface smoothness
+     Arousal    → pulse rate, particle trail length
      Stress     → color temperature (cyan/violet → amber/red)
-     Cognitive  → fractal complexity of the noise field
+     Cognitive  → secondary fractal detail
    ════════════════════════════════════════════════════════════════ */
 
 // ── Simplex Noise (compact 2D/3D) ──────────────────────────────
@@ -181,20 +182,21 @@ function frame() {
     smooth.cognitive = lerp(smooth.cognitive,  metrics.cognitive, LERP_SPEED);
 
     const color = getOrbColor(smooth.stress);
-    const orbRadius = baseRadius * (0.85 + smooth.attention * 0.35);
-    const noiseAmp = 12 + smooth.cognitive * 35;       // surface distortion
-    const noiseFreq = 1.5 + smooth.cognitive * 2.5;    // fractal detail
-    const pulseRate = 0.8 + smooth.arousal * 2.5;      // breathing speed
-    const particleSpeed = 0.3 + smooth.arousal * 2.0;
+    const a = smooth.attention;  // primary driver
+    const orbRadius = baseRadius * (0.7 + a * 0.55);                   // focus grows the orb significantly
+    const noiseAmp = 25 - a * 18 + smooth.cognitive * 12;              // high focus = smoother surface
+    const noiseFreq = 2.5 - a * 1.2 + smooth.cognitive * 1.0;         // high focus = less chaotic
+    const pulseRate = 0.5 + a * 1.5 + smooth.arousal * 1.0;           // focus accelerates breathing
+    const particleSpeed = 0.3 + a * 1.2 + smooth.arousal * 0.8;
 
     // Clear with subtle trail fade
     ctx.fillStyle = 'rgba(6, 6, 10, 0.18)';
     ctx.fillRect(0, 0, W, H);
 
     // ── Background glow ────────────────────────────────────────
-    const glowRadius = orbRadius * (2.2 + smooth.arousal * 0.6);
+    const glowRadius = orbRadius * (1.8 + a * 0.8 + smooth.arousal * 0.3);
     const bgGrad = ctx.createRadialGradient(cx, cy, orbRadius * 0.3, cx, cy, glowRadius);
-    bgGrad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.06 + smooth.attention * 0.04})`);
+    bgGrad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.04 + a * 0.08})`);
     bgGrad.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, 0.015)`);
     bgGrad.addColorStop(1, 'rgba(6, 6, 10, 0)');
     ctx.fillStyle = bgGrad;
@@ -213,7 +215,7 @@ function frame() {
     }
 
     // ── Particles ──────────────────────────────────────────────
-    const activeCount = Math.floor(40 + smooth.arousal * (MAX_PARTICLES - 40));
+    const activeCount = Math.floor(20 + a * 140 + smooth.arousal * 40);
     for (let i = 0; i < MAX_PARTICLES; i++) {
         const p = particles[i];
         if (i >= activeCount) { p.trail.length = 0; continue; }
@@ -284,18 +286,18 @@ function frame() {
         cx - orbRadius * 0.15, cy - orbRadius * 0.15, orbRadius * 0.05,
         cx, cy, orbRadius * 1.1
     );
-    orbGrad.addColorStop(0, `rgba(255, 255, 255, ${0.08 + smooth.attention * 0.07})`);
-    orbGrad.addColorStop(0.3, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.15 + smooth.attention * 0.12})`);
-    orbGrad.addColorStop(0.7, `rgba(${color.r}, ${color.g}, ${color.b}, 0.06)`);
+    orbGrad.addColorStop(0, `rgba(255, 255, 255, ${0.05 + a * 0.12})`);
+    orbGrad.addColorStop(0.3, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.1 + a * 0.2})`);
+    orbGrad.addColorStop(0.7, `rgba(${color.r}, ${color.g}, ${color.b}, ${0.03 + a * 0.05})`);
     orbGrad.addColorStop(1, 'rgba(6, 6, 10, 0)');
     ctx.fillStyle = orbGrad;
     ctx.fill();
 
-    // Edge glow
-    ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${0.25 + smooth.attention * 0.25})`;
-    ctx.lineWidth = 1.5 + smooth.attention * 1;
-    ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.4)`;
-    ctx.shadowBlur = 15 + smooth.attention * 15;
+    // Edge glow — focus drives intensity
+    ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${0.15 + a * 0.45})`;
+    ctx.lineWidth = 1 + a * 2;
+    ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${0.2 + a * 0.4})`;
+    ctx.shadowBlur = 10 + a * 25;
     ctx.stroke();
     ctx.shadowBlur = 0;
 
@@ -324,7 +326,7 @@ function frame() {
         cx - orbRadius * 0.25, cy - orbRadius * 0.3, 0,
         cx - orbRadius * 0.25, cy - orbRadius * 0.3, orbRadius * 0.5
     );
-    specGrad.addColorStop(0, `rgba(255, 255, 255, ${0.06 + smooth.attention * 0.06})`);
+    specGrad.addColorStop(0, `rgba(255, 255, 255, ${0.03 + a * 0.12})`);
     specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     ctx.fillStyle = specGrad;
     ctx.beginPath();
@@ -394,30 +396,30 @@ function initTimeflux() {
         }
     });
 
-    // Subscribe to EEG cognitive metrics
-    io.subscribe('eeg_stress_metric');
-    io.subscribe('eeg_attention_metric');
-    io.subscribe('eeg_cognitiveload_metric');
-    io.subscribe('eeg_arousal_metric');
+    // Subscribe to multimodal cognitive metrics (EEG + PPG + facial fusion)
+    io.subscribe('multimodal_stress');
+    io.subscribe('multimodal_attention');
+    io.subscribe('multimodal_cognitive_load');
+    io.subscribe('multimodal_arousal');
 
-    io.on('eeg_stress_metric', function (data) {
+    io.on('multimodal_stress', function (data) {
         const keys = Object.keys(data);
-        if (keys.length) metrics.stress = clamp(data[keys[keys.length - 1]].eeg_stress);
+        if (keys.length) metrics.stress = clamp(data[keys[keys.length - 1]].multimodal_stress);
     });
 
-    io.on('eeg_attention_metric', function (data) {
+    io.on('multimodal_attention', function (data) {
         const keys = Object.keys(data);
-        if (keys.length) metrics.attention = clamp(data[keys[keys.length - 1]].eeg_attention);
+        if (keys.length) metrics.attention = clamp(data[keys[keys.length - 1]].multimodal_attention);
     });
 
-    io.on('eeg_cognitiveload_metric', function (data) {
+    io.on('multimodal_cognitive_load', function (data) {
         const keys = Object.keys(data);
-        if (keys.length) metrics.cognitive = clamp(data[keys[keys.length - 1]].eeg_cognitiveload);
+        if (keys.length) metrics.cognitive = clamp(data[keys[keys.length - 1]].multimodal_cognitive_load);
     });
 
-    io.on('eeg_arousal_metric', function (data) {
+    io.on('multimodal_arousal', function (data) {
         const keys = Object.keys(data);
-        if (keys.length) metrics.arousal = clamp(data[keys[keys.length - 1]].eeg_arousal);
+        if (keys.length) metrics.arousal = clamp(data[keys[keys.length - 1]].multimodal_arousal);
     });
 }
 
