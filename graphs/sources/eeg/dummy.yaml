@@ -4,13 +4,15 @@ graphs:
   - id: EEG
     nodes:
     - id: eeg
-      module: timeflux.nodes.random
-      class: Signal
+      module: nodes.eeg.simulator
+      class: EEGSimulator
       params:
-        channels: 16
+        channels: [ Fp1, Fp2, F3, Fz, F4, C1, Cz, C2, P3, Pz, P4, O1, Oz, O2 ]
         rate: 250
-        amplitude: 100
-        names: [ Fp1, Fp2, F3, Fz, F4, C1, Cz, C2, P3, Pz, P4, O1, Oz, O2 ]
+        chunk_duration: 0.1
+        alpha_amplitude: 15.0
+        noise_amplitude: 30.0
+        drift_speed: 0.02
     - id: motion
       module: timeflux.nodes.random
       class: Signal

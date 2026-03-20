@@ -5,22 +5,74 @@ from scipy import signal
 import numpy as np
 
 class PPGSimulator(Node):
-    def __init__(self):
+    """Generates a realistic streaming PPG waveform with physiological peaks.
+
+    Produces a continuous 25 Hz signal with heart-rate variability,
+    suitable for downstream peak detection and HRV metric calculation.
+
+    Args:
+        heart_rate (float): Mean heart rate in BPM. Default: 70.
+        hrv_std (float): Standard deviation of RR interval variation in seconds.
+            Controls how much the heart rate fluctuates. Default: 0.04.
+        sampling_rate (int): Output sampling rate in Hz. Default: 25.
+        chunk_duration (float): Duration of each output chunk in seconds.
+            Should match the graph rate (e.g. 0.1s for rate=10). Default: 0.2.
+    """
+
+    def __init__(self, heart_rate=70, hrv_std=0.04, sampling_rate=25, chunk_duration=0.2):
         super().__init__()
+        self._sr = sampling_rate
+        self._mean_rr = 60.0 / heart_rate  # seconds between beats
+        self._hrv_std = hrv_std
+        self._chunk_samples = max(1, int(sampling_rate * chunk_duration))
+        self._phase = 0.0  # continuous phase accumulator
+        self._rng = np.random.default_rng(seed=42)
+        # Current RR interval (with slight drift)
+        self._current_rr = self._mean_rr
+
+    def _ppg_waveform(self, phase):
+        """Compute PPG amplitude from cardiac phase [0, 1).
+
+        Models the systolic peak, dicrotic notch, and diastolic runoff
+        using a sum of Gaussians — produces a waveform that peak detectors
+        can reliably lock onto.
+        """
+        # Systolic peak (sharp, centered at phase ~0.15)
+        systolic = np.exp(-((phase - 0.15) ** 2) / (2 * 0.01))
+        # Dicrotic notch (small bump at phase ~0.4)
+        dicrotic = 0.3 * np.exp(-((phase - 0.40) ** 2) / (2 * 0.005))
+        # Diastolic decay
+        diastolic = 0.15 * np.exp(-((phase - 0.55) ** 2) / (2 * 0.02))
+        return systolic + dicrotic + diastolic
 
     def update(self):
-        # Simulate a PPG Signal
-        ppg_signal = nk.ppg_simulate(duration=60, sampling_rate=25, heart_rate=70)
-        
-        # Convert it to a DataFrame
-        df = pd.DataFrame(ppg_signal, columns=['ppg_signal'])
-        
-        # Create a datetime index with Timeflux's UTC
-        now = pd.Timestamp.utcnow()
-        df.index = pd.date_range(start=now, periods=len(ppg_signal), freq='1ms')  
+        samples = np.empty(self._chunk_samples)
+        now = pd.Timestamp.now("UTC")
+        dt = 1.0 / self._sr
 
-        # Output the PPG signal 
-        self.o.data = df
+        for i in range(self._chunk_samples):
+            # Advance phase
+            self._phase += dt / self._current_rr
+            if self._phase >= 1.0:
+                self._phase -= 1.0
+                # New beat: vary RR interval (mean-reverting random walk)
+                drift = self._rng.normal(0, self._hrv_std)
+                self._current_rr = np.clip(
+                    self._mean_rr + drift,
+                    self._mean_rr * 0.7,  # floor: ~100 BPM
+                    self._mean_rr * 1.4,  # ceiling: ~50 BPM
+                )
+            samples[i] = self._ppg_waveform(self._phase)
+
+        # Add small sensor noise
+        samples += self._rng.normal(0, 0.01, size=self._chunk_samples)
+
+        index = pd.date_range(
+            start=now,
+            periods=self._chunk_samples,
+            freq=pd.tseries.offsets.Milli(int(1000 / self._sr)),
+        )
+        self.o.data = pd.DataFrame({"0": samples}, index=index)
 
 class EDASimulator(Node):
     def __init__(self):
@@ -35,7 +87,7 @@ class EDASimulator(Node):
         df = pd.DataFrame(eda_signal, columns=['eda_signal'])
         
         # Create a datetime index with Timeflux's UTC
-        now = pd.Timestamp.utcnow()
+        now = pd.Timestamp.now("UTC")
         df.index = pd.date_range(start=now, periods=len(eda_signal), freq='0.1ms')  
 
         # Output the EDA Signal
@@ -54,7 +106,7 @@ class ECGSimulator(Node):
         df = pd.DataFrame(ecg_signal, columns=['ecg_signal'])
         
         # Create a datetime index with Timeflux's UTC
-        now = pd.Timestamp.utcnow()
+        now = pd.Timestamp.now("UTC")
         df.index = pd.date_range(start=now, periods=len(ecg_signal), freq='1ms')  
 
         # Output the ECG Signal

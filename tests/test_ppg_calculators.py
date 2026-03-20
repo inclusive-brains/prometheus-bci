@@ -1,9 +1,12 @@
 """Tests for PPG metric calculators (stress, cognitive load, awakeness, attention, respiratory)."""
 
 import numpy as np
+import pandas as pd
 import pytest
+from unittest.mock import MagicMock
 from scipy import signal as sp_signal
 from nodes.physio.ppg import (
+    PPGSimulator,
     StressCalculator,
     CognitiveLoadCalculator,
     AwakenessCalculator,
@@ -135,3 +138,57 @@ class TestRespiratoryRateCalculator:
         signal = np.zeros(500)
         rate = self.calc.calculate_respiratory_rate(signal, 100)
         assert rate is None
+
+
+# ── PPGSimulator ──────────────────────────────────────────────────────────
+
+class TestPPGSimulator:
+
+    def setup_method(self):
+        self.sim = PPGSimulator.__new__(PPGSimulator)
+        PPGSimulator.__init__(self.sim, heart_rate=70, hrv_std=0.04,
+                              sampling_rate=25, chunk_duration=0.2)
+        self.sim.o = MagicMock()
+
+    def test_output_shape(self):
+        """Each update should produce chunk_duration * sampling_rate samples."""
+        self.sim.update()
+        df = self.sim.o.data
+        assert isinstance(df, pd.DataFrame)
+        assert df.shape == (5, 1)  # 0.2s * 25Hz = 5 samples
+        assert "0" in df.columns
+
+    def test_output_has_peaks(self):
+        """Running multiple updates should produce a signal with detectable peaks."""
+        all_values = []
+        for _ in range(200):  # ~40s of data at 0.2s chunks
+            self.sim.update()
+            all_values.extend(self.sim.o.data["0"].values)
+        signal_arr = np.array(all_values)
+        # At 70 BPM over 40s we expect ~46 peaks
+        from scipy.signal import find_peaks
+        peaks, _ = find_peaks(signal_arr, height=0.5, distance=10)
+        assert len(peaks) > 30, f"Expected >30 peaks in 40s at 70 BPM, got {len(peaks)}"
+
+    def test_values_are_bounded(self):
+        """PPG values should stay in a reasonable range (no NaN, no explosion)."""
+        for _ in range(50):
+            self.sim.update()
+            vals = self.sim.o.data["0"].values
+            assert not np.any(np.isnan(vals))
+            assert np.all(vals > -0.5)
+            assert np.all(vals < 2.0)
+
+    def test_deterministic_with_same_seed(self):
+        """Two simulators with same params should produce identical output."""
+        sim2 = PPGSimulator.__new__(PPGSimulator)
+        PPGSimulator.__init__(sim2, heart_rate=70, hrv_std=0.04,
+                              sampling_rate=25, chunk_duration=0.2)
+        sim2.o = MagicMock()
+
+        self.sim.update()
+        sim2.update()
+        np.testing.assert_array_equal(
+            self.sim.o.data["0"].values,
+            sim2.o.data["0"].values,
+        )

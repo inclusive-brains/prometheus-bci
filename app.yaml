@@ -197,6 +197,7 @@ graphs:
           obi1: ./ui/mind_control/obi1
           prometheus: ./ui/mind_control/prometheus
           prometheus_2: ./ui/mind_control/prometheus_2
+          neurofeedback_art: ./ui/real_time_detections/neurofeedback_art
           robotic_arm: ./ui/robotic_arm
         settings:
           mind_control_training:

@@ -1,6 +1,114 @@
 /* ============================================
    N-Back Experiment — Page-Specific Styles
+   Adapted from IB Labs (style.css) for
+   Liquid Glass theme.
    ============================================ */
 
-/* Page-specific styles go here.
-   Shared design system (Liquid Glass) is loaded via shared.css */
+/* ---- Experiment area: fills main-content ---- */
+
+.experiment-area {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 32px;
+}
+
+/* ---- Screens ---- */
+
+.experiment-screen {
+    max-width: 600px;
+    text-align: center;
+}
+
+.experiment-screen p {
+    font-size: 1.3em;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    font-family: var(--font-sans);
+}
+
+.experiment-screen img {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    margin: 16px 0;
+}
+
+.key-hint {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 8px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-raised);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.04em;
+}
+
+/* ---- Utilities ---- */
+
+.hidden {
+    display: none !important;
+}
+
+.no_cursor {
+    cursor: none;
+}
+
+/* ---- Calibration marker (cross) ---- */
+
+.marker {
+    width: 60px;
+    height: 60px;
+    background:
+        linear-gradient(var(--text-primary), var(--text-primary)),
+        linear-gradient(var(--text-primary), var(--text-primary));
+    background-position: center;
+    background-size: 100% 6px, 6px 100%;
+    background-repeat: no-repeat;
+}
+
+/* ---- Ready screen ---- */
+
+#ready_n {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.6em;
+    color: var(--accent);
+}
+
+/* ---- Symbol display ---- */
+
+#symbol {
+    font-size: 80px;
+    width: 120px;
+    height: 120px;
+    text-align: center;
+    line-height: 120px;
+    border: 3px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-weight: 300;
+    background: var(--bg-raised);
+    transition: color 0.15s, border-color 0.15s;
+}
+
+/* ---- Feedback colors ---- */
+
+.green {
+    color: var(--green) !important;
+    border-color: var(--green) !important;
+    box-shadow: 0 0 24px rgba(34, 197, 94, 0.3);
+}
+
+.red {
+    color: var(--red) !important;
+    border-color: var(--red) !important;
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.3);
+}

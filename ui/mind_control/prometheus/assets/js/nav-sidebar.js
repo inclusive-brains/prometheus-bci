@@ -34,6 +34,7 @@ class NavSidebar extends HTMLElement {
                     ${this._link('/facial_expressions', 'Facial Expressions', active, `<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>`)}
                     ${this._link('/head_motions', 'Head Movements', active, `<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>`)}
                     ${this._link('/multimodal', 'Multimodal', active, `<circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10"/><path d="M12 2a15 15 0 0 0-4 10 15 15 0 0 0 4 10"/><path d="M2 12h20"/>`)}
+                    ${this._link('/neurofeedback_art', 'Neurofeedback', active, `<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" opacity="0.5"/><circle cx="12" cy="12" r="10" opacity="0.3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>`)}
                 </div>
 
                 <div class="nav-section">

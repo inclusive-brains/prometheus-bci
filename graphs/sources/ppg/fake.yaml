@@ -1,32 +1,22 @@
 graphs:
 
-  # Fake PPG Data + Metric calculation graph
+  # Simulated PPG — realistic waveform with periodic peaks for HRV metrics
   - id: PPG
     nodes:
-      - id: random
-        module: timeflux.nodes.random
-        class: Random
+      - id: ppg_sim
+        module: nodes.physio.ppg
+        class: PPGSimulator
         params:
-          columns: 1
-          rows_min: 1
-          rows_max: 10
-          value_min: 60
-          value_max: 120
-          seed: 1
+          heart_rate: 70
+          hrv_std: 0.04
+          sampling_rate: 25
+          chunk_duration: 0.2
       - id: eda_simulation_node
-        module: nodes.physio.ppg 
+        module: nodes.physio.ppg
         class: EDASimulator
       - id: ecg_simulation_node
-        module: nodes.physio.ppg 
+        module: nodes.physio.ppg
         class: ECGSimulator
-      - id: bandpass_filter
-        module: timeflux_dsp.nodes.filters
-        class: FIRFilter
-        params:
-          rate: 30
-          frequencies: [0.5, 14]
-          order: 2
-          filter_type: bandpass
       - id: pub_filtered
         module: timeflux.nodes.zmq
         class: Pub
@@ -53,15 +43,13 @@ graphs:
         params:
             topic: hr_data
     edges:
-      - source: random
-        target: bandpass_filter
-      - source: bandpass_filter
+      - source: ppg_sim
         target: pub_filtered
-      - source: random
+      - source: ppg_sim
         target: pub_raw
-      - source: random
+      - source: ppg_sim
         target: pub_eda
-      - source: random
+      - source: ppg_sim
         target: pub_hr
-      - source: random
+      - source: ppg_sim
         target: pub_temperature
