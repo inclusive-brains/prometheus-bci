@@ -15,6 +15,7 @@ io.on('disconnect', function () {
 });
 
 // Subscribe to data streams
+io.subscribe('eeg_raw');
 io.subscribe('eeg_filtered');
 io.subscribe('eeg_stress_metric');
 io.subscribe('eeg_cognitiveload_metric');
@@ -33,6 +34,58 @@ document.addEventListener('DOMContentLoaded', function () {
         borderVisible: false
     };
     var darkLabels = { fillStyle: '#a0a0ab', fontSize: 10 };
+
+    // ---- EEG Raw Signal Charts ----
+    var rawCharts = {};
+    var rawTimeSeries = {};
+
+    function createRawChart(container, metric) {
+        if (!rawCharts[metric]) {
+            var empty = document.getElementById('emptyStateRaw');
+            if (empty) empty.remove();
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'chart-item';
+
+            var label = document.createElement('span');
+            label.className = 'chart-label';
+            label.textContent = metric;
+            wrapper.appendChild(label);
+
+            var canvas = document.createElement('canvas');
+            canvas.id = 'rawChart_' + metric;
+            wrapper.appendChild(canvas);
+            container.appendChild(wrapper);
+
+            rawCharts[metric] = new SmoothieChart({
+                millisPerPixel: 10,
+                responsive: true,
+                grid: darkGrid,
+                labels: darkLabels,
+                tooltipLine: { strokeStyle: '#6b8f71' },
+                title: { text: '', fontSize: 0 }
+            });
+            rawTimeSeries[metric] = new TimeSeries();
+            rawCharts[metric].streamTo(canvas, 1000);
+            rawCharts[metric].addTimeSeries(rawTimeSeries[metric], {
+                lineWidth: 1.5,
+                strokeStyle: '#6b8f71',
+                interpolation: 'bezier'
+            });
+        }
+    }
+
+    io.on('eeg_raw', (message) => {
+        var container = document.getElementById('eegRawChartsContainer');
+        for (var timestamp in message) {
+            for (var metric in message[timestamp]) {
+                createRawChart(container, metric);
+                if (rawTimeSeries[metric]) {
+                    rawTimeSeries[metric].append(parseInt(timestamp), message[timestamp][metric]);
+                }
+            }
+        }
+    });
 
     // ---- EEG Filtered Signal Charts ----
     var eegCharts = {};

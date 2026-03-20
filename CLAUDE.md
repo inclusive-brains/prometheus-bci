@@ -24,6 +24,8 @@ make update     # Upgrade dependencies
 
 **Tests**: `python -m pytest tests/ -v` (test infra in `tests/`, mocks for timeflux/neurokit2 in `tests/conftest.py`)
 
+**Run a single test**: `python -m pytest tests/test_accumulator.py -v` or `python -m pytest tests/test_accumulator.py::test_function_name -v`
+
 **Testing policy**: Every new feature or bug fix **must** include unit tests. Add them in `tests/test_<module>.py`, test pure logic without hardware deps (use mocks from `conftest.py`), and add non-regression checks in `tests/test_regression.py` when changing defaults or schemas. Always run the full suite before committing.
 
 ### Docker
@@ -110,9 +112,9 @@ Vanilla JS frontends served by Timeflux UI (port 8002). Communication via WebSoc
 
 `robotics-pick-and-place/` is a **separate React 19 + Vite + TypeScript** project with Three.js and MuJoCo WebAssembly for physics simulation. Has its own `package.json` — run `npm install && npm run dev` from that directory.
 
-## Supported EEG Devices
+## Known Issues
 
-Emotiv Insight/Epoch X+, OpenBCI Cyton, Conscious Labs, generic LSL, and dummy (random 16-channel data for development).
+**`RuntimeError: Set changed size during iteration` (timeflux_ui)**: A race condition in `timeflux_ui` crashes when a WebSocket client disconnects during broadcast. Workaround: in `site-packages/timeflux_ui/nodes/ui.py` line 230, replace `for uuid in self._subscriptions[topic]:` with `for uuid in self._subscriptions[topic].copy():`. Note that `pip install --upgrade timeflux_ui` will overwrite this fix.
 
 ## Key Files
 

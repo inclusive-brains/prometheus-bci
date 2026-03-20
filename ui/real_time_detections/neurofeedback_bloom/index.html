@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orb — Prometheus BCI</title>
+    <title>Bloom — Prometheus BCI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="assets/css/shared.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -17,13 +17,13 @@
 <body>
 
 <div class="app-layout">
-    <nav-sidebar active="/neurofeedback_art"></nav-sidebar>
+    <nav-sidebar active="/neurofeedback_bloom"></nav-sidebar>
 
     <main class="main-content nfb-main">
         <header class="page-header nfb-header">
             <div>
-                <h1 class="page-title">Orb</h1>
-                <p class="page-description">Generative art driven by multimodal cognitive metrics</p>
+                <h1 class="page-title">Bloom</h1>
+                <p class="page-description">Fractal mandala shaped by multimodal cognitive metrics</p>
             </div>
             <div class="header-badge">
                 <span class="badge-dot"></span>
@@ -34,7 +34,6 @@
         <div class="nfb-canvas-wrapper">
             <canvas id="nfbCanvas"></canvas>
 
-            <!-- Floating metric indicators -->
             <div class="nfb-metrics-overlay">
                 <div class="nfb-metric" data-metric="attention">
                     <svg viewBox="0 0 36 36" class="nfb-ring">
@@ -78,7 +77,6 @@
                 </div>
             </div>
 
-            <!-- State label -->
             <div class="nfb-state-label" id="brainState">Awaiting signal...</div>
         </div>
 

@@ -85,7 +85,7 @@ const metrics = {
 };
 // Smoothed values (for fluid transitions)
 const smooth = { ...metrics };
-const LERP_SPEED = 0.04;
+const LERP_SPEED = 0.015;
 
 function lerp(a, b, t) { return a + (b - a) * t; }
 

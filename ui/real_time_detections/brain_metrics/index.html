@@ -78,6 +78,10 @@
                     <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
                     <span class="toggle-label">Metric Cards</span>
                 </label>
+                <label class="view-toggle" data-target="panel-raw">
+                    <input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Raw Signal</span>
+                </label>
                 <label class="view-toggle" data-target="panel-filtered">
                     <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
                     <span class="toggle-label">Filtered Signal</span>
@@ -100,6 +104,21 @@
                 </label>
             </div>
         </div>
+
+        <!-- EEG Raw Signal -->
+        <section class="panel collapsible collapsed" data-panel="panel-raw" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h2 class="panel-title">EEG — Raw Signal</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body" id="eegRawChartsContainer">
+                <div class="empty-state" id="emptyStateRaw">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
+                    <p>Waiting for raw EEG data stream...</p>
+                </div>
+            </div>
+        </section>
 
         <!-- EEG Filtered Signal -->
         <section class="panel collapsible" data-panel="panel-filtered" style="flex: none; min-height: 0;">
