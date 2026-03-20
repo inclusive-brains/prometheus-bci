@@ -19,20 +19,20 @@ class TestEEGSimulator:
     def test_output_shape(self):
         """Each chunk should have rate * chunk_duration samples."""
         self.sim.update()
-        df = self.sim.o.set.call_args[0][0]
+        df = self.sim.o.data
         assert isinstance(df, pd.DataFrame)
         assert df.shape == (25, 14)  # 250Hz * 0.1s = 25 samples, 14 channels
 
     def test_channel_names(self):
         self.sim.update()
-        df = self.sim.o.set.call_args[0][0]
+        df = self.sim.o.data
         assert list(df.columns) == DEFAULT_CHANNELS
 
     def test_no_nans(self):
         """Signal should never contain NaN."""
         for _ in range(100):
             self.sim.update()
-            df = self.sim.o.set.call_args[0][0]
+            df = self.sim.o.data
             assert not df.isna().any().any()
 
     def test_amplitude_reasonable(self):
@@ -40,7 +40,7 @@ class TestEEGSimulator:
         all_vals = []
         for _ in range(200):
             self.sim.update()
-            df = self.sim.o.set.call_args[0][0]
+            df = self.sim.o.data
             all_vals.append(df.values)
         data = np.concatenate(all_vals, axis=0)
         assert np.abs(data).max() < 800, "Signal amplitude exceeds realistic EEG bounds"
@@ -50,7 +50,7 @@ class TestEEGSimulator:
         all_vals = []
         for _ in range(400):  # ~40s of data
             self.sim.update()
-            df = self.sim.o.set.call_args[0][0]
+            df = self.sim.o.data
             all_vals.append(df["O1"].values)
         signal = np.concatenate(all_vals)
 
@@ -73,7 +73,7 @@ class TestEEGSimulator:
         all_vals = []
         for _ in range(400):
             self.sim.update()
-            df = self.sim.o.set.call_args[0][0]
+            df = self.sim.o.data
             all_vals.append(df["Cz"].values)
         signal = np.concatenate(all_vals)
 
@@ -97,8 +97,8 @@ class TestEEGSimulator:
         self.sim.update()
         sim2.update()
 
-        df1 = self.sim.o.set.call_args[0][0]
-        df2 = sim2.o.set.call_args[0][0]
+        df1 = self.sim.o.data
+        df2 = sim2.o.data
         np.testing.assert_array_almost_equal(df1.values, df2.values, decimal=10)
 
     def test_metrics_vary_over_time(self):
@@ -106,7 +106,7 @@ class TestEEGSimulator:
         ratios = []
         for _ in range(200):  # ~20s
             self.sim.update()
-            df = self.sim.o.set.call_args[0][0]
+            df = self.sim.o.data
             # Quick alpha/theta ratio on O1
             signal = df["O1"].values
             if len(signal) < 64:

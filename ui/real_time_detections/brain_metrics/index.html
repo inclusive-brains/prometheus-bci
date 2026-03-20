@@ -68,9 +68,10 @@
         </div>
 
         <!-- EEG Filtered Signal -->
-        <section class="panel" style="flex: none; min-height: 280px;">
-            <div class="panel-header">
+        <section class="panel collapsible" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG — Filtered Signal</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 <span class="panel-badge">Live</span>
             </div>
             <div class="panel-body" id="eegChartsContainer">
@@ -82,9 +83,10 @@
         </section>
 
         <!-- EEG Bandpower -->
-        <section class="panel" style="flex: none; min-height: 280px;">
-            <div class="panel-header">
+        <section class="panel collapsible collapsed" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG Bandpower</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 <span class="panel-badge">Live</span>
             </div>
             <div class="panel-body" id="eegBandpowerContainer">
@@ -96,9 +98,10 @@
         </section>
 
         <!-- EEG Bandpower Mean — Bar Chart -->
-        <section class="panel" style="flex: none; min-height: 300px;">
-            <div class="panel-header">
+        <section class="panel collapsible" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG Bandpower — Mean</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 <span class="panel-badge">Live</span>
             </div>
             <div class="panel-body">
@@ -107,9 +110,10 @@
         </section>
 
         <!-- EEG Bandpower Mean — Time Series -->
-        <section class="panel" style="flex: none; min-height: 280px;">
-            <div class="panel-header">
+        <section class="panel collapsible collapsed" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG Bandpower — Mean (Time Series)</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 <span class="panel-badge">Live</span>
             </div>
             <div class="panel-body" id="eegBandpowerContainerMean">
@@ -121,9 +125,10 @@
         </section>
 
         <!-- Metrics Time Series -->
-        <section class="panel" style="flex: none; min-height: 260px;">
-            <div class="panel-header">
+        <section class="panel collapsible" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">Metrics — Time Series</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 <span class="panel-badge">Live</span>
             </div>
             <div class="panel-body">

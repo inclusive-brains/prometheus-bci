@@ -73,6 +73,7 @@ class PPGSimulator(Node):
             freq=pd.tseries.offsets.Milli(int(1000 / self._sr)),
         )
         self.o.data = pd.DataFrame({"0": samples}, index=index)
+        self.o.meta = {"rate": self._sr}
 
 class EDASimulator(Node):
     def __init__(self):

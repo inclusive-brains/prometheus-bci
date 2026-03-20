@@ -167,6 +167,5 @@ class EEGSimulator(Node):
             start=now, periods=n,
             freq=pd.tseries.offsets.Milli(int(1000 / self._rate)),
         )
-        self.o.set(
-            pd.DataFrame(signal.T, index=index, columns=self._channels)
-        )
+        self.o.data = pd.DataFrame(signal.T, index=index, columns=self._channels)
+        self.o.meta = {"rate": self._rate}

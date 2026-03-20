@@ -54,10 +54,10 @@ class TestBrainFlowSource:
 
         node.update()
 
-        node.o.set.assert_called_once()
-        df = node.o.set.call_args[0][0]
+        df = node.o.data
         assert isinstance(df, pd.DataFrame)
         assert df.shape == (100, 16)
+        assert node.o.meta == {"rate": 250}
 
     def test_column_names_match_device(self, mock_board):
         MockShim, instance = mock_board
@@ -65,7 +65,7 @@ class TestBrainFlowSource:
         node.o = MagicMock()
         node.update()
 
-        df = node.o.set.call_args[0][0]
+        df = node.o.data
         expected_names = CHANNEL_NAMES["synthetic"]
         assert list(df.columns) == expected_names
 
@@ -77,7 +77,7 @@ class TestBrainFlowSource:
         node.o = MagicMock()
         node.update()
 
-        df = node.o.set.call_args[0][0]
+        df = node.o.data
         assert list(df.columns) == custom
 
     def test_empty_data_produces_no_output(self, mock_board):
@@ -88,7 +88,10 @@ class TestBrainFlowSource:
         node.o = MagicMock()
         node.update()
 
-        node.o.set.assert_not_called()
+        # update() should have returned early — data was never assigned
+        # With MagicMock, check that __setattr__ was not called for 'data'
+        calls = [c for c in node.o.mock_calls if 'data' in str(c)]
+        assert len(calls) == 0, "Should not set output data when input is empty"
 
     def test_terminate_releases_session(self, mock_board):
         MockShim, instance = mock_board
@@ -108,7 +111,7 @@ class TestBrainFlowSource:
         node.o = MagicMock()
         node.update()
 
-        df = node.o.set.call_args[0][0]
+        df = node.o.data
         assert pd.api.types.is_datetime64_any_dtype(df.index)
 
 

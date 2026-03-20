@@ -2,6 +2,25 @@
    Brain Metrics — Page-Specific Styles
    ============================================ */
 
+/* ---- Collapsible panels ---- */
+.panel.collapsible > .panel-header {
+    cursor: pointer;
+    user-select: none;
+}
+.panel-toggle {
+    width: 18px;
+    height: 18px;
+    color: var(--text-tertiary);
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+}
+.panel.collapsed .panel-toggle {
+    transform: rotate(-90deg);
+}
+.panel.collapsed > .panel-body {
+    display: none;
+}
+
 .chart-legend {
     display: flex;
     gap: 16px;

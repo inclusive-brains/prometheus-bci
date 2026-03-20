@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurofeedback Art — Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #06060a;
+            color: #fafafa;
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        #nfbCanvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+        /* Header */
+        .nfb-header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+            background: linear-gradient(to bottom, rgba(10,10,14,0.85) 0%, transparent 100%);
+            padding: 24px 36px; display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        .page-title { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
+        .page-description { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        /* Floating Metric Rings */
+        .nfb-metrics-overlay {
+            position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 28px; z-index: 10;
+        }
+        .nfb-metric {
+            position: relative; width: 72px; height: 72px;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.04); border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .nfb-metric:hover { transform: scale(1.1); box-shadow: 0 0 24px rgba(34,211,238,0.15); }
+        .nfb-ring {
+            position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px);
+            transform: rotate(-90deg);
+        }
+        .nfb-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 2; }
+        .nfb-ring-fill {
+            fill: none; stroke-width: 2.5; stroke-linecap: round;
+            stroke-dasharray: 100; stroke-dashoffset: 100;
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1), stroke 0.8s ease;
+        }
+        [data-metric="attention"] .nfb-ring-fill { stroke: #22d3ee; }
+        [data-metric="arousal"] .nfb-ring-fill   { stroke: #f59e0b; }
+        [data-metric="stress"] .nfb-ring-fill    { stroke: #a78bfa; }
+        [data-metric="cognitive"] .nfb-ring-fill  { stroke: #f472b6; }
+        .nfb-metric-inner { text-align: center; z-index: 1; }
+        .nfb-metric-value {
+            display: block; font-family: 'JetBrains Mono', monospace;
+            font-size: 14px; font-weight: 500; color: #fafafa; line-height: 1;
+        }
+        .nfb-metric-label {
+            display: block; font-size: 9px; font-weight: 400;
+            color: rgba(255,255,255,0.45); text-transform: uppercase;
+            letter-spacing: 0.08em; margin-top: 2px;
+        }
+
+        /* Brain State */
+        .nfb-state-label {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+            font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.35);
+            letter-spacing: 0.12em; text-transform: uppercase; z-index: 10;
+        }
+
+        /* Demo controls */
+        .demo-controls {
+            position: fixed; top: 24px; right: 36px; z-index: 20;
+            display: flex; flex-direction: column; gap: 10px;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 16px 20px; min-width: 200px;
+        }
+        .demo-controls label {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 12px; color: rgba(255,255,255,0.6);
+        }
+        .demo-controls span.lbl { width: 70px; text-align: right; }
+        .demo-controls input[type="range"] {
+            flex: 1; accent-color: #22d3ee; height: 3px;
+            -webkit-appearance: none; background: rgba(255,255,255,0.1);
+            border-radius: 2px; outline: none;
+        }
+        .demo-controls input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 12px; height: 12px;
+            border-radius: 50%; background: #fafafa; cursor: pointer;
+        }
+        .demo-controls .ctrl-title {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.3); margin-bottom: 4px;
+        }
+        .preset-row { display: flex; gap: 6px; margin-top: 4px; }
+        .preset-btn {
+            flex: 1; padding: 6px 0; font-size: 10px; font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px; color: rgba(255,255,255,0.5); cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .preset-btn:hover { background: rgba(255,255,255,0.08); color: #fafafa; }
+    </style>
+</head>
+<body>
+
+<canvas id="nfbCanvas"></canvas>
+
+<div class="nfb-header">
+    <div>
+        <h1 class="page-title">Neurofeedback</h1>
+        <p class="page-description">Generative art driven by your brain activity</p>
+    </div>
+</div>
+
+<!-- Demo sliders -->
+<div class="demo-controls">
+    <div class="ctrl-title">Simulate Metrics</div>
+    <label><span class="lbl">Focus</span><input type="range" id="sl-attention" min="0" max="100" value="50"></label>
+    <label><span class="lbl">Energy</span><input type="range" id="sl-arousal" min="0" max="100" value="35"></label>
+    <label><span class="lbl">Stress</span><input type="range" id="sl-stress" min="0" max="100" value="20"></label>
+    <label><span class="lbl">Load</span><input type="range" id="sl-cognitive" min="0" max="100" value="40"></label>
+    <div class="preset-row">
+        <button class="preset-btn" onclick="preset(0.85,0.25,0.1,0.3)">Flow</button>
+        <button class="preset-btn" onclick="preset(0.7,0.8,0.2,0.5)">Alert</button>
+        <button class="preset-btn" onclick="preset(0.3,0.7,0.8,0.7)">Stress</button>
+        <button class="preset-btn" onclick="preset(0.2,0.15,0.1,0.2)">Drowsy</button>
+    </div>
+</div>
+
+<!-- Metric rings -->
+<div class="nfb-metrics-overlay">
+    <div class="nfb-metric" data-metric="attention">
+        <svg viewBox="0 0 36 36" class="nfb-ring"><circle cx="18" cy="18" r="15.9" class="nfb-ring-bg"/><circle cx="18" cy="18" r="15.9" class="nfb-ring-fill" id="ring-attention"/></svg>
+        <div class="nfb-metric-inner"><span class="nfb-metric-value" id="val-attention">—</span><span class="nfb-metric-label">Focus</span></div>
+    </div>
+    <div class="nfb-metric" data-metric="arousal">
+        <svg viewBox="0 0 36 36" class="nfb-ring"><circle cx="18" cy="18" r="15.9" class="nfb-ring-bg"/><circle cx="18" cy="18" r="15.9" class="nfb-ring-fill" id="ring-arousal"/></svg>
+        <div class="nfb-metric-inner"><span class="nfb-metric-value" id="val-arousal">—</span><span class="nfb-metric-label">Energy</span></div>
+    </div>
+    <div class="nfb-metric" data-metric="stress">
+        <svg viewBox="0 0 36 36" class="nfb-ring"><circle cx="18" cy="18" r="15.9" class="nfb-ring-bg"/><circle cx="18" cy="18" r="15.9" class="nfb-ring-fill" id="ring-stress"/></svg>
+        <div class="nfb-metric-inner"><span class="nfb-metric-value" id="val-stress">—</span><span class="nfb-metric-label">Calm</span></div>
+    </div>
+    <div class="nfb-metric" data-metric="cognitive">
+        <svg viewBox="0 0 36 36" class="nfb-ring"><circle cx="18" cy="18" r="15.9" class="nfb-ring-bg"/><circle cx="18" cy="18" r="15.9" class="nfb-ring-fill" id="ring-cognitive"/></svg>
+        <div class="nfb-metric-inner"><span class="nfb-metric-value" id="val-cognitive">—</span><span class="nfb-metric-label">Load</span></div>
+    </div>
+</div>
+
+<div class="nfb-state-label" id="brainState">Flow State</div>
+
+<script>
+'use strict';
+
+// ── Simplex Noise ──
+const SimplexNoise = (() => {
+    const F2 = 0.5*(Math.sqrt(3)-1), G2 = (3-Math.sqrt(3))/6;
+    const F3 = 1/3, G3 = 1/6;
+    const grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+    const p = []; for(let i=0;i<256;i++) p[i]=(Math.random()*256)|0;
+    const perm=new Array(512),permMod12=new Array(512);
+    for(let i=0;i<512;i++){perm[i]=p[i&255];permMod12[i]=perm[i]%12;}
+    function dot2(g,x,y){return g[0]*x+g[1]*y;}
+    function dot3(g,x,y,z){return g[0]*x+g[1]*y+g[2]*z;}
+    return {
+        noise2D(x,y){const s=(x+y)*F2;const i=Math.floor(x+s),j=Math.floor(y+s);const t=(i+j)*G2;const X0=i-t,Y0=j-t;const x0=x-X0,y0=y-Y0;const i1=x0>y0?1:0,j1=x0>y0?0:1;const x1=x0-i1+G2,y1=y0-j1+G2;const x2=x0-1+2*G2,y2=y0-1+2*G2;const ii=i&255,jj=j&255;let n0=0,n1=0,n2=0;let t0=0.5-x0*x0-y0*y0;if(t0>=0){t0*=t0;n0=t0*t0*dot2(grad3[permMod12[ii+perm[jj]]],x0,y0);}let t1=0.5-x1*x1-y1*y1;if(t1>=0){t1*=t1;n1=t1*t1*dot2(grad3[permMod12[ii+i1+perm[jj+j1]]],x1,y1);}let t2=0.5-x2*x2-y2*y2;if(t2>=0){t2*=t2;n2=t2*t2*dot2(grad3[permMod12[ii+1+perm[jj+1]]],x2,y2);}return 70*(n0+n1+n2);},
+        noise3D(x,y,z){const s=(x+y+z)*F3;const i=Math.floor(x+s),j=Math.floor(y+s),k=Math.floor(z+s);const t=(i+j+k)*G3;const x0=x-(i-t),y0=y-(j-t),z0=z-(k-t);let i1,j1,k1,i2,j2,k2;if(x0>=y0){if(y0>=z0){i1=1;j1=0;k1=0;i2=1;j2=1;k2=0;}else if(x0>=z0){i1=1;j1=0;k1=0;i2=1;j2=0;k2=1;}else{i1=0;j1=0;k1=1;i2=1;j2=0;k2=1;}}else{if(y0<z0){i1=0;j1=0;k1=1;i2=0;j2=1;k2=1;}else if(x0<z0){i1=0;j1=1;k1=0;i2=0;j2=1;k2=1;}else{i1=0;j1=1;k1=0;i2=1;j2=1;k2=0;}}const x1=x0-i1+G3,y1=y0-j1+G3,z1=z0-k1+G3;const x2=x0-i2+2*G3,y2=y0-j2+2*G3,z2=z0-k2+2*G3;const x3=x0-1+3*G3,y3=y0-1+3*G3,z3=z0-1+3*G3;const ii=i&255,jj=j&255,kk=k&255;let n0=0,n1=0,n2=0,n3=0,tt;tt=0.6-x0*x0-y0*y0-z0*z0;if(tt>0){tt*=tt;n0=tt*tt*dot3(grad3[permMod12[ii+perm[jj+perm[kk]]]],x0,y0,z0);}tt=0.6-x1*x1-y1*y1-z1*z1;if(tt>0){tt*=tt;n1=tt*tt*dot3(grad3[permMod12[ii+i1+perm[jj+j1+perm[kk+k1]]]],x1,y1,z1);}tt=0.6-x2*x2-y2*y2-z2*z2;if(tt>0){tt*=tt;n2=tt*tt*dot3(grad3[permMod12[ii+i2+perm[jj+j2+perm[kk+k2]]]],x2,y2,z2);}tt=0.6-x3*x3-y3*y3-z3*z3;if(tt>0){tt*=tt;n3=tt*tt*dot3(grad3[permMod12[ii+1+perm[jj+1+perm[kk+1]]]],x3,y3,z3);}return 32*(n0+n1+n2+n3);}
+    };
+})();
+
+// ── Metrics ──
+const metrics = { attention: 0.5, arousal: 0.35, stress: 0.2, cognitive: 0.4 };
+const smooth = { ...metrics };
+const LERP_SPEED = 0.04;
+function lerp(a,b,t){return a+(b-a)*t;}
+
+// Slider bindings
+['attention','arousal','stress','cognitive'].forEach(k => {
+    const sl = document.getElementById('sl-' + k);
+    if (sl) sl.addEventListener('input', () => { metrics[k] = sl.value / 100; });
+});
+
+function preset(a, ar, s, c) {
+    metrics.attention = a; metrics.arousal = ar; metrics.stress = s; metrics.cognitive = c;
+    document.getElementById('sl-attention').value = a * 100;
+    document.getElementById('sl-arousal').value = ar * 100;
+    document.getElementById('sl-stress').value = s * 100;
+    document.getElementById('sl-cognitive').value = c * 100;
+}
+
+// ── Colors ──
+const palettes = {
+    calm:   { r:34,  g:211, b:238 },
+    mid:    { r:167, g:139, b:250 },
+    stress: { r:245, g:158, b:11  },
+    high:   { r:239, g:68,  b:68  },
+};
+function getOrbColor(stress) {
+    let r,g,b;
+    if (stress < 0.33) { const t=stress/0.33; r=lerp(palettes.calm.r,palettes.mid.r,t); g=lerp(palettes.calm.g,palettes.mid.g,t); b=lerp(palettes.calm.b,palettes.mid.b,t); }
+    else if (stress < 0.66) { const t=(stress-0.33)/0.33; r=lerp(palettes.mid.r,palettes.stress.r,t); g=lerp(palettes.mid.g,palettes.stress.g,t); b=lerp(palettes.mid.b,palettes.stress.b,t); }
+    else { const t=(stress-0.66)/0.34; r=lerp(palettes.stress.r,palettes.high.r,t); g=lerp(palettes.stress.g,palettes.high.g,t); b=lerp(palettes.stress.b,palettes.high.b,t); }
+    return { r:Math.round(r), g:Math.round(g), b:Math.round(b) };
+}
+
+// ── Particles ──
+const MAX_PARTICLES = 200;
+const particles = [];
+function createParticle(cx,cy,baseRadius) {
+    const angle = Math.random()*Math.PI*2;
+    const dist = baseRadius*(0.6+Math.random()*1.2);
+    return { x:cx+Math.cos(angle)*dist, y:cy+Math.sin(angle)*dist, angle, dist, speed:0.002+Math.random()*0.008, size:1+Math.random()*2.5, alpha:0.3+Math.random()*0.5, phase:Math.random()*Math.PI*2, trail:[] };
+}
+
+// ── Canvas ──
+const canvas = document.getElementById('nfbCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, baseRadius, dpr = 1;
+
+function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2; cy = H / 2;
+    baseRadius = Math.min(W, H) * 0.18;
+    particles.length = 0;
+    for (let i = 0; i < MAX_PARTICLES; i++) particles.push(createParticle(cx, cy, baseRadius));
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── Render ──
+let time = 0;
+
+function frame() {
+    requestAnimationFrame(frame);
+    time += 0.006;
+
+    smooth.attention = lerp(smooth.attention, metrics.attention, LERP_SPEED);
+    smooth.arousal   = lerp(smooth.arousal,   metrics.arousal,   LERP_SPEED);
+    smooth.stress    = lerp(smooth.stress,    metrics.stress,    LERP_SPEED);
+    smooth.cognitive = lerp(smooth.cognitive,  metrics.cognitive, LERP_SPEED);
+
+    const color = getOrbColor(smooth.stress);
+    const orbRadius = baseRadius * (0.85 + smooth.attention * 0.35);
+    const noiseAmp = 12 + smooth.cognitive * 35;
+    const noiseFreq = 1.5 + smooth.cognitive * 2.5;
+    const pulseRate = 0.8 + smooth.arousal * 2.5;
+    const particleSpeed = 0.3 + smooth.arousal * 2.0;
+
+    ctx.fillStyle = 'rgba(6, 6, 10, 0.18)';
+    ctx.fillRect(0, 0, W, H);
+
+    // Background glow
+    const glowRadius = orbRadius * (2.2 + smooth.arousal * 0.6);
+    const bgGrad = ctx.createRadialGradient(cx, cy, orbRadius * 0.3, cx, cy, glowRadius);
+    bgGrad.addColorStop(0, `rgba(${color.r},${color.g},${color.b},${0.06 + smooth.attention * 0.04})`);
+    bgGrad.addColorStop(0.5, `rgba(${color.r},${color.g},${color.b},0.015)`);
+    bgGrad.addColorStop(1, 'rgba(6,6,10,0)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Aura rings
+    for (let ring = 0; ring < 3; ring++) {
+        const ringPhase = time * pulseRate * 0.4 + ring * 0.7;
+        const ringPulse = 0.5 + 0.5 * Math.sin(ringPhase);
+        const ringR = orbRadius * (1.3 + ring * 0.25 + ringPulse * 0.15);
+        ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${0.03 - ring * 0.008})`;
+        ctx.lineWidth = 1.5 - ring * 0.3; ctx.stroke();
+    }
+
+    // Particles
+    const activeCount = Math.floor(40 + smooth.arousal * (MAX_PARTICLES - 40));
+    for (let i = 0; i < MAX_PARTICLES; i++) {
+        const p = particles[i];
+        if (i >= activeCount) { p.trail.length = 0; continue; }
+        p.angle += p.speed * particleSpeed;
+        const noiseVal = SimplexNoise.noise3D(Math.cos(p.angle)*0.5, Math.sin(p.angle)*0.5, time*0.5+p.phase);
+        const dynamicDist = p.dist + noiseVal * noiseAmp * 0.8;
+        p.x = cx + Math.cos(p.angle) * dynamicDist;
+        p.y = cy + Math.sin(p.angle) * dynamicDist;
+        p.trail.push({ x: p.x, y: p.y });
+        const maxTrail = Math.floor(6 + smooth.arousal * 18);
+        while (p.trail.length > maxTrail) p.trail.shift();
+        if (p.trail.length > 1) {
+            ctx.beginPath(); ctx.moveTo(p.trail[0].x, p.trail[0].y);
+            for (let j = 1; j < p.trail.length; j++) ctx.lineTo(p.trail[j].x, p.trail[j].y);
+            ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${p.alpha * 0.15})`;
+            ctx.lineWidth = p.size * 0.5; ctx.stroke();
+        }
+        const flicker = 0.7 + 0.3 * Math.sin(time * 3 + p.phase);
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * flicker, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${color.r},${color.g},${color.b},${p.alpha * 0.6})`; ctx.fill();
+    }
+
+    // Main orb
+    const pulse = 1 + 0.03 * Math.sin(time * pulseRate);
+    const segments = 180;
+    ctx.beginPath();
+    for (let i = 0; i <= segments; i++) {
+        const a = (i / segments) * Math.PI * 2;
+        const n1 = SimplexNoise.noise3D(Math.cos(a)*noiseFreq, Math.sin(a)*noiseFreq, time*0.7);
+        const n2 = SimplexNoise.noise3D(Math.cos(a)*noiseFreq*2.2, Math.sin(a)*noiseFreq*2.2, time*0.5+100);
+        const distortion = n1 * noiseAmp + n2 * noiseAmp * 0.3 * smooth.cognitive;
+        const r = orbRadius * pulse + distortion;
+        const x = cx + Math.cos(a) * r; const y = cy + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    const orbGrad = ctx.createRadialGradient(cx-orbRadius*0.15, cy-orbRadius*0.15, orbRadius*0.05, cx, cy, orbRadius*1.1);
+    orbGrad.addColorStop(0, `rgba(255,255,255,${0.08+smooth.attention*0.07})`);
+    orbGrad.addColorStop(0.3, `rgba(${color.r},${color.g},${color.b},${0.15+smooth.attention*0.12})`);
+    orbGrad.addColorStop(0.7, `rgba(${color.r},${color.g},${color.b},0.06)`);
+    orbGrad.addColorStop(1, 'rgba(6,6,10,0)');
+    ctx.fillStyle = orbGrad; ctx.fill();
+    ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${0.25+smooth.attention*0.25})`;
+    ctx.lineWidth = 1.5 + smooth.attention; ctx.shadowColor = `rgba(${color.r},${color.g},${color.b},0.4)`;
+    ctx.shadowBlur = 15 + smooth.attention * 15; ctx.stroke(); ctx.shadowBlur = 0;
+
+    // Inner detail layer
+    ctx.beginPath();
+    for (let i = 0; i <= segments; i++) {
+        const a = (i / segments) * Math.PI * 2;
+        const n = SimplexNoise.noise3D(Math.cos(a)*noiseFreq*1.6, Math.sin(a)*noiseFreq*1.6, time*0.9+50);
+        const r = orbRadius * 0.7 * pulse + n * noiseAmp * 0.5;
+        const x = cx + Math.cos(a) * r; const y = cy + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},0.08)`; ctx.lineWidth = 1; ctx.stroke();
+
+    // Specular highlight
+    const specGrad = ctx.createRadialGradient(cx-orbRadius*0.25, cy-orbRadius*0.3, 0, cx-orbRadius*0.25, cy-orbRadius*0.3, orbRadius*0.5);
+    specGrad.addColorStop(0, `rgba(255,255,255,${0.06+smooth.attention*0.06})`);
+    specGrad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = specGrad; ctx.beginPath(); ctx.arc(cx, cy, orbRadius*1.1, 0, Math.PI*2); ctx.fill();
+
+    // Update UI
+    updateRing('attention', smooth.attention);
+    updateRing('arousal', smooth.arousal);
+    updateRing('stress', smooth.stress);
+    updateRing('cognitive', smooth.cognitive);
+    updateBrainState();
+}
+
+function updateRing(name, value) {
+    const pct = Math.round(value * 100);
+    const offset = 100 - value * 100;
+    const ring = document.getElementById('ring-' + name);
+    const val = document.getElementById('val-' + name);
+    if (ring) ring.style.strokeDashoffset = offset;
+    if (val) val.textContent = pct;
+}
+
+function updateBrainState() {
+    const el = document.getElementById('brainState');
+    if (!el) return;
+    const a = smooth.attention, s = smooth.stress, ar = smooth.arousal, c = smooth.cognitive;
+    let state = '';
+    if (a > 0.7 && s < 0.3) state = 'Deep Focus';
+    else if (a > 0.6 && s < 0.4) state = 'Focused';
+    else if (s > 0.7) state = 'High Tension';
+    else if (s > 0.5 && c > 0.5) state = 'Mental Effort';
+    else if (ar < 0.25 && a < 0.4) state = 'Drowsy';
+    else if (ar > 0.7) state = 'Alert';
+    else if (c > 0.65) state = 'Processing';
+    else if (s < 0.25 && a > 0.4) state = 'Flow State';
+    else state = 'Neutral';
+    el.textContent = state;
+}
+
+frame();
+</script>
+</body>
+</html>

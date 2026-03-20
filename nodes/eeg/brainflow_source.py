@@ -137,13 +137,12 @@ class BrainFlowSource(Node):
         index = pd.to_datetime(timestamps, unit="s", utc=True)
 
         # Build output DataFrame
-        self.o.set(
-            pd.DataFrame(
-                eeg_data.T,
-                index=index,
-                columns=self._column_names,
-            )
+        self.o.data = pd.DataFrame(
+            eeg_data.T,
+            index=index,
+            columns=self._column_names,
         )
+        self.o.meta = {"rate": self._sample_rate}
 
     def terminate(self):
         try:
