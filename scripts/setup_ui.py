@@ -804,10 +804,20 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 /* ── Landing Overlay ── */
 .landing-overlay {{
     position: fixed; inset: 0; z-index: 1000;
-    background: #000;
+    background: var(--bg-root);
     display: flex; align-items: center; justify-content: center;
     transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+}}
+/* Subtle radial glows behind the 3D scene */
+.landing-overlay::before {{
+    content: '';
+    position: absolute; inset: 0; z-index: 1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 800px 600px at 20% 30%, rgba(34, 211, 238, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 600px 500px at 80% 70%, rgba(167, 139, 250, 0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 400px at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 60%);
 }}
 .landing-overlay.exiting {{
     opacity: 0;
@@ -817,25 +827,26 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 #brainCanvas {{
     position: absolute; inset: 0;
     width: 100%; height: 100%;
+    z-index: 2;
 }}
 .landing-content {{
     position: relative; z-index: 10;
     text-align: center;
     display: flex; flex-direction: column;
-    align-items: center; gap: 20px;
+    align-items: center; gap: 24px;
     pointer-events: none;
 }}
 .landing-content > * {{ pointer-events: auto; }}
 .landing-logo {{
-    width: 56px; height: 56px;
+    width: 60px; height: 60px;
     background: linear-gradient(135deg, var(--accent), #06b6d4);
-    border-radius: 14px;
+    border-radius: 16px;
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-mono); font-weight: 700; font-size: 26px;
-    color: #000;
+    color: var(--bg-root);
     opacity: 0;
     animation: landing-fade-in 1.2s ease 0.5s both;
-    box-shadow: 0 0 50px rgba(34, 211, 238, 0.25);
+    box-shadow: 0 0 60px rgba(34, 211, 238, 0.35), 0 0 120px rgba(34, 211, 238, 0.15), var(--glass-specular);
 }}
 .landing-title {{
     font-family: var(--font-sans);
@@ -844,21 +855,21 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     color: #fafafa;
     opacity: 0;
     animation: landing-fade-in 1.2s ease 0.8s both;
-    text-shadow: 0 0 80px rgba(34, 211, 238, 0.15);
+    text-shadow: 0 0 80px rgba(34, 211, 238, 0.2), 0 0 160px rgba(167, 139, 250, 0.08);
 }}
 .landing-subtitle {{
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #63636e;
+    color: var(--text-tertiary);
     opacity: 0;
     animation: landing-fade-in 1s ease 1.1s both;
 }}
 .landing-enter {{
-    margin-top: 24px;
-    padding: 14px 48px;
-    background: transparent;
+    margin-top: 28px;
+    padding: 14px 52px;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(34, 211, 238, 0.25);
     border-radius: var(--radius-md);
     color: var(--accent);
@@ -873,21 +884,23 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     animation: landing-fade-in 1s ease 1.6s both;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: var(--glass-specular), 0 4px 24px rgba(0, 0, 0, 0.3);
 }}
 .landing-enter::before {{
     content: '';
     position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(6,182,212,0.04));
+    background: linear-gradient(135deg, rgba(34,211,238,0.1), rgba(167,139,250,0.05));
     opacity: 0;
     transition: opacity 0.3s;
 }}
 .landing-enter:hover {{
     border-color: var(--accent);
-    box-shadow: 0 0 40px rgba(34, 211, 238, 0.2), inset 0 0 40px rgba(34, 211, 238, 0.06);
+    box-shadow: 0 0 50px rgba(34, 211, 238, 0.25), inset 0 0 40px rgba(34, 211, 238, 0.06), var(--glass-specular);
     letter-spacing: 0.3em;
     color: #fff;
+    background: rgba(255, 255, 255, 0.06);
 }}
 .landing-enter:hover::before {{ opacity: 1; }}
 .landing-enter:active {{ transform: scale(0.97); }}
@@ -907,6 +920,13 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     color: rgba(255,255,255,0.5);
     opacity: 0;
     animation: landing-fade-in 1.2s ease 2.2s both;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-md);
+    box-shadow: var(--glass-specular), 0 4px 16px rgba(0, 0, 0, 0.2);
 }}
 .landing-metric-dot {{
     width: 6px; height: 6px;
@@ -1284,35 +1304,40 @@ renderSections();
 
     // ── Scene ──
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.0008);
+    scene.fog = new THREE.FogExp2(0x050508, 0.0007);
 
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 2000);
     camera.position.set(0, 20, 200);
     camera.lookAt(0, 10, 0);
 
-    const renderer = new THREE.WebGLRenderer({{ canvas, antialias: true, alpha: false }});
+    const renderer = new THREE.WebGLRenderer({{ canvas, antialias: true, alpha: true }});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 1);
+    renderer.setClearColor(0x050508, 0.85);
 
     // ── Lights ──
-    scene.add(new THREE.AmbientLight(0x0a1628, 0.6));
+    scene.add(new THREE.AmbientLight(0x0c1a2e, 0.8));
 
-    const keyLight = new THREE.PointLight(0x22d3ee, 2.0, 600);
+    const keyLight = new THREE.PointLight(0x22d3ee, 2.2, 600);
     keyLight.position.set(100, 120, 150);
     scene.add(keyLight);
 
-    const fillLight = new THREE.PointLight(0x06b6d4, 1.0, 500);
+    const fillLight = new THREE.PointLight(0x06b6d4, 1.2, 500);
     fillLight.position.set(-120, -40, -100);
     scene.add(fillLight);
 
-    const rimLight = new THREE.PointLight(0xa78bfa, 0.6, 400);
+    const rimLight = new THREE.PointLight(0xa78bfa, 0.9, 400);
     rimLight.position.set(0, 160, -80);
     scene.add(rimLight);
 
     const bottomLight = new THREE.PointLight(0x0e7490, 0.4, 300);
     bottomLight.position.set(0, -100, 50);
     scene.add(bottomLight);
+
+    // Violet accent — matches the radial gradient glow
+    const violetLight = new THREE.PointLight(0x8b7db5, 0.5, 350);
+    violetLight.position.set(-80, 60, 120);
+    scene.add(violetLight);
 
     // ── Brain group ──
     const brainGroup = new THREE.Group();
@@ -1344,11 +1369,11 @@ renderSections();
     const pTex = new THREE.CanvasTexture(pCanvas);
 
     const pMat = new THREE.PointsMaterial({{
-        color: 0x22d3ee,
-        size: 1.2,
+        color: 0x44d8ee,
+        size: 1.4,
         map: pTex,
         transparent: true,
-        opacity: 0.4,
+        opacity: 0.45,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         sizeAttenuation: true,
@@ -1374,24 +1399,24 @@ renderSections();
             if (child.isMesh) {{
                 child.geometry.computeVertexNormals();
 
-                // Solid brain — translucent teal with Fresnel-like glow
+                // Solid brain — translucent teal/violet with Fresnel-like glow
                 const solidMat = new THREE.MeshPhongMaterial({{
-                    color: 0x0c4a6e,
-                    emissive: 0x083344,
+                    color: 0x0e4a6e,
+                    emissive: 0x0a3850,
                     specular: 0x22d3ee,
-                    shininess: 30,
+                    shininess: 40,
                     transparent: true,
-                    opacity: 0.55,
+                    opacity: 0.6,
                     side: THREE.DoubleSide,
                 }});
                 child.material = solidMat;
 
-                // Add wireframe overlay as sibling
+                // Add wireframe overlay as sibling — mix cyan & violet
                 const wireMat = new THREE.MeshBasicMaterial({{
-                    color: 0x22d3ee,
+                    color: 0x3ecae8,
                     wireframe: true,
                     transparent: true,
-                    opacity: 0.08,
+                    opacity: 0.06,
                 }});
                 const wireChild = new THREE.Mesh(child.geometry, wireMat);
                 wireChild.position.copy(child.position);
@@ -1455,9 +1480,10 @@ renderSections();
         }}
         pGeo.attributes.position.needsUpdate = true;
 
-        // Pulsing light
-        keyLight.intensity = 2.0 + Math.sin(t * 0.7) * 0.4;
-        rimLight.intensity = 0.6 + Math.sin(t * 1.1 + 1) * 0.2;
+        // Pulsing lights
+        keyLight.intensity = 2.2 + Math.sin(t * 0.7) * 0.5;
+        rimLight.intensity = 0.9 + Math.sin(t * 1.1 + 1) * 0.3;
+        violetLight.intensity = 0.5 + Math.sin(t * 0.6 + 2) * 0.2;
 
         particles.rotation.y = t * 0.02;
 
