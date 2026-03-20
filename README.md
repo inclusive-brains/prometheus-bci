@@ -412,6 +412,26 @@ prometheus-bci/
 └── logs/                   # Application logs
 ```
 
+## Known Issues
+
+### `RuntimeError: Set changed size during iteration` (timeflux_ui)
+
+A race condition in `timeflux_ui` causes a crash when a WebSocket client disconnects while the UI node is broadcasting to subscribers. The error originates in `timeflux_ui/nodes/ui.py` line 230.
+
+**Workaround:** patch the installed package to iterate over a copy of the set:
+
+```python
+# In site-packages/timeflux_ui/nodes/ui.py, line 230
+# Replace:
+for uuid in self._subscriptions[topic]:
+# With:
+for uuid in self._subscriptions[topic].copy():
+```
+
+This prevents concurrent disconnections from modifying the set during iteration. Note that `pip install --upgrade timeflux_ui` will overwrite this fix.
+
+---
+
 ## License
 
 Creative Commons Attribution-NonCommercial 4.0 International

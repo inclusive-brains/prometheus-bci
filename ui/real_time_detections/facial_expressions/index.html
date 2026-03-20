@@ -104,6 +104,7 @@
         }
     </style>
     <script src="assets/js/nav-sidebar.js"></script>
+    <script src="assets/js/app-footer.js"></script>
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/app.js"></script>
     <script defer src="assets/js/smoothie.js"></script>
@@ -132,6 +133,40 @@
         </header>
 
         <div class="panels-scroll">
+            <!-- Metric Cards -->
+            <div style="padding: 20px 32px 0;">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Stress</div>
+                        <div class="metric-value" id="stress_value" style="color: var(--red);">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill stress" id="stress_bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Vigilance</div>
+                        <div class="metric-value" id="vigilance_value" style="color: #a78bfa;">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill cognitive" id="vigilance_bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Attention</div>
+                        <div class="metric-value" id="attention_value" style="color: var(--accent);">—<span class="metric-unit">%</span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill attention" id="attention_bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">EAR</div>
+                        <div class="metric-value" id="ear_value" style="color: var(--amber);">—<span class="metric-unit"></span></div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill arousal" id="ear_bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Face Mesh Panel -->
             <section class="panel" id="demos">
                 <div class="panel-header">
@@ -195,6 +230,7 @@
                 </div>
             </section>
         </div>
+            <app-footer></app-footer>
     </main>
 </div>
 

@@ -14,6 +14,9 @@ io.on('disconnect', function () {
 io.subscribe('eeg_raw');
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Pipeline visualization
+    PipelineViz.render('pipelineViz');
+    PipelineViz.bindToIO(io);
     const charts = {};
     const timeSeries = {};
     const container = document.getElementById('eegChartsContainer');

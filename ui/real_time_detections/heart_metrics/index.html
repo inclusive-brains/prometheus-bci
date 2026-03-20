@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/prometheus.css">
     <script src="assets/js/nav-sidebar.js"></script>
+    <script src="assets/js/app-footer.js"></script>
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/app.js"></script>
     <script type="text/javascript" src="assets/js/smoothie.js"></script>
@@ -104,6 +105,9 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
+        .content-grid .metrics-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
 
         /* Chart panels — no flex:1, size to content */
         .panel--chart {
@@ -159,18 +163,34 @@
                 </div>
             </div>
 
-            <!-- Metric cards row: Attention + Arousal -->
-            <div class="metrics-row">
+            <!-- Metric cards -->
+            <div class="metrics-grid">
                 <div class="metric-card">
-                    <div class="metric-label" id="attention_title">Attention <span>--</span></div>
+                    <div class="metric-label">Stress</div>
+                    <div class="metric-value" id="stress_value" style="color: var(--red);">—<span class="metric-unit">%</span></div>
                     <div class="metric-bar-track">
-                        <div class="metric-bar-fill attention" id="attention_progress" style="width: 0%"></div>
+                        <div class="metric-bar-fill stress" id="stress_bar" style="width: 0%;"></div>
                     </div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label" id="arousal_title">Arousal <span>--</span></div>
+                    <div class="metric-label">Cognitive Load</div>
+                    <div class="metric-value" id="cognitive_value" style="color: #a78bfa;">—<span class="metric-unit">%</span></div>
                     <div class="metric-bar-track">
-                        <div class="metric-bar-fill arousal" id="arousal_progress" style="width: 0%"></div>
+                        <div class="metric-bar-fill cognitive" id="cognitive_bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Attention</div>
+                    <div class="metric-value" id="attention_value" style="color: var(--accent);">—<span class="metric-unit">%</span></div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill attention" id="attention_bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Arousal</div>
+                    <div class="metric-value" id="arousal_value" style="color: var(--amber);">—<span class="metric-unit">%</span></div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill arousal" id="arousal_bar" style="width: 0%;"></div>
                     </div>
                 </div>
             </div>
@@ -205,6 +225,12 @@
                 </div>
                 <div class="panel-body">
                     <canvas id="metricsChart"></canvas>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#c46060;"></span>Stress</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#8b7db5;"></span>Cognitive Load</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Attention</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Arousal</span>
+                    </div>
                 </div>
             </section>
 
@@ -218,6 +244,7 @@
                 </div>
             </section>
         </div>
+            <app-footer></app-footer>
     </main>
 </div>
 

@@ -187,7 +187,9 @@ class TestSchemaRegression:
         """Known headset IDs must be present."""
         ids = {h["id"] for h in HEADSETS}
         expected = {"dummy", "emotiv_insight", "emotiv_epochX", "emotiv_epoch+",
-                    "emotiv_mn8", "consciouslabs"}
+                    "emotiv_mn8", "emotiv_mw20",
+                    "brainflow_synthetic", "brainflow_muse2", "brainflow_muse_s",
+                    "brainflow_ganglion", "brainflow_unicorn", "brainflow_crown"}
         assert ids == expected
 
     def test_critical_schema_keys_exist(self):

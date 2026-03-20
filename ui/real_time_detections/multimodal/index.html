@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal — Prometheus BCI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="assets/css/shared.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/prometheus.css">
+    <script type="text/javascript" src="assets/js/smoothie.js"></script>
+    <script src="assets/js/nav-sidebar.js"></script>
+    <script src="assets/js/app-footer.js"></script>
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+    <nav-sidebar active="/multimodal"></nav-sidebar>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">Multimodal Metrics</h1>
+                <p class="page-description">Fused cognitive metrics from EEG, PPG and Camera</p>
+            </div>
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                <span class="badge-label" id="streamStatus">Idle</span>
+            </div>
+        </header>
+
+        <!-- Metric Cards -->
+        <div style="padding: 20px 32px 0;">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Stress</div>
+                    <div class="metric-value" id="stress_value" style="color: var(--red);">—<span class="metric-unit">%</span></div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill stress" id="stress_bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Cognitive Load</div>
+                    <div class="metric-value" id="cognitive_value" style="color: #a78bfa;">—<span class="metric-unit">%</span></div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill cognitive" id="cognitive_bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Attention</div>
+                    <div class="metric-value" id="attention_value" style="color: var(--accent);">—<span class="metric-unit">%</span></div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill attention" id="attention_bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Arousal</div>
+                    <div class="metric-value" id="arousal_value" style="color: var(--amber);">—<span class="metric-unit">%</span></div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill arousal" id="arousal_bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Time Series -->
+        <section class="panel" style="flex: none; min-height: 280px;">
+            <div class="panel-header">
+                <h2 class="panel-title">Multimodal Metrics — Time Series</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-item">
+                    <canvas id="metricsChart" style="width:100% !important; height:200px !important;"></canvas>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#c46060;"></span>Stress</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#8b7db5;"></span>Cognitive Load</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Attention</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Arousal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Per-Source Breakdown -->
+        <section class="panel" style="flex: none; min-height: 240px;">
+            <div class="panel-header">
+                <h2 class="panel-title">EEG Metrics</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-item">
+                    <canvas id="eegMetricsChart" style="width:100% !important; height:160px !important;"></canvas>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#c46060;"></span>Stress</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#8b7db5;"></span>Cognitive Load</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Attention</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Arousal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" style="flex: none; min-height: 240px;">
+            <div class="panel-header">
+                <h2 class="panel-title">PPG Metrics</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-item">
+                    <canvas id="ppgMetricsChart" style="width:100% !important; height:160px !important;"></canvas>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#c46060;"></span>Stress</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#8b7db5;"></span>Cognitive Load</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Attention</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Arousal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" style="flex: none; min-height: 240px;">
+            <div class="panel-header">
+                <h2 class="panel-title">Facial Metrics</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-item">
+                    <canvas id="facialMetricsChart" style="width:100% !important; height:160px !important;"></canvas>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#c46060;"></span>Stress</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Attention</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Vigilance</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+            <app-footer></app-footer>
+    </main>
+</div>
+
+</body>
+</html>

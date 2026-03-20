@@ -17,7 +17,6 @@ io.on('disconnect', function () {
 
 // Subscribe to data streams
 io.subscribe('eeg_filtered');
-io.subscribe('eeg_bandpower');
 io.subscribe('eeg_emotiv_metrics');
 
 // ---- 10-20 International System positions (SVG coordinates on 300x320 viewBox) ----
@@ -325,49 +324,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- Bandpower Charts (per electrode) ----
-    var bpCharts = {};
-    var bpTimeSeries = {};
-
-    function createBandpowerChart(container, metric) {
-        if (bpCharts[metric]) return;
-
-        var empty = document.getElementById('emptyStateBandpower');
-        if (empty) empty.remove();
-
-        var wrapper = document.createElement('div');
-        wrapper.className = 'chart-item';
-
-        var label = document.createElement('span');
-        label.className = 'chart-label';
-        label.textContent = metric;
-        wrapper.appendChild(label);
-
-        var canvas = document.createElement('canvas');
-        canvas.id = 'bpChart_' + metric;
-        wrapper.appendChild(canvas);
-        container.appendChild(wrapper);
-
-        // Extract base electrode name (e.g., "AF3" from "AF3_alpha")
-        var baseElectrode = metric.split('_')[0];
-        var color = electrodeColors[baseElectrode] || '#8b7db5';
-        bpCharts[metric] = new SmoothieChart({
-            millisPerPixel: 10,
-            responsive: true,
-            grid: darkGrid,
-            labels: darkLabels,
-            tooltipLine: { strokeStyle: color },
-            title: { text: '', fontSize: 0 }
-        });
-        bpTimeSeries[metric] = new TimeSeries();
-        bpCharts[metric].streamTo(canvas, 1000);
-        bpCharts[metric].addTimeSeries(bpTimeSeries[metric], {
-            lineWidth: 1.5,
-            strokeStyle: color,
-            interpolation: 'bezier'
-        });
-    }
-
     // ---- Quality assessment from signal ----
     function computeSignalQuality(electrode) {
         var buf = signalBuffers[electrode];
@@ -549,19 +505,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ---- Handle incoming EEG filtered data ----
     io.on('eeg_filtered', function (message) {
-        var container = document.getElementById('eegChartsContainer');
         for (var timestamp in message) {
             for (var electrode in message[timestamp]) {
                 var value = message[timestamp][electrode];
 
                 // Auto-discover electrode
                 discoverElectrode(electrode);
-
-                // Create chart
-                createEegChart(container, electrode);
-                if (eegTimeSeries[electrode]) {
-                    eegTimeSeries[electrode].append(parseInt(timestamp), value);
-                }
 
                 // Buffer signal for quality computation
                 if (!signalBuffers[electrode]) signalBuffers[electrode] = [];
@@ -578,19 +527,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         updateElectrodeUI(electrode, result.quality, result.snr);
                         updateOverallQuality();
                     }
-                }
-            }
-        }
-    });
-
-    // ---- Handle bandpower data ----
-    io.on('eeg_bandpower', function (message) {
-        var container = document.getElementById('eegBandpowerContainer');
-        for (var timestamp in message) {
-            for (var metric in message[timestamp]) {
-                createBandpowerChart(container, metric);
-                if (bpTimeSeries[metric]) {
-                    bpTimeSeries[metric].append(parseInt(timestamp), message[timestamp][metric]);
                 }
             }
         }

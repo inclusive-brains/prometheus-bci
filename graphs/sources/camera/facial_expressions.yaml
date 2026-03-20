@@ -31,4 +31,4 @@ graphs:
         target: publish_blendshapes
       - source: emotions
         target: publish_emotions
-    rate: 20
+    rate: 10

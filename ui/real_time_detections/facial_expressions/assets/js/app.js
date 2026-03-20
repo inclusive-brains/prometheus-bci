@@ -174,6 +174,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
     io.on('facial_metrics', (message) => {
         processMetricsData(message);
+
+        // Update metric cards from facial_metrics payload
+        var keys = Object.keys(message);
+        if (keys.length === 0) return;
+        var lastKey = keys[keys.length - 1];
+        var row = message[lastKey];
+
+        function updateCard(id, barId, val, asPercent) {
+            var el = document.getElementById(id);
+            var bar = document.getElementById(barId);
+            if (!el || val === undefined) return;
+            if (asPercent) {
+                var pct = (val * 100).toFixed(2);
+                el.innerHTML = pct + '<span class="metric-unit">%</span>';
+                if (bar) bar.style.width = pct + '%';
+            } else {
+                el.innerHTML = val.toFixed(3) + '<span class="metric-unit"></span>';
+                if (bar) bar.style.width = Math.min(val / 0.4 * 100, 100).toFixed(1) + '%';
+            }
+        }
+
+        updateCard('stress_value', 'stress_bar', row.stress, true);
+        updateCard('vigilance_value', 'vigilance_bar', row.vigilance, true);
+        updateCard('attention_value', 'attention_bar', row.attention, true);
+        updateCard('ear_value', 'ear_bar', row.EAR, false);
     });
 
     io.on('facial_blendshapes', (message) => {

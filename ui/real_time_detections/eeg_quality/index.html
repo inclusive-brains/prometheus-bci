@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="assets/css/prometheus.css">
     <script type="text/javascript" src="assets/js/smoothie.js"></script>
     <script src="assets/js/nav-sidebar.js"></script>
+    <script src="assets/js/app-footer.js"></script>
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/app.js"></script>
 </head>
@@ -83,43 +84,15 @@
             </div>
         </section>
 
-        <!-- EEG Raw Signals per electrode -->
-        <section class="panel" style="flex: none; min-height: 280px;">
-            <div class="panel-header">
-                <h2 class="panel-title">EEG — Raw Signal per Electrode</h2>
-                <span class="panel-badge">Live</span>
-            </div>
-            <div class="panel-body" id="eegChartsContainer">
-                <div class="empty-state" id="emptyStateEeg">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
-                    <p>Waiting for EEG data stream...</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bandpower per electrode -->
-        <section class="panel" style="flex: none; min-height: 280px;">
-            <div class="panel-header">
-                <h2 class="panel-title">Frequency Spectrum — per Electrode</h2>
-                <span class="panel-badge">Live</span>
-            </div>
-            <div class="panel-body" id="eegBandpowerContainer">
-                <div class="empty-state" id="emptyStateBandpower">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48"><rect x="4" y="14" width="4" height="6" rx="1"/><rect x="10" y="10" width="4" height="10" rx="1"/><rect x="16" y="6" width="4" height="14" rx="1"/></svg>
-                    <p>Waiting for bandpower data...</p>
-                </div>
-            </div>
-        </section>
-
         <!-- Methodology -->
         <section class="panel methodology-panel" style="flex: none;">
             <div class="panel-header">
                 <h2 class="panel-title">Methodology — How Quality is Computed</h2>
-                <button class="methodology-toggle" id="methodologyToggle" aria-expanded="false">
+                <button class="methodology-toggle" id="methodologyToggle" aria-expanded="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
             </div>
-            <div class="methodology-content" id="methodologyContent">
+            <div class="methodology-content open" id="methodologyContent">
                 <div class="methodology-body">
 
                     <p class="methodology-intro">
@@ -252,6 +225,7 @@
             </div>
         </section>
 
+            <app-footer></app-footer>
     </main>
 </div>
 

@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="assets/css/shared.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/prometheus.css">
+    <link rel="stylesheet" href="assets/css/pipeline-viz.css">
     <script src="assets/js/nav-sidebar.js"></script>
+    <script src="assets/js/app-footer.js"></script>
     <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/js/pipeline-viz.js"></script>
     <script defer src="assets/js/app.js"></script>
     <script type="text/javascript" src="assets/js/smoothie.js"></script>
 </head>
@@ -53,6 +56,15 @@
             </button>
         </div>
 
+        <!-- Pipeline Visualization -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Pipeline — Sources & Metrics</h2>
+                <span class="panel-badge">Live</span>
+            </div>
+            <div class="panel-body" id="pipelineViz"></div>
+        </section>
+
         <!-- EEG Charts -->
         <section class="panel">
             <div class="panel-header">
@@ -66,6 +78,7 @@
                 </div>
             </div>
         </section>
+            <app-footer></app-footer>
     </main>
 </div>
 

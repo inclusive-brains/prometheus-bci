@@ -5,3 +5,4 @@ data/
 logs/
 __pycache__/
 .pytest_cache
+ib_labs-main

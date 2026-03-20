@@ -88,10 +88,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function updateCard(valueId, barId, value) {
+        let pct = (value * 100).toFixed(2);
+        document.getElementById(valueId).innerHTML = pct + '<span class="metric-unit">%</span>';
+        document.getElementById(barId).style.width = pct + '%';
+    }
+
     io.on('ppg_stress_metric', function (data) {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let stress = data[lastKey].PPG_Stress_Metric;
+        updateCard('stress_value', 'stress_bar', stress);
         processMetric(data, stressSeries, 'PPG_Stress_Metric');
     });
 
@@ -99,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let cognitiveLoad = data[lastKey].PPG_Cognitive_Load_Metric;
+        updateCard('cognitive_value', 'cognitive_bar', cognitiveLoad);
         processMetric(data, cognitiveLoadSeries, 'PPG_Cognitive_Load_Metric');
     });
 
@@ -106,16 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let attention = data[lastKey].PPG_Attention_Metric;
-        let attentionPercentage = (attention * 100).toFixed(2);
-
-        var titleEl = document.querySelector('#attention_title span');
-        if (titleEl) titleEl.textContent = attentionPercentage + '%';
-        var barEl = document.getElementById('attention_progress');
-        if (barEl) {
-            barEl.style.width = attentionPercentage + '%';
-            barEl.setAttribute('aria-valuenow', attentionPercentage);
-        }
-
+        updateCard('attention_value', 'attention_bar', attention);
         processMetric(data, attentionSeries, 'PPG_Attention_Metric');
     });
 
@@ -123,16 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let keys = Object.keys(data);
         let lastKey = keys[keys.length - 1];
         let arousal = data[lastKey].PPG_Arousal_Metric;
-        let arousalPercentage = (arousal * 100).toFixed(2);
-
-        var titleEl = document.querySelector('#arousal_title span');
-        if (titleEl) titleEl.textContent = arousalPercentage + '%';
-        var barEl = document.getElementById('arousal_progress');
-        if (barEl) {
-            barEl.style.width = arousalPercentage + '%';
-            barEl.setAttribute('aria-valuenow', arousalPercentage);
-        }
-
+        updateCard('arousal_value', 'arousal_bar', arousal);
         processMetric(data, arousalSeries, 'PPG_Arousal_Metric');
     });
 

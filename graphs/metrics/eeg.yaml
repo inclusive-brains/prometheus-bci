@@ -14,6 +14,13 @@ graphs:
       params:
         length: 10
         step: 1
+    - id: cognitiveload
+      module: nodes.eeg.ratio
+      class: Ratio
+      params:
+        a: ["^A*F|T", [4, 8]]
+        b: ["^O*P|T", [8, 12]]
+        metric: eeg_cognitive_load
     - id: attention
       module: nodes.eeg.ratio
       class: Ratio
@@ -21,6 +28,13 @@ graphs:
         a: ["[A-Z]*[0-9]", [12, 22]]
         b: ["[A-Z]*[0-9]", [8, 13]]
         metric: eeg_attention
+    - id: stress
+      module: nodes.eeg.ratio
+      class: Ratio
+      params:
+        a: ["^A*F|T", [22, 30]]
+        b: ["^A*F|T", [8, 13]]
+        metric: eeg_stress
     - id: arousal
       module: nodes.eeg.ratio
       class: Ratio
@@ -28,11 +42,23 @@ graphs:
         a: ["[A-Z]*[0-9]", [8, 12]]
         b: ["[A-Z]*[0-9]", [13, 30]]
         metric: eeg_arousal
+    - id: event_to_signal_cog_load
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_cognitive_load'
+        keys: null
     - id: event_to_signal_attention
       module: timeflux.nodes.events
       class: EventToSignal
       params:
         label: 'eeg_attention'
+        keys: null
+    - id: event_to_signal_stress
+      module: timeflux.nodes.events
+      class: EventToSignal
+      params:
+        label: 'eeg_stress'
         keys: null
     - id: event_to_signal_arousal
       module: timeflux.nodes.events
@@ -40,11 +66,21 @@ graphs:
       params:
         label: 'eeg_arousal'
         keys: null
+    - id: pub_cognitiveload
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_cognitiveload_metric
     - id: pub_attention
       module: timeflux.nodes.zmq
       class: Pub
       params:
         topic: eeg_attention_metric
+    - id: pub_stress
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_stress_metric
     - id: pub_arousal
       module: timeflux.nodes.zmq
       class: Pub
@@ -62,11 +98,23 @@ graphs:
       - source: sub_eeg:eeg_filtered
         target: window
       - source: window
+        target: cognitiveload
+      - source: cognitiveload
+        target: event_to_signal_cog_load
+      - source: event_to_signal_cog_load
+        target: pub_cognitiveload
+      - source: window
         target: attention
       - source: attention
         target: event_to_signal_attention
       - source: event_to_signal_attention
         target: pub_attention
+      - source: window
+        target: stress
+      - source: stress
+        target: event_to_signal_stress
+      - source: event_to_signal_stress
+        target: pub_stress
       - source: window
         target: arousal
       - source: arousal

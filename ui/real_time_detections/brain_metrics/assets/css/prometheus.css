@@ -1,49 +1,26 @@
+/* ============================================
    Brain Metrics — Page-Specific Styles
    ============================================ */
 
-/* ---- uPlot overrides (glassmorphic) ---- */
-
-.uplot-container {
-    width: 100%;
-    min-height: 70px;
-    background: rgba(15, 15, 18, 0.5);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--glass-shadow);
-    position: relative;
-    overflow: hidden;
+.chart-legend {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0 2px;
+    justify-content: center;
 }
-
-/* Decorative top-edge glow on uPlot containers */
-.uplot-container::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 10%;
-    right: 10%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.15), transparent);
-    z-index: 1;
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.02em;
 }
-
-.uplot-container .u-wrap {
-    width: 100% !important;
-}
-
-.uplot-container .u-over {
-    border-radius: var(--radius-sm);
-}
-
-.u-cursor-x,
-.u-cursor-y {
-    border-color: rgba(34, 211, 238, 0.3) !important;
-}
-
-.chart-item .uplot-container canvas {
-    width: 100% !important;
-    display: block;
-    border-radius: var(--radius-sm);
-    background: rgba(15, 15, 18, 0.8);
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
 }

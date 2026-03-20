@@ -12,3 +12,4 @@ mediapipe>=0.10.0
 filterpy>=1.4.5
 pyautogui>=0.9.54
 deepface>=0.0.93
+brainflow>=5.0.0

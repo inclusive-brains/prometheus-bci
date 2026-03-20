@@ -32,7 +32,7 @@ graphs:
       module: timeflux.nodes.zmq
       class: Sub
       params:
-        topics: [facial_blendshapes, facial_metrics, facial_emotions, bitalino_offsets, offsets, model, hr_data, hrv_data, temperature_raw, eda_raw, motion, audio, eeg_raw, ppg_raw, eeg_filtered, ppg_filtered, eeg_bandpower, eeg_bandpower_mean, eeg_bandpower_mean_fullband, multimodal_attention, events,ppg_attention_metric,ppg_arousal_metric,eeg_attention_metric,eeg_arousal_metric, eeg_motor_mu_theta, eeg_motor_low_beta_alpha, eeg_motor_gamma_alpha]
+        topics: [facial_blendshapes, facial_metrics, facial_emotions, bitalino_offsets, offsets, model, hr_data, hrv_data, temperature_raw, eda_raw, motion, audio, eeg_raw, ppg_raw, eeg_filtered, ppg_filtered, eeg_bandpower, eeg_bandpower_mean, eeg_bandpower_mean_fullband, multimodal_attention, multimodal_stress, multimodal_cognitive_load, multimodal_arousal, events, ppg_attention_metric, ppg_arousal_metric, ppg_stress_metric, ppg_cognitive_load_metric, eeg_attention_metric, eeg_arousal_metric, eeg_stress_metric, eeg_cognitiveload_metric, eeg_motor_mu_theta, eeg_motor_low_beta_alpha, eeg_motor_gamma_alpha]
     # Gate note for each data type
     - id: gate_events
       module: timeflux.nodes.gate
@@ -191,6 +191,7 @@ graphs:
           brain_metrics: ./ui/real_time_detections/brain_metrics
           eeg_quality: ./ui/real_time_detections/eeg_quality
           facial_expressions: ./ui/real_time_detections/facial_expressions
+          multimodal: ./ui/real_time_detections/multimodal
           n_back: ./ui/experiments/nback
           mind_control_training: ./ui/mind_control/motor
           obi1: ./ui/mind_control/obi1
@@ -468,4 +469,4 @@ graphs:
       - source: ui:events
         target: gate_facial_emotions:events
 
-    rate: 10
+    rate: 5

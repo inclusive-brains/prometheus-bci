@@ -36,21 +36,41 @@ graphs:
         params:
           key: ["HRV_SDNN", "HRV_RMSSD", "HRV_pNN50", "HRV_SDSD", "HRV_MeanNN"]
           axis: 1
+      - id: stress_metric
+        module: nodes.physio.ppg
+        class: StressMetric
+        params:
+          weights: {'HRV_SDNN': 0.33, 'HRV_RMSSD': 0.33, 'HRV_pNN50': 0.34}
       - id: attention_metric
         module: nodes.physio.ppg
         class: AttentionMetric
         params:
           weights: {'HRV_SDNN': 0.30, 'HRV_RMSSD': 0.40, 'HRV_pNN50': 0.30}
+      - id: cognitive_load_metric
+        module: nodes.physio.ppg
+        class: CognitiveLoadMetric
+        params:
+          weights: {'HRV_SDNN': 0.5, 'HRV_RMSSD': 0.5}
       - id: arousal_metric
         module: nodes.physio.ppg
         class: ArousalMetric
         params:
           weights: {'HRV_SDSD': 0.33, 'HRV_RMSSD': 0.33, 'HRV_MeanNN': 0.34}
+      - id: pub_stress_metric
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_stress_metric
       - id: pub_attention_metric
         module: timeflux.nodes.zmq
         class: Pub
         params:
             topic: ppg_attention_metric
+      - id: pub_cognitive_load_metric
+        module: timeflux.nodes.zmq
+        class: Pub
+        params:
+            topic: ppg_cognitive_load_metric
       - id: pub_arousal_metric
         module: timeflux.nodes.zmq
         class: Pub
@@ -78,9 +98,17 @@ graphs:
       - source: select_column
         target: pub_hrv
       - source: select_column
+        target: stress_metric
+      - source: stress_metric
+        target: pub_stress_metric
+      - source: select_column
         target: attention_metric
       - source: attention_metric
         target: pub_attention_metric
+      - source: select_column
+        target: cognitive_load_metric
+      - source: cognitive_load_metric
+        target: pub_cognitive_load_metric
       - source: select_column
         target: arousal_metric
       - source: arousal_metric

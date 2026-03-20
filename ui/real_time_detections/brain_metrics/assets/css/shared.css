@@ -1,6 +1,6 @@
 /* ============================================
    Prometheus BCI — Shared Design System
-   Glassmorphic dark. Neural precision.
+   Liquid Glass. Neural precision.
    ============================================ */
 
 :root {
@@ -16,10 +16,13 @@
     --border-default: rgba(255, 255, 255, 0.12);
     --border-strong: rgba(255, 255, 255, 0.22);
 
-    /* Glass */
-    --glass-blur: 16px;
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 1px rgba(34, 211, 238, 0.1);
-    --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 2px rgba(34, 211, 238, 0.12);
+    /* Glass — Liquid Glass (subtle) */
+    --glass-blur: 6px;
+    --glass-saturate: 1.05;
+    --glass-backdrop: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --glass-specular: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
     /* Text */
     --text-primary: #fafafa;
@@ -75,14 +78,28 @@ body {
     overflow: hidden;
     height: 100vh;
     background-image:
-        radial-gradient(ellipse 900px 700px at 8% 12%, rgba(34, 211, 238, 0.22) 0%, transparent 65%),
-        radial-gradient(ellipse 700px 650px at 88% 78%, rgba(6, 182, 212, 0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 800px 550px at 50% 35%, rgba(167, 139, 250, 0.14) 0%, transparent 60%),
-        radial-gradient(ellipse 600px 450px at 72% 8%, rgba(34, 211, 238, 0.16) 0%, transparent 50%),
-        radial-gradient(ellipse 500px 400px at 22% 82%, rgba(139, 125, 181, 0.15) 0%, transparent 55%),
-        radial-gradient(ellipse 650px 500px at 92% 28%, rgba(92, 168, 181, 0.12) 0%, transparent 55%),
-        radial-gradient(ellipse 450px 350px at 40% 90%, rgba(34, 211, 238, 0.10) 0%, transparent 50%),
-        radial-gradient(ellipse 500px 400px at 60% 55%, rgba(122, 179, 189, 0.08) 0%, transparent 50%);
+        radial-gradient(ellipse 900px 700px at 8% 12%, rgba(34, 211, 238, 0.38) 0%, transparent 65%),
+        radial-gradient(ellipse 700px 650px at 88% 78%, rgba(6, 182, 212, 0.32) 0%, transparent 60%),
+        radial-gradient(ellipse 800px 550px at 50% 35%, rgba(167, 139, 250, 0.26) 0%, transparent 60%),
+        radial-gradient(ellipse 600px 450px at 72% 8%, rgba(34, 211, 238, 0.28) 0%, transparent 50%),
+        radial-gradient(ellipse 500px 400px at 22% 82%, rgba(139, 125, 181, 0.26) 0%, transparent 55%),
+        radial-gradient(ellipse 650px 500px at 92% 28%, rgba(92, 168, 181, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 450px 350px at 40% 90%, rgba(34, 211, 238, 0.18) 0%, transparent 50%),
+        radial-gradient(ellipse 500px 400px at 60% 55%, rgba(122, 179, 189, 0.14) 0%, transparent 50%);
+}
+
+/* Liquid Glass — Noise grain overlay */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.42;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 150px 150px;
 }
 
 /* ---- Layout ---- */
@@ -100,12 +117,13 @@ body {
     min-width: var(--sidebar-width);
     height: 100vh;
     background: linear-gradient(180deg, rgba(34, 211, 238, 0.03) 0%, var(--bg-surface) 15%, var(--bg-surface) 85%, rgba(139, 125, 181, 0.03) 100%);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
     border-right: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    box-shadow: var(--glass-specular);
 }
 
 .sidebar-header {
@@ -124,9 +142,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-mono);
-    font-weight: 600;
-    font-size: 15px;
     color: var(--bg-root);
     flex-shrink: 0;
     box-shadow: 0 0 20px rgba(34, 211, 238, 0.35), 0 0 40px rgba(34, 211, 238, 0.15);
@@ -149,6 +164,88 @@ body {
     font-size: 11px;
     color: var(--text-tertiary);
     font-weight: 400;
+}
+
+.sidebar-toggle {
+    margin-left: auto;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sidebar-toggle svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+    border-color: var(--border-subtle);
+}
+
+.sidebar.collapsed .sidebar-toggle svg {
+    transform: rotate(180deg);
+}
+
+/* ---- Sidebar Collapsed State ---- */
+
+.sidebar {
+    transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 56px;
+    min-width: 56px;
+}
+
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .status-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+}
+
+.sidebar.collapsed .sidebar-header {
+    padding: 20px 12px 16px;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+    position: absolute;
+    right: 6px;
+    top: 20px;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    padding: 12px 6px;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 7px;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    padding: 14px 12px;
+    justify-content: center;
+}
+
+.sidebar.collapsed .connection-status {
+    justify-content: center;
 }
 
 .sidebar-nav {
@@ -200,7 +297,7 @@ body {
     background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(6, 182, 212, 0.08));
     color: var(--accent);
     border-color: rgba(34, 211, 238, 0.18);
-    box-shadow: 0 0 16px rgba(34, 211, 238, 0.12), inset 0 0 12px rgba(34, 211, 238, 0.04);
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.12), var(--glass-specular);
 }
 
 .nav-icon {
@@ -280,8 +377,8 @@ body {
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
     background: var(--bg-surface);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .page-title {
@@ -304,14 +401,15 @@ body {
     gap: 6px;
     padding: 5px 12px;
     background: var(--bg-raised);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
     border: 1px solid var(--border-default);
     border-radius: 20px;
     font-size: 12px;
     font-family: var(--font-mono);
     color: var(--text-secondary);
     flex-shrink: 0;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .badge-dot {
@@ -335,8 +433,8 @@ body {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
     overflow: hidden;
     flex: 1;
     display: flex;
@@ -349,25 +447,24 @@ body {
 .panel::before {
     content: '';
     position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent 5%, rgba(34, 211, 238, 0.5) 30%, rgba(34, 211, 238, 0.6) 50%, rgba(34, 211, 238, 0.5) 70%, transparent 95%);
-    z-index: 1;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 0 4px 1px rgba(255, 255, 255, 0.01);
 }
 
 .panel::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 120px;
-    background: linear-gradient(180deg, rgba(34, 211, 238, 0.06) 0%, rgba(34, 211, 238, 0.02) 40%, transparent 100%);
-    z-index: 0;
-    pointer-events: none;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.2) 70%, transparent 90%);
+    z-index: 1;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
@@ -395,11 +492,12 @@ body {
     letter-spacing: 0.06em;
     color: var(--accent);
     background: var(--accent-dim);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px) saturate(1.6);
+    -webkit-backdrop-filter: blur(8px) saturate(1.6);
     padding: 2px 8px;
     border-radius: 10px;
     border: 1px solid rgba(34, 211, 238, 0.12);
+    box-shadow: var(--glass-specular);
 }
 
 .panel-body {
@@ -426,8 +524,8 @@ body {
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
     background: var(--bg-surface);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
 }
 
 .btn-control {
@@ -438,8 +536,8 @@ body {
     border: 1px solid var(--border-default);
     border-radius: var(--radius-sm);
     background: var(--bg-raised);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
     color: var(--text-secondary);
     font-family: var(--font-sans);
     font-size: 13px;
@@ -447,6 +545,7 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     outline: none;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-control svg {
@@ -514,12 +613,13 @@ canvas {
     text-transform: uppercase;
     z-index: 1;
     pointer-events: none;
-    background: rgba(9, 9, 11, 0.6);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(9, 9, 11, 0.5);
+    backdrop-filter: blur(10px) saturate(1.6);
+    -webkit-backdrop-filter: blur(10px) saturate(1.6);
     padding: 1px 6px;
     border-radius: 4px;
     border: 1px solid var(--border-subtle);
+    box-shadow: var(--glass-specular), 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* ---- Empty State ---- */
@@ -554,12 +654,12 @@ canvas {
 
 .metric-card {
     background: var(--bg-raised);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: 16px;
-    box-shadow: var(--glass-shadow);
+    box-shadow: var(--glass-shadow), var(--glass-specular);
     position: relative;
     overflow: hidden;
 }
@@ -568,10 +668,10 @@ canvas {
     content: '';
     position: absolute;
     top: -1px;
-    left: 20%;
-    right: 20%;
+    left: 10%;
+    right: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.25), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
 }
 
 .metric-label {
@@ -627,8 +727,8 @@ canvas {
 }
 
 @keyframes glass-appear {
-    from { opacity: 0; transform: translateY(10px) scale(0.98); backdrop-filter: blur(0); }
-    to { opacity: 1; transform: translateY(0) scale(1); backdrop-filter: blur(var(--glass-blur)); }
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes pulse-dot {
@@ -659,3 +759,54 @@ canvas {
 .nav-section:nth-child(3) .nav-item:nth-child(4) { animation-delay: 0.26s; }
 .nav-section:nth-child(3) .nav-item:nth-child(5) { animation-delay: 0.29s; }
 .nav-section:nth-child(4) .nav-item:nth-child(2) { animation-delay: 0.32s; }
+
+/* ---- App Footer ---- */
+
+.app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 32px;
+    margin-top: auto;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+}
+
+.app-footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.app-footer a:hover {
+    color: var(--accent);
+}
+
+.footer-brand {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.footer-sep {
+    color: var(--border-strong);
+}
+
+.footer-icon-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-tertiary);
+    transition: color 0.2s ease;
+}
+
+.footer-icon-link:hover {
+    color: var(--accent);
+}
+
+.footer-icon-link svg {
+    width: 15px;
+    height: 15px;
+}

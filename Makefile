@@ -24,7 +24,7 @@ update: ## Mettre à jour les dépendances
 	conda run -n $(ENV_NAME) pip install -U -r requirements.txt
 
 sync-ui: ## Synchroniser les assets UI partagés vers chaque route
-	@for dir in ui/data_monitoring ui/real_time_detections/brain_metrics ui/real_time_detections/heart_metrics ui/real_time_detections/head_motions ui/real_time_detections/facial_expressions ui/real_time_detections/eeg_quality ui/mind_control/motor ui/mind_control/obi1 ui/mind_control/prometheus ui/mind_control/prometheus_2 ui/experiments/nback ui/robotic_arm; do \
+	@for dir in ui/data_monitoring ui/real_time_detections/brain_metrics ui/real_time_detections/heart_metrics ui/real_time_detections/head_motions ui/real_time_detections/facial_expressions ui/real_time_detections/eeg_quality ui/real_time_detections/multimodal ui/mind_control/motor ui/mind_control/obi1 ui/mind_control/prometheus ui/mind_control/prometheus_2 ui/experiments/nback ui/robotic_arm; do \
 		cp ui/common/assets/css/prometheus.css "$$dir/assets/css/shared.css"; \
 		cp ui/common/assets/js/nav-sidebar.js "$$dir/assets/js/nav-sidebar.js"; \
 	done
@@ -35,6 +35,8 @@ config: ## Ouvrir l'interface de configuration .env
 
 run: config ## Configurer puis lancer l'application Timeflux
 	@mkdir -p logs data
+	@echo "  Launching Timeflux in 3s..."
+	@sleep 3
 	conda run -n $(ENV_NAME) timeflux -d $(APP_CONFIG)
 
 clean: ## Supprimer l'environnement conda

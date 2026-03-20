@@ -128,7 +128,7 @@ HEADSETS = [
         "channels": "5 ch",
         "rate": "128 Hz",
         "color": "#a78bfa",
-        "tag": "Wireless",
+        "tag": "Wellness",
     },
     {
         "id": "emotiv_epochX",
@@ -158,17 +158,83 @@ HEADSETS = [
         "channels": "2 ch",
         "rate": "128 Hz",
         "color": "#f59e0b",
-        "tag": "Compact",
+        "tag": "Wellness",
     },
     {
-        "id": "consciouslabs",
-        "name": "Guardian",
-        "brand": "Conscious Labs",
-        "description": "Meditation and neurofeedback headband",
+        "id": "emotiv_mw20",
+        "name": "MW20",
+        "brand": "EMOTIV",
+        "description": "2-channel in-ear EEG headset for brain activity monitoring",
+        "channels": "2 ch",
+        "rate": "128 Hz",
+        "color": "#ec4899",
+        "tag": "Wellness",
+    },
+    {
+        "id": "brainflow_synthetic",
+        "name": "Synthetic",
+        "brand": "BrainFlow",
+        "description": "Realistic synthetic EEG signals for testing and development",
+        "channels": "16 ch",
+        "rate": "250 Hz",
+        "color": "#64748b",
+        "tag": "Dev",
+        "status": "to_test",
+    },
+    {
+        "id": "brainflow_muse2",
+        "name": "Muse 2",
+        "brand": "Muse",
+        "description": "4-channel consumer EEG headband for meditation and focus",
         "channels": "4 ch",
         "rate": "256 Hz",
-        "color": "#22c55e",
+        "color": "#10b981",
         "tag": "Wellness",
+        "status": "to_test",
+    },
+    {
+        "id": "brainflow_muse_s",
+        "name": "Muse S",
+        "brand": "Muse",
+        "description": "4-channel sleep and meditation EEG with soft headband",
+        "channels": "4 ch",
+        "rate": "256 Hz",
+        "color": "#34d399",
+        "tag": "Wellness",
+        "status": "to_test",
+    },
+    {
+        "id": "brainflow_ganglion",
+        "name": "Ganglion",
+        "brand": "OpenBCI",
+        "description": "4-channel open-source biosensing board via BrainFlow",
+        "channels": "4 ch",
+        "rate": "200 Hz",
+        "color": "#3b82f6",
+        "tag": "Research",
+        "status": "to_test",
+    },
+    {
+        "id": "brainflow_unicorn",
+        "name": "Unicorn",
+        "brand": "g.tec",
+        "description": "8-channel hybrid EEG for BCI research and neurofeedback",
+        "channels": "8 ch",
+        "rate": "250 Hz",
+        "color": "#8b5cf6",
+        "tag": "Research",
+        "status": "to_test",
+    },
+    {
+        "id": "brainflow_crown",
+        "name": "Crown",
+        "brand": "Neurosity",
+        "description": "8-channel EEG for focus tracking and productivity",
+        "channels": "8 ch",
+        "rate": "256 Hz",
+        "color": "#e879f9",
+        "tag": "Wellness",
+        "status": "to_test",
     },
 ]
 
@@ -600,6 +666,79 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 }}
 .headset-check svg {{ width: 12px; height: 12px; stroke: var(--bg-root); stroke-width: 2.5; fill: none; }}
 
+/* ── Experimental Headsets Dropdown ── */
+.headset-expander {{
+    margin-top: 20px;
+    animation: fade-in 0.4s ease both;
+    animation-delay: 0.3s;
+}}
+.headset-expander-toggle {{
+    display: flex; align-items: center; gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+}}
+.headset-expander-toggle:hover {{
+    background: var(--bg-raised);
+    border-color: var(--border-default);
+}}
+.headset-expander-toggle .exp-icon {{
+    width: 18px; height: 18px;
+    color: var(--amber);
+    flex-shrink: 0;
+}}
+.headset-expander-toggle .exp-label {{
+    font-size: 13px; font-weight: 600;
+    color: var(--text-secondary);
+    flex: 1; text-align: left;
+    letter-spacing: -0.01em;
+}}
+.headset-expander-toggle .exp-badge {{
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 3px 10px; border-radius: 10px;
+    background: var(--amber-dim);
+    color: var(--amber);
+}}
+.headset-expander-toggle .exp-chevron {{
+    width: 16px; height: 16px;
+    color: var(--text-tertiary);
+    transition: transform 0.25s ease;
+}}
+.headset-expander-toggle.open .exp-chevron {{
+    transform: rotate(180deg);
+}}
+.headset-expander-body {{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+}}
+.headset-expander-body.open {{
+    max-height: 800px;
+    padding: 16px 0 0;
+}}
+.headset-card.experimental {{
+    border-style: dashed;
+}}
+.headset-card.experimental .headset-status {{
+    font-family: var(--font-mono);
+    font-size: 9px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: 10px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    display: inline-block;
+    margin-top: 6px;
+}}
+
 @media (max-width: 700px) {{
     .headset-grid {{ grid-template-columns: repeat(2, 1fr); }}
 }}
@@ -695,6 +834,52 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 .landing-enter:hover::before {{ opacity: 1; }}
 .landing-enter:active {{ transform: scale(0.97); }}
 
+/* ── Landing Metric Badges ── */
+.landing-metrics {{
+    position: absolute; inset: 0; z-index: 5;
+    pointer-events: none;
+}}
+.landing-metric {{
+    position: absolute;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    opacity: 0;
+    animation: landing-fade-in 1.2s ease 2.2s both;
+}}
+.landing-metric-dot {{
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: metric-pulse 2.5s ease-in-out infinite;
+}}
+.landing-metric-value {{
+    font-weight: 500;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}}
+.landing-metric.m-stress    {{ top: 22%; left: 8%; }}
+.landing-metric.m-cognitive {{ top: 22%; right: 8%; }}
+.landing-metric.m-attention {{ bottom: 22%; left: 8%; }}
+.landing-metric.m-arousal   {{ bottom: 22%; right: 8%; }}
+
+.landing-metric.m-stress .landing-metric-dot    {{ background: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.6); }}
+.landing-metric.m-cognitive .landing-metric-dot  {{ background: #a78bfa; box-shadow: 0 0 12px rgba(167,139,250,0.6); }}
+.landing-metric.m-attention .landing-metric-dot  {{ background: #22d3ee; box-shadow: 0 0 12px rgba(34,211,238,0.6); }}
+.landing-metric.m-arousal .landing-metric-dot    {{ background: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.6); }}
+
+.landing-metric.m-stress .landing-metric-value    {{ color: #ef4444; }}
+.landing-metric.m-cognitive .landing-metric-value  {{ color: #a78bfa; }}
+.landing-metric.m-attention .landing-metric-value  {{ color: #22d3ee; }}
+.landing-metric.m-arousal .landing-metric-value    {{ color: #f59e0b; }}
+
+@keyframes metric-pulse {{
+    0%, 100% {{ opacity: 0.6; transform: scale(1); }}
+    50% {{ opacity: 1; transform: scale(1.4); }}
+}}
+
 /* Hide setup while landing is visible */
 .setup-container {{ opacity: 0; transition: opacity 0.6s ease 0.3s; }}
 .setup-container.visible {{ opacity: 1; }}
@@ -716,9 +901,15 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 <!-- ── Landing Page ── -->
 <div class="landing-overlay" id="landingOverlay">
     <canvas id="brainCanvas"></canvas>
+    <div class="landing-metrics">
+        <div class="landing-metric m-stress"><span class="landing-metric-dot"></span><span>Stress</span><span class="landing-metric-value" id="lm-stress">—</span></div>
+        <div class="landing-metric m-cognitive"><span class="landing-metric-dot"></span><span>Cognitive Load</span><span class="landing-metric-value" id="lm-cognitive">—</span></div>
+        <div class="landing-metric m-attention"><span class="landing-metric-dot"></span><span>Attention</span><span class="landing-metric-value" id="lm-attention">—</span></div>
+        <div class="landing-metric m-arousal"><span class="landing-metric-dot"></span><span>Arousal</span><span class="landing-metric-value" id="lm-arousal">—</span></div>
+    </div>
     <div class="landing-content">
-        <div class="landing-logo">P</div>
-        <div class="landing-title">Prometheus</div>
+        <div class="landing-logo"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg></div>
+        <div class="landing-title">Prometheus BCI</div>
         <div class="landing-subtitle">Brain-Computer Interface Platform</div>
         <button class="landing-enter" id="enterBtn" onclick="enterLabs()">Enter Labs</button>
     </div>
@@ -726,13 +917,24 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 
 <div class="setup-container" id="setupContainer">
     <div class="setup-header">
-        <div class="logo-mark">P</div>
-        <h1>Prometheus Setup</h1>
+        <div class="logo-mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg></div>
+        <h1>Prometheus BCI</h1>
         <p>Configure your BCI session parameters</p>
     </div>
     <div class="headset-picker">
         <h2>Select your headset</h2>
         <div class="headset-grid" id="headsetGrid"></div>
+        <div class="headset-expander" id="headsetExpander">
+            <button class="headset-expander-toggle" id="expanderToggle" onclick="toggleExpander()">
+                <span class="exp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
+                <span class="exp-label">Integrated &mdash; to test</span>
+                <span class="exp-badge" id="expanderCount"></span>
+                <span class="exp-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="headset-expander-body" id="expanderBody">
+                <div class="headset-grid" id="headsetGridExp"></div>
+            </div>
+        </div>
     </div>
     <div id="sections"></div>
     <div class="actions">
@@ -758,47 +960,81 @@ const HEADSET_SVGS = {{
     emotiv_epochX: '<svg viewBox="0 0 24 24"><path d="M4 10c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M4 10c0 3 2 5.5 4 7v3h8v-3c2-1.5 4-4 4-7"/><circle cx="7" cy="9" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="14" cy="7" r="1"/><circle cx="17" cy="9" r="1"/><circle cx="8.5" cy="11" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="15.5" cy="11" r="1"/></svg>',
     'emotiv_epoch+': '<svg viewBox="0 0 24 24"><path d="M4 10c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M4 10c0 3 2 5.5 4 7v3h8v-3c2-1.5 4-4 4-7"/><circle cx="7" cy="9" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="14" cy="7" r="1"/><circle cx="17" cy="9" r="1"/><circle cx="8.5" cy="11" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="15.5" cy="11" r="1"/><path d="M19 13h3M20.5 11.5v3"/></svg>',
     emotiv_mn8: '<svg viewBox="0 0 24 24"><ellipse cx="8" cy="12" rx="4" ry="6"/><ellipse cx="16" cy="12" rx="4" ry="6"/><path d="M12 8c0-2 1-4 3-4M12 8c0-2-1-4-3-4"/></svg>',
-    consciouslabs: '<svg viewBox="0 0 24 24"><path d="M3 12c0-5 4-9 9-9s9 4 9 9"/><path d="M5 12h14"/><path d="M7 12c0 4 2.5 7 5 8 2.5-1 5-4 5-8"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>',
+    emotiv_mw20: '<svg viewBox="0 0 24 24"><ellipse cx="8" cy="12" rx="4" ry="6"/><ellipse cx="16" cy="12" rx="4" ry="6"/><path d="M12 8c0-2 1-4 3-4M12 8c0-2-1-4-3-4"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/></svg>',
+    brainflow_synthetic: '<svg viewBox="0 0 24 24"><path d="M2 12h4l3-9 4 18 3-9h6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>',
+    brainflow_muse2: '<svg viewBox="0 0 24 24"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M6 12c0 2 1.5 4 3 5M18 12c0 2-1.5 4-3 5"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/></svg>',
+    brainflow_muse_s: '<svg viewBox="0 0 24 24"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M6 12c0 2 1.5 4 3 5M18 12c0 2-1.5 4-3 5"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><path d="M8 17h8" stroke-dasharray="2 2"/></svg>',
+    brainflow_ganglion: '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/><circle cx="15" cy="15" r="1.5"/></svg>',
+    brainflow_unicorn: '<svg viewBox="0 0 24 24"><path d="M4 10c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="M4 10c0 3 2 5.5 4 7v3h8v-3c2-1.5 4-4 4-7"/><path d="M12 2V0"/><circle cx="8" cy="10" r="1"/><circle cx="10" cy="8" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="14" cy="8" r="1"/><circle cx="16" cy="10" r="1"/></svg>',
+    brainflow_crown: '<svg viewBox="0 0 24 24"><path d="M3 18L5 8l4 4 3-6 3 6 4-4 2 10z"/><circle cx="8" cy="14" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="16" cy="14" r="1"/></svg>',
+
 }};
+
+function buildCard(h, i, experimental) {{
+    const card = document.createElement('div');
+    card.className = 'headset-card' + (h.id === selectedHeadset ? ' selected' : '') + (experimental ? ' experimental' : '');
+    card.dataset.headsetId = h.id;
+    card.style.setProperty('--card-color', h.color);
+    card.style.animationDelay = (0.08 + i * 0.04) + 's';
+    card.style.animation = 'fade-in 0.35s ease both';
+    card.onclick = () => selectHeadset(h.id);
+    card.innerHTML = `
+        <div class="headset-check"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+        <span class="headset-tag">${{h.tag}}</span>
+        <div class="headset-icon">${{HEADSET_SVGS[h.id] || HEADSET_SVGS.dummy}}</div>
+        <div class="headset-brand">${{h.brand}}</div>
+        <div class="headset-name">${{h.name}}</div>
+        <div class="headset-desc">${{h.description}}</div>
+        ${{experimental ? '<span class="headset-status">to test</span>' : ''}}
+        <div class="headset-specs">
+            <span class="headset-spec">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                ${{h.channels}}
+            </span>
+            <span class="headset-spec">
+                <svg viewBox="0 0 24 24"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
+                ${{h.rate}}
+            </span>
+        </div>
+    `;
+    return card;
+}}
 
 function renderHeadsets() {{
     const grid = document.getElementById('headsetGrid');
+    const gridExp = document.getElementById('headsetGridExp');
     grid.innerHTML = '';
-    HEADSETS.forEach((h, i) => {{
-        const card = document.createElement('div');
-        card.className = 'headset-card' + (h.id === selectedHeadset ? ' selected' : '');
-        card.style.setProperty('--card-color', h.color);
-        card.style.animationDelay = (0.08 + i * 0.04) + 's';
-        card.style.animation = 'fade-in 0.35s ease both';
-        card.onclick = () => selectHeadset(h.id);
-        card.innerHTML = `
-            <div class="headset-check"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
-            <span class="headset-tag">${{h.tag}}</span>
-            <div class="headset-icon">${{HEADSET_SVGS[h.id] || HEADSET_SVGS.dummy}}</div>
-            <div class="headset-brand">${{h.brand}}</div>
-            <div class="headset-name">${{h.name}}</div>
-            <div class="headset-desc">${{h.description}}</div>
-            <div class="headset-specs">
-                <span class="headset-spec">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-                    ${{h.channels}}
-                </span>
-                <span class="headset-spec">
-                    <svg viewBox="0 0 24 24"><path d="M2 12h4l3-9 4 18 3-9h6"/></svg>
-                    ${{h.rate}}
-                </span>
-            </div>
-        `;
-        grid.appendChild(card);
-    }});
+    gridExp.innerHTML = '';
+
+    const stable = HEADSETS.filter(h => !h.status);
+    const experimental = HEADSETS.filter(h => h.status === 'to_test');
+
+    stable.forEach((h, i) => grid.appendChild(buildCard(h, i, false)));
+    experimental.forEach((h, i) => gridExp.appendChild(buildCard(h, i, true)));
+
+    // Update badge count
+    document.getElementById('expanderCount').textContent = experimental.length + ' devices';
+
+    // If a "to_test" headset is currently selected, auto-open the expander
+    if (experimental.some(h => h.id === selectedHeadset)) {{
+        toggleExpander(true);
+    }}
 }}
 
 function selectHeadset(id) {{
     selectedHeadset = id;
     document.querySelectorAll('.headset-card').forEach(c => {{
-        const hid = HEADSETS[Array.from(c.parentNode.children).indexOf(c)]?.id;
-        c.classList.toggle('selected', hid === id);
+        c.classList.toggle('selected', c.dataset.headsetId === id);
     }});
+}}
+
+function toggleExpander(forceOpen) {{
+    const toggle = document.getElementById('expanderToggle');
+    const body = document.getElementById('expanderBody');
+    const isOpen = body.classList.contains('open');
+    if (forceOpen === true && isOpen) return;
+    toggle.classList.toggle('open', forceOpen !== undefined ? forceOpen : !isOpen);
+    body.classList.toggle('open', forceOpen !== undefined ? forceOpen : !isOpen);
 }}
 
 renderHeadsets();
@@ -827,7 +1063,7 @@ function renderSections() {{
         div.className = 'config-section';
 
         const header = document.createElement('div');
-        header.className = 'section-header';
+        header.className = 'section-header collapsed';
         header.innerHTML = `
             <span class="icon">${{ICONS[section.icon] || ICONS.cpu}}</span>
             <h2>${{section.section}}</h2>
@@ -835,7 +1071,7 @@ function renderSections() {{
         `;
 
         const body = document.createElement('div');
-        body.className = 'section-body';
+        body.className = 'section-body hidden';
 
         header.addEventListener('click', () => {{
             header.classList.toggle('collapsed');
@@ -1035,9 +1271,20 @@ renderSections();
         pSpeeds[i] = 0.2 + Math.random() * 0.8;
     }}
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    // Round particle texture
+    const pCanvas = document.createElement('canvas');
+    pCanvas.width = 32; pCanvas.height = 32;
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.beginPath();
+    pCtx.arc(16, 16, 14, 0, Math.PI * 2);
+    pCtx.fillStyle = '#ffffff';
+    pCtx.fill();
+    const pTex = new THREE.CanvasTexture(pCanvas);
+
     const pMat = new THREE.PointsMaterial({{
         color: 0x22d3ee,
         size: 1.2,
+        map: pTex,
         transparent: true,
         opacity: 0.4,
         blending: THREE.AdditiveBlending,
@@ -1153,6 +1400,19 @@ renderSections();
         particles.rotation.y = t * 0.02;
 
         renderer.render(scene, camera);
+
+        // Animated metric values (smooth sine-based simulation)
+        const lmStress    = document.getElementById('lm-stress');
+        const lmCognitive = document.getElementById('lm-cognitive');
+        const lmAttention = document.getElementById('lm-attention');
+        const lmArousal   = document.getElementById('lm-arousal');
+        if (lmStress) {{
+            const s = v => (v * 100).toFixed(0) + '%';
+            lmStress.textContent    = s(0.25 + 0.15 * Math.sin(t * 0.4));
+            lmCognitive.textContent = s(0.45 + 0.20 * Math.sin(t * 0.3 + 1));
+            lmAttention.textContent = s(0.65 + 0.15 * Math.sin(t * 0.5 + 2));
+            lmArousal.textContent   = s(0.40 + 0.18 * Math.sin(t * 0.35 + 3));
+        }}
     }}
     animate();
 

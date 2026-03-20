@@ -1,0 +1,105 @@
+graphs:
+
+# Muse 2 via BrainFlow — 4-channel consumer EEG (TP9, AF7, AF8, TP10)
+  - id: EEG
+    nodes:
+    - id: eeg
+      module: nodes.eeg.brainflow_source
+      class: BrainFlowSource
+      params:
+        device: muse2
+    - id: select
+      module: timeflux.nodes.query
+      class: LocQuery
+      params:
+        key: [TP9, AF7, AF8, TP10]
+    - id: dejitter
+      module: timeflux.nodes.dejitter
+      class: Reindex
+    - id: bandpass
+      module: timeflux_dsp.nodes.filters
+      class: IIRFilter
+      params:
+        filter_type: bandpass
+        frequencies: [0.1, 40]
+        order: 2
+    - id: filter_bank
+      module: timeflux_dsp.nodes.filters
+      class: FilterBank
+      params:
+        filters:
+          'delta': {frequencies: [1, 4], order: 3}
+          'theta': {frequencies: [5, 7], order: 3}
+          'alpha': {frequencies: [8, 12], order: 3}
+          'beta':  {frequencies: [13, 20], order: 3}
+          'gamma': {frequencies: [25, 40], order: 3}
+        design: butter
+    - id: band_powers
+      module: nodes.eeg.bandpower
+      class: Power
+      params:
+        length: 3
+        step: 1
+    - id: mean_band_powers
+      module: nodes.eeg.bandpower
+      class: MeanBandPower
+      params:
+        length: 3
+        step: 1
+    - id: mean_fullband_powers
+      module: nodes.eeg.bandpower
+      class: MeanFullBandPower
+      params:
+        length: 3
+        step: 1
+    - id: pub_bands
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower
+    - id: publish_raw
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_raw
+    - id: publish_filtered
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_filtered
+    - id: publish_mean_band_powers
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower_mean
+    - id: publish_mean_fullband_powers
+      module: timeflux.nodes.zmq
+      class: Pub
+      params:
+        topic: eeg_bandpower_mean_fullband
+    edges:
+      - source: eeg
+        target: select
+      - source: select
+        target: dejitter
+      - source: dejitter
+        target: bandpass
+      - source: bandpass
+        target: filter_bank
+      - source: filter_bank
+        target: band_powers
+      - source: band_powers
+        target: pub_bands
+      - source: bandpass
+        target: publish_filtered
+      - source: dejitter
+        target: publish_raw
+      - source: band_powers
+        target: mean_band_powers
+      - source: mean_band_powers
+        target: publish_mean_band_powers
+      - source: band_powers
+        target: mean_fullband_powers
+      - source: mean_fullband_powers
+        target: publish_mean_fullband_powers
+    rate: 10
