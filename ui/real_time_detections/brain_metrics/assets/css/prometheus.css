@@ -21,6 +21,74 @@
     display: none;
 }
 
+/* ---- View Picker ---- */
+.view-picker {
+    margin: 16px 32px 0;
+    background: var(--card-bg, rgba(22, 22, 28, 0.7));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+    border-radius: 12px;
+    padding: 14px 20px;
+}
+.view-picker-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary, #a0a0ab);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+}
+.view-picker-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+.view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+.view-toggle input {
+    display: none;
+}
+.toggle-track {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+.toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-tertiary, #a0a0ab);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+.view-toggle input:checked ~ .toggle-track {
+    background: rgba(34, 211, 238, 0.25);
+}
+.view-toggle input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(14px);
+    background: var(--accent, #22d3ee);
+}
+.toggle-label {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 12px;
+    color: var(--text-secondary, #c8c8d0);
+    white-space: nowrap;
+}
+
 .chart-legend {
     display: flex;
     gap: 16px;

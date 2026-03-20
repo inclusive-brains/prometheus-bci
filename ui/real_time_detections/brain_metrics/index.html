@@ -34,7 +34,7 @@
         </header>
 
         <!-- Metric Cards -->
-        <div style="padding: 20px 32px 0;">
+        <div data-panel="panel-metrics-cards" style="padding: 20px 32px 0;">
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-label">Stress</div>
@@ -67,8 +67,42 @@
             </div>
         </div>
 
+        <!-- View Picker -->
+        <div class="view-picker">
+            <div class="view-picker-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span>Panels</span>
+            </div>
+            <div class="view-picker-toggles">
+                <label class="view-toggle" data-target="panel-metrics-cards">
+                    <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Metric Cards</span>
+                </label>
+                <label class="view-toggle" data-target="panel-filtered">
+                    <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Filtered Signal</span>
+                </label>
+                <label class="view-toggle" data-target="panel-bandpower">
+                    <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Bandpower</span>
+                </label>
+                <label class="view-toggle" data-target="panel-bandpower-mean">
+                    <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Bandpower Mean</span>
+                </label>
+                <label class="view-toggle" data-target="panel-bandpower-ts">
+                    <input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Bandpower Time Series</span>
+                </label>
+                <label class="view-toggle" data-target="panel-metrics-ts">
+                    <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Metrics Time Series</span>
+                </label>
+            </div>
+        </div>
+
         <!-- EEG Filtered Signal -->
-        <section class="panel collapsible" style="flex: none; min-height: 0;">
+        <section class="panel collapsible" data-panel="panel-filtered" style="flex: none; min-height: 0;">
             <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG — Filtered Signal</h2>
                 <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -83,7 +117,7 @@
         </section>
 
         <!-- EEG Bandpower -->
-        <section class="panel collapsible collapsed" style="flex: none; min-height: 0;">
+        <section class="panel collapsible collapsed" data-panel="panel-bandpower" style="flex: none; min-height: 0;">
             <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG Bandpower</h2>
                 <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -98,7 +132,7 @@
         </section>
 
         <!-- EEG Bandpower Mean — Bar Chart -->
-        <section class="panel collapsible" style="flex: none; min-height: 0;">
+        <section class="panel collapsible" data-panel="panel-bandpower-mean" style="flex: none; min-height: 0;">
             <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG Bandpower — Mean</h2>
                 <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -110,7 +144,7 @@
         </section>
 
         <!-- EEG Bandpower Mean — Time Series -->
-        <section class="panel collapsible collapsed" style="flex: none; min-height: 0;">
+        <section class="panel collapsible collapsed" data-panel="panel-bandpower-ts" style="flex: none; min-height: 0;">
             <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">EEG Bandpower — Mean (Time Series)</h2>
                 <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -125,7 +159,7 @@
         </section>
 
         <!-- Metrics Time Series -->
-        <section class="panel collapsible" style="flex: none; min-height: 0;">
+        <section class="panel collapsible" data-panel="panel-metrics-ts" style="flex: none; min-height: 0;">
             <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
                 <h2 class="panel-title">Metrics — Time Series</h2>
                 <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -148,5 +182,41 @@
     </main>
 </div>
 
+<script>
+(function () {
+    var STORAGE_KEY = 'brainmetrics_panels';
+    var toggles = document.querySelectorAll('.view-toggle');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) {}
+
+    function applyVisibility(target, visible) {
+        var els = document.querySelectorAll('[data-panel="' + target + '"]');
+        for (var i = 0; i < els.length; i++) {
+            els[i].style.display = visible ? '' : 'none';
+        }
+    }
+
+    toggles.forEach(function (label) {
+        var input = label.querySelector('input');
+        var target = label.getAttribute('data-target');
+
+        // Restore from localStorage (if saved), otherwise use HTML default
+        if (target in saved) {
+            input.checked = saved[target];
+        }
+        applyVisibility(target, input.checked);
+
+        input.addEventListener('change', function () {
+            applyVisibility(target, input.checked);
+            // Persist
+            var state = {};
+            toggles.forEach(function (l) {
+                state[l.getAttribute('data-target')] = l.querySelector('input').checked;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        });
+    });
+})();
+</script>
 </body>
 </html>
