@@ -837,17 +837,6 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     pointer-events: none;
 }}
 .landing-content > * {{ pointer-events: auto; }}
-.landing-logo {{
-    width: 60px; height: 60px;
-    background: linear-gradient(135deg, var(--accent), #06b6d4);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-mono); font-weight: 700; font-size: 26px;
-    color: var(--bg-root);
-    opacity: 0;
-    animation: landing-fade-in 1.2s ease 0.5s both;
-    box-shadow: 0 0 60px rgba(34, 211, 238, 0.35), 0 0 120px rgba(34, 211, 238, 0.15), var(--glass-specular);
-}}
 .landing-title {{
     font-family: var(--font-sans);
     font-size: 64px; font-weight: 700;
@@ -905,59 +894,6 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 .landing-enter:hover::before {{ opacity: 1; }}
 .landing-enter:active {{ transform: scale(0.97); }}
 
-/* ── Landing Metric Badges ── */
-.landing-metrics {{
-    position: absolute; inset: 0; z-index: 5;
-    pointer-events: none;
-}}
-.landing-metric {{
-    position: absolute;
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-    opacity: 0;
-    animation: landing-fade-in 1.2s ease 2.2s both;
-    padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px) saturate(1.4);
-    -webkit-backdrop-filter: blur(12px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: var(--radius-md);
-    box-shadow: var(--glass-specular), 0 4px 16px rgba(0, 0, 0, 0.2);
-}}
-.landing-metric-dot {{
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    animation: metric-pulse 2.5s ease-in-out infinite;
-}}
-.landing-metric-value {{
-    font-weight: 500;
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-}}
-.landing-metric.m-stress    {{ top: 22%; left: 8%; }}
-.landing-metric.m-cognitive {{ top: 22%; right: 8%; }}
-.landing-metric.m-attention {{ bottom: 22%; left: 8%; }}
-.landing-metric.m-arousal   {{ bottom: 22%; right: 8%; }}
-
-.landing-metric.m-stress .landing-metric-dot    {{ background: #ef4444; box-shadow: 0 0 12px rgba(239,68,68,0.6); }}
-.landing-metric.m-cognitive .landing-metric-dot  {{ background: #a78bfa; box-shadow: 0 0 12px rgba(167,139,250,0.6); }}
-.landing-metric.m-attention .landing-metric-dot  {{ background: #22d3ee; box-shadow: 0 0 12px rgba(34,211,238,0.6); }}
-.landing-metric.m-arousal .landing-metric-dot    {{ background: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.6); }}
-
-.landing-metric.m-stress .landing-metric-value    {{ color: #ef4444; }}
-.landing-metric.m-cognitive .landing-metric-value  {{ color: #a78bfa; }}
-.landing-metric.m-attention .landing-metric-value  {{ color: #22d3ee; }}
-.landing-metric.m-arousal .landing-metric-value    {{ color: #f59e0b; }}
-
-@keyframes metric-pulse {{
-    0%, 100% {{ opacity: 0.6; transform: scale(1); }}
-    50% {{ opacity: 1; transform: scale(1.4); }}
-}}
-
 /* Hide setup while landing is visible */
 .setup-container {{ opacity: 0; transition: opacity 0.6s ease 0.3s; }}
 .setup-container.visible {{ opacity: 1; }}
@@ -983,14 +919,7 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 <!-- ── Landing Page ── -->
 <div class="landing-overlay" id="landingOverlay">
     <canvas id="brainCanvas"></canvas>
-    <div class="landing-metrics">
-        <div class="landing-metric m-stress"><span class="landing-metric-dot"></span><span>Stress</span><span class="landing-metric-value" id="lm-stress">—</span></div>
-        <div class="landing-metric m-cognitive"><span class="landing-metric-dot"></span><span>Cognitive Load</span><span class="landing-metric-value" id="lm-cognitive">—</span></div>
-        <div class="landing-metric m-attention"><span class="landing-metric-dot"></span><span>Attention</span><span class="landing-metric-value" id="lm-attention">—</span></div>
-        <div class="landing-metric m-arousal"><span class="landing-metric-dot"></span><span>Arousal</span><span class="landing-metric-value" id="lm-arousal">—</span></div>
-    </div>
     <div class="landing-content">
-        <div class="landing-logo"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg></div>
         <div class="landing-title">Prometheus BCI</div>
         <div class="landing-subtitle">Brain-Computer Interface Platform</div>
         <button class="landing-enter" id="enterBtn" onclick="enterLabs()">Enter Labs</button>
@@ -1262,29 +1191,33 @@ async function saveAndLaunch() {{
         }});
         if (resp.ok) {{
             showToast('Configuration saved — starting Timeflux...');
-            // Countdown before redirect so user knows it's loading
-            let remaining = 15;
-            const countdown = setInterval(() => {{
-                remaining--;
-                if (remaining > 0) {{
-                    showToast(`Starting Timeflux... redirecting in ${{remaining}}s`);
-                }} else {{
-                    clearInterval(countdown);
+
+            // Poll until Timeflux is actually ready (max 60s)
+            let elapsed = 0;
+            const pollMs = 1500;
+            const maxWait = 60000;
+            const poll = setInterval(async () => {{
+                elapsed += pollMs;
+                showToast(`Waiting for Timeflux... (${{Math.round(elapsed / 1000)}}s)`);
+                try {{
+                    const check = await fetch('http://localhost:8002/dashboard', {{ method: 'HEAD', mode: 'no-cors' }});
+                    // mode: no-cors returns opaque response, but no exception = server is up
+                    clearInterval(poll);
+                    showToast('Timeflux ready — redirecting...');
+                    document.body.style.opacity = '0';
+                    document.body.style.transition = 'opacity 0.5s';
+                    setTimeout(() => fetch('/shutdown'), 500);
+                    setTimeout(() => {{
+                        window.location.href = 'http://localhost:8002/dashboard';
+                    }}, 1000);
+                }} catch (e) {{
+                    // Not ready yet, keep polling
+                    if (elapsed >= maxWait) {{
+                        clearInterval(poll);
+                        showToast('Timeflux did not start in time — check terminal', 'var(--red)');
+                    }}
                 }}
-            }}, 1000);
-            // Fade out the config UI
-            setTimeout(() => {{
-                document.body.style.opacity = '0';
-                document.body.style.transition = 'opacity 0.5s';
-            }}, 13000);
-            // Shut down the config server after fade
-            setTimeout(() => {{
-                fetch('/shutdown');
-            }}, 14000);
-            // Wait for Timeflux to start before redirecting to dashboard
-            setTimeout(() => {{
-                window.location.href = 'http://localhost:8002/dashboard';
-            }}, 15000);
+            }}, pollMs);
         }} else {{
             showToast('Error saving configuration', 'var(--red)');
         }}
@@ -1488,19 +1421,6 @@ renderSections();
         particles.rotation.y = t * 0.02;
 
         renderer.render(scene, camera);
-
-        // Animated metric values (smooth sine-based simulation)
-        const lmStress    = document.getElementById('lm-stress');
-        const lmCognitive = document.getElementById('lm-cognitive');
-        const lmAttention = document.getElementById('lm-attention');
-        const lmArousal   = document.getElementById('lm-arousal');
-        if (lmStress) {{
-            const s = v => (v * 100).toFixed(0) + '%';
-            lmStress.textContent    = s(0.25 + 0.15 * Math.sin(t * 0.4));
-            lmCognitive.textContent = s(0.45 + 0.20 * Math.sin(t * 0.3 + 1));
-            lmAttention.textContent = s(0.65 + 0.15 * Math.sin(t * 0.5 + 2));
-            lmArousal.textContent   = s(0.40 + 0.18 * Math.sin(t * 0.35 + 3));
-        }}
     }}
     animate();
 
