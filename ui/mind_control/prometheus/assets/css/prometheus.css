@@ -1,6 +1,364 @@
 /* ============================================
-   Prometheus Mind Control — Page-Specific Styles
+   Prometheus Mind Control v1 — Page-Specific Styles
+   Adapted from old Bootstrap layout to Liquid Glass.
    ============================================ */
 
-/* Page-specific styles go here.
-   Shared design system (Liquid Glass) is loaded via shared.css */
+/* ---- Scrollable content grid ---- */
+
+.content-grid {
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.content-grid::-webkit-scrollbar { width: 6px; }
+.content-grid::-webkit-scrollbar-track { background: transparent; }
+.content-grid::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+/* ---- Info Banner ---- */
+
+.info-banner {
+    background: var(--bg-raised);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    box-shadow: var(--glass-shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.info-banner::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.3), transparent);
+}
+
+.info-banner h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.info-banner p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+
+.info-banner img {
+    display: block;
+    max-width: 50%;
+    margin: 16px auto 0;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+}
+
+/* ---- Webcam / Facemesh ---- */
+
+.videoView {
+    position: relative;
+}
+
+.btn-webcam {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--glass-specular);
+}
+
+.btn-webcam:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.15);
+}
+
+.webcam-container {
+    position: relative;
+    margin-top: 12px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: rgba(15, 15, 18, 0.8);
+}
+
+.webcam-container video,
+.webcam-container canvas {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+}
+
+.webcam-container canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* ---- Blend Shapes ---- */
+
+.blend-shapes {
+    margin-top: 12px;
+}
+
+.blend-shapes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.blend-shapes-list::-webkit-scrollbar { width: 4px; }
+.blend-shapes-list::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+
+/* ---- Attention Bar ---- */
+
+.attention-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.attention-label {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 80px;
+}
+
+.attention-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-hover);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.attention-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #67e8f9);
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+    transition: width 0.4s ease;
+}
+
+.attention-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+    min-width: 45px;
+    text-align: right;
+}
+
+/* ---- Toast Message ---- */
+
+.toast-message {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: var(--bg-raised);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    z-index: 1000;
+    display: none;
+    box-shadow: var(--glass-shadow-lg);
+}
+
+/* ---- Exoskeleton Buttons ---- */
+
+.btn-exo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    background: var(--bg-raised);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-exo:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+
+.btn-exo.connect:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.15);
+}
+
+.btn-exo.up:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--green-dim);
+}
+
+.btn-exo.down:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: var(--amber-dim);
+}
+
+.btn-exo.stop:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-dim);
+}
+
+.exo-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ---- Settings Grid / Forms ---- */
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.settings-grid.two-col {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+}
+
+.form-group input,
+.form-group select {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.1);
+}
+
+.form-group input[readonly] {
+    color: var(--text-tertiary);
+    cursor: default;
+}
+
+.section-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 0;
+}
+
+.btn-apply {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 28px;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(6, 182, 212, 0.1));
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.08);
+    margin-top: 12px;
+}
+
+.btn-apply:hover {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(6, 182, 212, 0.18));
+    border-color: var(--accent);
+    box-shadow: 0 0 24px rgba(34, 211, 238, 0.2);
+    transform: translateY(-1px);
+}
+
+.btn-apply:active {
+    transform: scale(0.97);
+}
+
+/* ---- Charts Scroll Container ---- */
+
+.charts-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.charts-scroll::-webkit-scrollbar { width: 4px; }
+.charts-scroll::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+
+/* ---- Utilities ---- */
+
+.hidden {
+    display: none !important;
+}

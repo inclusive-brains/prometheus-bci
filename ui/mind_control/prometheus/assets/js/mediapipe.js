@@ -14,7 +14,7 @@
         
         import vision from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
         const { FaceLandmarker, FilesetResolver, DrawingUtils } = vision;
-        const demosSection = document.getElementById("demos");
+        const demosSection = document.getElementById("demos"); // may be null in new UI
         const videoBlendShapes = document.getElementById("video-blend-shapes");
         
         let faceLandmarker;
@@ -39,7 +39,7 @@
             runningMode,
             numFaces: 2
         });
-        demosSection.classList.remove("invisible");
+        if (demosSection) demosSection.classList.remove("invisible");
         }
         createFaceLandmarker();
         

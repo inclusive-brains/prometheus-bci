@@ -1,6 +1,82 @@
 /* ============================================
-   Obi-1 — Page-Specific Styles
+   Obi-1 Mind Keyboard — Page-Specific Styles
    ============================================ */
 
-/* Page-specific styles go here.
-   Shared design system (Liquid Glass) is loaded via shared.css */
+/* ---- Keyboard Panel ---- */
+
+.keyboard-panel {
+    flex: none;
+    min-height: auto;
+}
+
+.keyboard-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    padding: 12px 16px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s ease;
+}
+
+.keyboard-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.1);
+}
+
+.keyboard-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+/* Simple Keyboard theme override for dark mode */
+.simple-keyboard {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 8px !important;
+}
+
+.simple-keyboard .hg-button {
+    background: var(--bg-raised) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--text-primary) !important;
+    font-family: var(--font-sans) !important;
+    box-shadow: var(--glass-specular), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.simple-keyboard .hg-button:hover {
+    background: var(--bg-hover) !important;
+    border-color: var(--border-strong) !important;
+}
+
+.simple-keyboard .hg-button:active,
+.simple-keyboard .hg-button.hg-activeButton {
+    background: var(--accent-dim) !important;
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+
+/* ---- Audio Panel ---- */
+
+.audio-panel {
+    flex: none;
+    min-height: 200px;
+}
+
+.audio-panel canvas {
+    width: 100% !important;
+    height: 140px !important;
+    display: block;
+    border-radius: var(--radius-sm);
+}
+
+/* ---- Utilities ---- */
+
+.hidden {
+    display: none !important;
+}

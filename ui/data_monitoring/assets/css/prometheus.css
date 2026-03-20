@@ -4,3 +4,54 @@
 
 /* Page-specific styles go here.
    Shared design system (Liquid Glass) is loaded via shared.css */
+
+/* ------ Chart.js proto ------ */
+#chartjsContainer .chart-item {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+#chartjsContainer .chart-item canvas {
+    width: 100% !important;
+    height: 120px !important;
+    border-radius: 8px;
+    background: rgba(15, 15, 18, 0.6);
+}
+
+#chartjsContainer .chart-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    z-index: 2;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em;
+}
+
+/* ------ uPlot proto ------ */
+#uplotContainer .chart-item {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+#uplotContainer .chart-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    z-index: 2;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em;
+}
+
+/* uPlot dark theme overrides */
+#uplotContainer .u-wrap {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#uplotContainer .u-legend {
+    display: none;
+}
