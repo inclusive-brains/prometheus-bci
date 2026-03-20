@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroop Task — Prometheus BCI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="assets/css/shared.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/prometheus.css">
+    <script src="assets/js/nav-sidebar.js"></script>
+    <script src="assets/js/app-footer.js"></script>
+    <script defer src="/common/assets/js/timeflux.js"></script>
+    <script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+    <nav-sidebar active="/stroop"></nav-sidebar>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">Stroop Task</h1>
+                <p class="page-description">Selective attention & inhibition control experiment</p>
+            </div>
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                <span class="badge-label">Experiment</span>
+            </div>
+        </header>
+
+        <div class="experiment-area">
+            <div id="instructions" class="experiment-screen">
+                <p>Color words will be displayed in different ink colors. Your task is to identify the <b>ink color</b> of each word, ignoring what the word says.</p>
+                <p>Use the following keys to respond:</p>
+                <div class="key-legend">
+                    <div class="key-legend-item"><span class="key-num">1</span><span class="color-dot" style="background:#ef4444"></span> Red</div>
+                    <div class="key-legend-item"><span class="key-num">2</span><span class="color-dot" style="background:#22c55e"></span> Green</div>
+                    <div class="key-legend-item"><span class="key-num">3</span><span class="color-dot" style="background:#60a5fa"></span> Blue</div>
+                    <div class="key-legend-item"><span class="key-num">4</span><span class="color-dot" style="background:#facc15"></span> Yellow</div>
+                </div>
+                <p class="example-text">Example: if the word <span class="ink-blue">RED</span> appears, press <b>3</b> (Blue) because the ink is blue.</p>
+                <div><span class="key-hint">Press SPACE to begin</span></div>
+            </div>
+
+            <div id="baseline" class="experiment-screen hidden">
+                <p>On the following screen, a cross will be displayed for up to one minute. Stay still and just look at it without doing anything.</p>
+                <div><span class="key-hint">Press any key to continue</span></div>
+            </div>
+
+            <div id="marker" class="marker experiment-screen hidden"></div>
+
+            <div id="practice-intro" class="experiment-screen hidden">
+                <p>Let's start with a short practice round so you can get familiar with the task.</p>
+                <div><span class="key-hint">Press SPACE when ready</span></div>
+            </div>
+
+            <div id="ready" class="experiment-screen hidden">
+                <p id="ready-block-type"></p>
+                <p>Press the space key when you are ready.</p>
+                <div><span class="key-hint">SPACE</span></div>
+            </div>
+
+            <div id="stimulus" class="experiment-screen hidden">
+                <div id="fixation-cross" class="fixation hidden">+</div>
+                <div id="color-word"></div>
+                <div class="key-legend key-legend-small">
+                    <div class="key-legend-item"><span class="key-num">1</span><span class="color-dot" style="background:#ef4444"></span></div>
+                    <div class="key-legend-item"><span class="key-num">2</span><span class="color-dot" style="background:#22c55e"></span></div>
+                    <div class="key-legend-item"><span class="key-num">3</span><span class="color-dot" style="background:#60a5fa"></span></div>
+                    <div class="key-legend-item"><span class="key-num">4</span><span class="color-dot" style="background:#facc15"></span></div>
+                </div>
+            </div>
+
+            <div id="results" class="experiment-screen hidden">
+                <h2 class="results-title">Results</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-value" id="rt-congruent">—</div>
+                        <div class="result-label">Congruent RT</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" id="rt-incongruent">—</div>
+                        <div class="result-label">Incongruent RT</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" id="acc-congruent">—</div>
+                        <div class="result-label">Congruent Accuracy</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-value" id="acc-incongruent">—</div>
+                        <div class="result-label">Incongruent Accuracy</div>
+                    </div>
+                    <div class="result-card stroop-effect">
+                        <div class="result-value" id="stroop-effect">—</div>
+                        <div class="result-label">Stroop Interference Effect</div>
+                    </div>
+                </div>
+                <div><span class="key-hint">Press SPACE to restart</span></div>
+            </div>
+        </div>
+        <app-footer></app-footer>
+    </main>
+</div>
+
+</body>
+</html>

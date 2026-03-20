@@ -301,14 +301,25 @@ def get_html():
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
 <style>
 :root {{
-    --bg-root: #09090b;
-    --bg-surface: #0f0f12;
-    --bg-raised: #16161a;
-    --bg-hover: #1c1c22;
-    --bg-active: #22222a;
-    --border-subtle: #1a1a22;
-    --border-default: #27272f;
-    --border-strong: #3a3a44;
+    /* Surfaces — Liquid Glass (translucent) */
+    --bg-root: #050508;
+    --bg-surface: rgba(255, 255, 255, 0.04);
+    --bg-raised: rgba(255, 255, 255, 0.06);
+    --bg-hover: rgba(255, 255, 255, 0.10);
+    --bg-active: rgba(255, 255, 255, 0.14);
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-default: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.22);
+
+    /* Glass */
+    --glass-blur: 6px;
+    --glass-saturate: 1.05;
+    --glass-backdrop: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --glass-specular: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
     --text-primary: #fafafa;
     --text-secondary: #a0a0ab;
     --text-tertiary: #63636e;
@@ -324,13 +335,13 @@ def get_html():
     --amber-dim: rgba(245, 158, 11, 0.15);
     --font-sans: 'DM Sans', -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
 }}
 
 *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-html {{ font-size: 14px; -webkit-font-smoothing: antialiased; }}
+html {{ font-size: 14px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }}
 body {{
     font-family: var(--font-sans);
     background: var(--bg-root);
@@ -338,6 +349,28 @@ body {{
     line-height: 1.5;
     min-height: 100vh;
     overflow-x: hidden;
+    background-image:
+        radial-gradient(ellipse 900px 700px at 8% 12%, rgba(34, 211, 238, 0.38) 0%, transparent 65%),
+        radial-gradient(ellipse 700px 650px at 88% 78%, rgba(6, 182, 212, 0.32) 0%, transparent 60%),
+        radial-gradient(ellipse 800px 550px at 50% 35%, rgba(167, 139, 250, 0.26) 0%, transparent 60%),
+        radial-gradient(ellipse 600px 450px at 72% 8%, rgba(34, 211, 238, 0.28) 0%, transparent 50%),
+        radial-gradient(ellipse 500px 400px at 22% 82%, rgba(139, 125, 181, 0.26) 0%, transparent 55%),
+        radial-gradient(ellipse 650px 500px at 92% 28%, rgba(92, 168, 181, 0.22) 0%, transparent 55%);
+    background-attachment: fixed;
+}}
+
+/* Liquid Glass — Noise grain overlay */
+body::after {{
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.42;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 150px 150px;
 }}
 
 /* ── Layout ── */
@@ -361,6 +394,7 @@ body {{
     font-family: var(--font-mono); font-weight: 600; font-size: 22px;
     color: var(--bg-root);
     margin-bottom: 16px;
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.35), 0 0 40px rgba(34, 211, 238, 0.15);
 }}
 .setup-header h1 {{
     font-size: 24px; font-weight: 600; letter-spacing: -0.03em;
@@ -376,8 +410,21 @@ body {{
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
     overflow: hidden;
-    animation: fade-in 0.4s ease both;
+    animation: glass-appear 0.5s ease both;
+    box-shadow: var(--glass-shadow);
+    position: relative;
+}}
+.config-section::after {{
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.2) 70%, transparent 90%);
+    z-index: 1;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }}
 .config-section:nth-child(2) {{ animation-delay: 0.05s; }}
 .config-section:nth-child(3) {{ animation-delay: 0.10s; }}
@@ -447,10 +494,11 @@ input[type="text"], input[type="number"], select {{
     font-size: 12.5px;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--glass-specular), 0 2px 6px rgba(0, 0, 0, 0.15);
 }}
 input:focus, select:focus {{
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-dim), var(--glass-specular);
 }}
 input::placeholder {{ color: var(--text-disabled); }}
 input[type="number"] {{ max-width: 140px; }}
@@ -508,12 +556,15 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
     background: var(--bg-raised);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
     color: var(--text-secondary);
     font-family: var(--font-sans);
     font-size: 14px; font-weight: 500;
     cursor: pointer; transition: all 0.15s ease; outline: none;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.2);
 }}
-.btn:hover {{ background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); }}
+.btn:hover {{ background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-strong); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); }}
 .btn:active {{ transform: scale(0.97); }}
 .btn-primary {{
     background: linear-gradient(135deg, var(--accent), #06b6d4);
@@ -535,6 +586,9 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     color: var(--green); font-size: 13px; font-weight: 500;
     font-family: var(--font-mono);
     opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }}
 .toast.show {{ opacity: 1; transform: translateX(-50%) translateY(0); }}
 
@@ -559,6 +613,8 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 .headset-card {{
     position: relative;
     background: var(--bg-surface);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     padding: 20px 18px 16px;
@@ -566,6 +622,7 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     transition: all 0.2s ease;
     display: flex; flex-direction: column;
     overflow: hidden;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.2);
 }}
 .headset-card::before {{
     content: '';
@@ -579,6 +636,7 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
     border-color: var(--border-strong);
     background: var(--bg-raised);
     transform: translateY(-2px);
+    box-shadow: var(--glass-shadow);
 }}
 .headset-card:hover::before {{ opacity: 0.5; }}
 .headset-card.selected {{
@@ -893,6 +951,10 @@ select option {{ background: var(--bg-raised); color: var(--text-primary); }}
 @keyframes fade-in {{
     from {{ opacity: 0; transform: translateY(8px); }}
     to {{ opacity: 1; transform: translateY(0); }}
+}}
+@keyframes glass-appear {{
+    from {{ opacity: 0; transform: translateY(10px) scale(0.98); }}
+    to {{ opacity: 1; transform: translateY(0) scale(1); }}
 }}
 </style>
 </head>
@@ -1488,6 +1550,18 @@ class SetupHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(get_html().encode("utf-8"))
 
+    def _cors_headers(self):
+        """Add CORS headers for cross-origin requests from Timeflux UI."""
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests."""
+        self.send_response(204)
+        self._cors_headers()
+        self.end_headers()
+
     def do_POST(self):
         if self.path == "/save":
             length = int(self.headers.get("Content-Length", 0))
@@ -1497,13 +1571,29 @@ class SetupHandler(http.server.BaseHTTPRequestHandler):
                 write_env(ENV_PATH, values)
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
+                self._cors_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({"ok": True}).encode())
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json")
+                self._cors_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
+            return
+
+        if self.path == "/restart":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self._cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": True, "message": "restart requested"}).encode())
+            # Signal the Timeflux process to restart
+            # The parent process (make run) will handle the actual restart
+            threading.Thread(
+                target=lambda: os.kill(os.getpid(), signal.SIGUSR1),
+                daemon=True,
+            ).start()
             return
 
         self.send_response(404)

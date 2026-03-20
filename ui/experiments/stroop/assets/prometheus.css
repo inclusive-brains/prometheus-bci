@@ -1,0 +1,214 @@
+/* ============================================
+   Stroop Task — Page-Specific Styles
+   Liquid Glass theme.
+   ============================================ */
+
+/* ---- Experiment area: fills main-content ---- */
+
+.experiment-area {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 32px;
+}
+
+/* ---- Screens ---- */
+
+.experiment-screen {
+    max-width: 600px;
+    text-align: center;
+}
+
+.experiment-screen p {
+    font-size: 1.3em;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    font-family: var(--font-sans);
+}
+
+.key-hint {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 8px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-raised);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.04em;
+}
+
+/* ---- Utilities ---- */
+
+.hidden {
+    display: none !important;
+}
+
+/* ---- Calibration marker (cross) ---- */
+
+.marker {
+    width: 60px;
+    height: 60px;
+    background:
+        linear-gradient(var(--text-primary), var(--text-primary)),
+        linear-gradient(var(--text-primary), var(--text-primary));
+    background-position: center;
+    background-size: 100% 6px, 6px 100%;
+    background-repeat: no-repeat;
+}
+
+/* ---- Fixation cross (in stimulus screen) ---- */
+
+.fixation {
+    font-size: 64px;
+    font-weight: 300;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    line-height: 1;
+}
+
+/* ---- Color word display ---- */
+
+#color-word {
+    font-size: 96px;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    text-align: center;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.1s;
+    user-select: none;
+}
+
+/* ---- Ink colors ---- */
+
+.ink-red    { color: #ef4444; }
+.ink-green  { color: #22c55e; }
+.ink-blue   { color: #60a5fa; }
+.ink-yellow { color: #facc15; }
+
+/* ---- Key mapping legend ---- */
+
+.key-legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.key-legend-small {
+    margin-top: 40px;
+    gap: 16px;
+}
+
+.key-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.key-num {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+/* ---- Example in instructions ---- */
+
+.example-text {
+    font-size: 1.1em !important;
+    color: var(--text-secondary) !important;
+    margin-top: 16px;
+}
+
+/* ---- Feedback states ---- */
+
+.correct-feedback {
+    text-shadow: 0 0 30px currentColor;
+}
+
+.incorrect-feedback {
+    opacity: 0.3;
+}
+
+.timeout-feedback {
+    color: var(--text-tertiary) !important;
+    font-size: 48px !important;
+}
+
+/* ---- Results ---- */
+
+.results-title {
+    font-family: var(--font-sans);
+    font-size: 1.6em;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto 24px;
+}
+
+.result-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    text-align: center;
+}
+
+.result-value {
+    font-size: 2em;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent);
+}
+
+.result-label {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.stroop-effect {
+    grid-column: 1 / -1;
+    border-color: var(--accent);
+}
+
+/* ---- Ready screen ---- */
+
+#ready-block-type {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.6em;
+    color: var(--accent);
+}

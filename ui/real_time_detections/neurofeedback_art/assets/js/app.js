@@ -156,7 +156,7 @@ function resize() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cx = W / 2;
     cy = H / 2;
-    baseRadius = Math.min(W, H) * 0.18;
+    baseRadius = Math.min(W, H) * 0.25;
 
     // Re-seed particles
     particles.length = 0;
@@ -183,7 +183,7 @@ function frame() {
 
     const color = getOrbColor(smooth.stress);
     const a = smooth.attention;  // primary driver
-    const orbRadius = baseRadius * (0.7 + a * 0.55);                   // focus grows the orb significantly
+    const orbRadius = baseRadius * (0.6 + a * 0.8);                     // focus grows the orb significantly
     const noiseAmp = 25 - a * 18 + smooth.cognitive * 12;              // high focus = smoother surface
     const noiseFreq = 2.5 - a * 1.2 + smooth.cognitive * 1.0;         // high focus = less chaotic
     const pulseRate = 0.5 + a * 1.5 + smooth.arousal * 1.0;           // focus accelerates breathing

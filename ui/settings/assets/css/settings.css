@@ -1,0 +1,706 @@
+/* ============================================
+   Settings — Liquid Glass Config UI
+   ============================================ */
+
+.settings-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px 48px;
+}
+
+.settings-scroll::-webkit-scrollbar { width: 6px; }
+.settings-scroll::-webkit-scrollbar-track { background: transparent; }
+.settings-scroll::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+/* ── Section ── */
+
+.settings-section {
+    margin-bottom: 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    overflow: hidden;
+    box-shadow: var(--glass-shadow);
+    position: relative;
+    animation: glass-appear 0.5s ease both;
+}
+
+.settings-section:nth-child(2) { animation-delay: 0.05s; }
+.settings-section:nth-child(3) { animation-delay: 0.10s; }
+.settings-section:nth-child(4) { animation-delay: 0.15s; }
+.settings-section:nth-child(5) { animation-delay: 0.20s; }
+.settings-section:nth-child(6) { animation-delay: 0.25s; }
+.settings-section:nth-child(7) { animation-delay: 0.30s; }
+
+.settings-section::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.2) 70%, transparent 90%);
+    z-index: 1;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* ── Section Header ── */
+
+.section-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+    border-bottom: 1px solid transparent;
+}
+
+.section-header:hover {
+    background: var(--bg-hover);
+}
+
+.section-header.open {
+    border-bottom-color: var(--border-subtle);
+}
+
+.section-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.section-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.section-value {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 2px 10px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+}
+
+.section-chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-tertiary);
+    transition: transform 0.25s ease;
+    display: flex;
+    align-items: center;
+}
+
+.section-chevron svg {
+    width: 16px;
+    height: 16px;
+}
+
+.section-header.open .section-chevron {
+    transform: rotate(180deg);
+}
+
+/* ── Section Body ── */
+
+.section-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section-body.open {
+    max-height: 2000px;
+}
+
+/* ── Field Row ── */
+
+.field-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    transition: background 0.1s;
+}
+
+.field-row:hover {
+    background: var(--bg-hover);
+}
+
+.field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.field-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.field-desc {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.field-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Inputs ── */
+
+.settings-input,
+.settings-select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: var(--glass-specular), 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.settings-input:focus,
+.settings-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim), var(--glass-specular);
+}
+
+.settings-input::placeholder {
+    color: var(--text-disabled);
+}
+
+.settings-input[type="number"] {
+    max-width: 140px;
+}
+
+.settings-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2363636e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 32px;
+}
+
+.settings-select option {
+    background: var(--bg-raised);
+    color: var(--text-primary);
+}
+
+.field-unit {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+}
+
+/* ── Toggle ── */
+
+.toggle {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: var(--bg-active);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    border: 1px solid var(--border-default);
+}
+
+.toggle.on {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.toggle .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--text-tertiary);
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.toggle.on .knob {
+    left: 20px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(34, 211, 238, 0.25);
+}
+
+.toggle-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    min-width: 28px;
+}
+
+.toggle.on + .toggle-label {
+    color: var(--accent);
+}
+
+/* ── Headset Grid ── */
+
+.headset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    padding: 16px 20px;
+}
+
+.headset-card {
+    position: relative;
+    background: var(--bg-raised);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 18px 16px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.headset-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-color);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.headset-card:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow);
+}
+
+.headset-card:hover::before { opacity: 0.5; }
+
+.headset-card.selected {
+    border-color: var(--card-color);
+    box-shadow: 0 0 24px -4px color-mix(in srgb, var(--card-color) 25%, transparent), var(--glass-specular);
+}
+
+.headset-card.selected::before { opacity: 1; }
+
+.headset-card.experimental {
+    border-style: dashed;
+}
+
+.headset-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    background: color-mix(in srgb, var(--card-color) 12%, transparent);
+    transition: all 0.2s;
+}
+
+.headset-card.selected .headset-icon {
+    background: color-mix(in srgb, var(--card-color) 20%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--card-color) 15%, transparent);
+}
+
+.headset-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--card-color);
+    fill: none;
+    stroke-width: 1.5;
+}
+
+.headset-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--card-color) 12%, transparent);
+    color: var(--card-color);
+    font-family: var(--font-mono);
+}
+
+.headset-brand {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--card-color);
+    font-family: var(--font-mono);
+    margin-bottom: 2px;
+}
+
+.headset-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+}
+
+.headset-desc {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    flex: 1;
+}
+
+.headset-specs {
+    display: flex;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.headset-spec {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.headset-spec svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--text-tertiary);
+    fill: none;
+    stroke-width: 1.5;
+}
+
+.headset-check {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-default);
+    background: var(--bg-root);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    opacity: 0;
+}
+
+.headset-card.selected .headset-check {
+    opacity: 1;
+    border-color: var(--card-color);
+    background: var(--card-color);
+}
+
+.headset-check svg {
+    width: 10px;
+    height: 10px;
+    stroke: var(--bg-root);
+    stroke-width: 2.5;
+    fill: none;
+}
+
+.headset-status {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    display: inline-block;
+    margin-top: 4px;
+}
+
+/* ── Headset Expander ── */
+
+.headset-expander {
+    padding: 0 20px 16px;
+}
+
+.headset-expander-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: var(--font-sans);
+}
+
+.headset-expander-toggle:hover {
+    background: var(--bg-raised);
+    border-color: var(--border-default);
+}
+
+.exp-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--amber);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.exp-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.exp-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    flex: 1;
+    text-align: left;
+}
+
+.exp-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--amber-dim);
+    color: var(--amber);
+}
+
+.exp-chevron {
+    width: 14px;
+    height: 14px;
+    color: var(--text-tertiary);
+    transition: transform 0.25s ease;
+    display: flex;
+    align-items: center;
+}
+
+.exp-chevron svg {
+    width: 14px;
+    height: 14px;
+}
+
+.headset-expander-toggle.open .exp-chevron {
+    transform: rotate(180deg);
+}
+
+.headset-expander-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.headset-expander-body.open {
+    max-height: 800px;
+}
+
+.headset-expander-body .headset-grid {
+    padding: 12px 0 0;
+}
+
+/* ── Action Buttons ── */
+
+.settings-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.btn-glass {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 22px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    background: var(--bg-raised);
+    backdrop-filter: blur(12px) saturate(1.6);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-glass svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btn-glass:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.btn-glass:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent), #06b6d4);
+    border-color: transparent;
+    color: var(--bg-root);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    color: var(--bg-root);
+    border-color: transparent;
+    box-shadow: 0 0 24px var(--accent-dim), 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.btn-restart {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: var(--amber-dim);
+}
+
+.btn-restart:hover {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 24px rgba(245, 158, 11, 0.15), 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.btn-restart.restarting {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.btn-restart.restarting svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ── Toast ── */
+
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.toast-container.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-container.error {
+    background: var(--red-dim);
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.toast-container.warning {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+    .settings-scroll {
+        padding: 16px 16px 48px;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .headset-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        padding: 12px 16px;
+    }
+
+    .settings-actions {
+        flex-direction: column;
+    }
+}
