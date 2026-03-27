@@ -1,0 +1,25 @@
+{
+  "stimulus": "demo",
+  "model": "tribev2",
+  "timestamp_sec": null,
+  "regions": {
+    "frontal": {
+      "activation": 0.72
+    },
+    "prefrontal": {
+      "activation": 0.85
+    },
+    "motor": {
+      "activation": 0.45
+    },
+    "parietal": {
+      "activation": 0.6
+    },
+    "temporal": {
+      "activation": 0.33
+    },
+    "occipital": {
+      "activation": 0.5
+    }
+  }
+}

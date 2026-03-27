@@ -9,8 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/prometheus.css">
     <link rel="stylesheet" href="assets/css/pipeline-viz.css">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="assets/js/nav-sidebar.js"></script>
     <script src="assets/js/app-footer.js"></script>
+    <script src="assets/js/brain3d.js"></script>
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/pipeline-viz.js"></script>
     <script defer src="assets/js/app.js"></script>
@@ -55,6 +59,32 @@
                 Marker
             </button>
         </div>
+
+        <!-- Cortical Activity -->
+        <section class="panel" style="flex: none;">
+            <div class="panel-header">
+                <h2 class="panel-title">Cortical Activity</h2>
+                <span class="panel-badge">Live</span>
+                <div class="brain3d-band-picker" id="bandPicker">
+                    <button class="band-btn active" data-band="all">All</button>
+                    <button class="band-btn" data-band="delta" style="--bc:#3350c0;">δ</button>
+                    <button class="band-btn" data-band="theta" style="--bc:#33a6cc;">θ</button>
+                    <button class="band-btn" data-band="alpha" style="--bc:#40bf5a;">α</button>
+                    <button class="band-btn" data-band="beta" style="--bc:#d95933;">β</button>
+                    <button class="band-btn" data-band="gamma" style="--bc:#e6cc26;">γ</button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="brain3dContainer" class="brain3d-canvas"></div>
+                <div class="brain3d-legend">
+                    <span class="legend-item"><span class="legend-dot" style="background:#3350c0;"></span>Delta</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#33a6cc;"></span>Theta</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#40bf5a;"></span>Alpha</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#d95933;"></span>Beta</span>
+                    <span class="legend-item"><span class="legend-dot" style="background:#e6cc26;"></span>Gamma</span>
+                </div>
+            </div>
+        </section>
 
         <!-- Pipeline Visualization -->
         <section class="panel">

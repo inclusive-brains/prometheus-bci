@@ -414,4 +414,73 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('EEG Bandpower Mean Fullband data received:', message);
         updateEegFullbandBarChart(message);
     });
+
+    // ---- 3D Cortical Activity Map ----
+    var brainViewer = null;
+    try {
+        brainViewer = new Brain3D('brain3dContainer');
+    } catch (e) {
+        console.warn('[Brain3D] Could not initialize:', e);
+    }
+
+    if (brainViewer) {
+        // Feed live metrics to the 3D brain
+        io.on('eeg_stress_metric', (data) => {
+            var keys = Object.keys(data);
+            var val = data[keys[keys.length - 1]].eeg_stress;
+            if (val !== undefined) brainViewer.updateMetrics({ stress: val });
+        });
+        io.on('eeg_cognitiveload_metric', (data) => {
+            var keys = Object.keys(data);
+            var val = data[keys[keys.length - 1]].eeg_cognitive_load;
+            if (val !== undefined) brainViewer.updateMetrics({ cognitive_load: val });
+        });
+        io.on('eeg_attention_metric', (data) => {
+            var keys = Object.keys(data);
+            var val = data[keys[keys.length - 1]].eeg_attention;
+            if (val !== undefined) brainViewer.updateMetrics({ attention: val });
+        });
+        io.on('eeg_arousal_metric', (data) => {
+            var keys = Object.keys(data);
+            var val = data[keys[keys.length - 1]].eeg_arousal;
+            if (val !== undefined) brainViewer.updateMetrics({ arousal: val });
+        });
+
+        // TRIBE v2 blend slider & file loader
+        var tribeSlider = document.getElementById('tribeBlendSlider');
+        var tribeLoadBtn = document.getElementById('tribeLoadBtn');
+        var tribeFileInput = document.getElementById('tribeFileInput');
+        var tribeControls = document.getElementById('tribeControls');
+
+        if (tribeLoadBtn) {
+            tribeLoadBtn.addEventListener('click', function () {
+                tribeFileInput.click();
+            });
+        }
+        if (tribeFileInput) {
+            tribeFileInput.addEventListener('change', function (e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function (ev) {
+                    try {
+                        var data = JSON.parse(ev.target.result);
+                        brainViewer.tribeData = data.regions || data;
+                        brainViewer.tribeBlend = (tribeSlider ? tribeSlider.value : 50) / 100;
+                        brainViewer._updateColors();
+                        tribeControls.style.display = 'flex';
+                        console.log('[Brain3D] TRIBE v2 data loaded from file');
+                    } catch (err) {
+                        console.error('[Brain3D] Invalid TRIBE JSON:', err);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+        if (tribeSlider) {
+            tribeSlider.addEventListener('input', function () {
+                brainViewer.setTribeBlend(this.value / 100);
+            });
+        }
+    }
 });

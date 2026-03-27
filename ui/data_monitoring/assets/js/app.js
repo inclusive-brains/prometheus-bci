@@ -12,6 +12,7 @@ io.on('disconnect', function () {
 });
 
 io.subscribe('eeg_raw');
+io.subscribe('eeg_bandpower');
 
 document.addEventListener('DOMContentLoaded', function () {
     // Pipeline visualization
@@ -79,6 +80,44 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+
+    // ---- 3D Cortical Activity ----
+    var brainViewer = null;
+    try { brainViewer = new Brain3D('brain3dContainer'); } catch (e) {
+        console.warn('[Brain3D] Init error:', e);
+    }
+
+    if (brainViewer) {
+        // Parse eeg_bandpower: { timestamp: { "Fp1_alpha": 0.5, "Fp1_beta": 0.3, ... } }
+        // or { timestamp: { "Fp1": 0.5, ... } } depending on stream format
+        io.on('eeg_bandpower', function (message) {
+            var channelData = {};
+            for (var ts in message) {
+                var row = message[ts];
+                for (var key in row) {
+                    // Try to parse "Channel_Band" format
+                    var parts = key.split('_');
+                    if (parts.length >= 2) {
+                        var band = parts[parts.length - 1];
+                        var ch = parts.slice(0, -1).join('_');
+                        if (!channelData[ch]) channelData[ch] = {};
+                        channelData[ch][band] = row[key];
+                    }
+                }
+            }
+            brainViewer.updateBandpower(channelData);
+        });
+
+        // Band filter buttons
+        var bandBtns = document.querySelectorAll('.band-btn');
+        bandBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                bandBtns.forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                brainViewer.setActiveBand(btn.getAttribute('data-band'));
+            });
+        });
+    }
 
     // Controls
     var startBtn = document.getElementById('startButton');

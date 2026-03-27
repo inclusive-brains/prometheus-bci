@@ -10,8 +10,12 @@
     <link rel="stylesheet" href="assets/css/prometheus.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="assets/js/smoothie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="assets/js/nav-sidebar.js"></script>
     <script src="assets/js/app-footer.js"></script>
+    <script src="assets/js/brain3d.js"></script>
     <script defer src="/common/assets/js/timeflux.js"></script>
     <script defer src="assets/js/app.js"></script>
 </head>
@@ -101,6 +105,10 @@
                 <label class="view-toggle" data-target="panel-metrics-ts">
                     <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
                     <span class="toggle-label">Metrics Time Series</span>
+                </label>
+                <label class="view-toggle" data-target="panel-cortex-3d">
+                    <input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label">Cortical Activity</span>
                 </label>
             </div>
         </div>
@@ -192,6 +200,38 @@
                         <span class="legend-item"><span class="legend-dot" style="background:#8b7db5;"></span>Cognitive Load</span>
                         <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Attention</span>
                         <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Arousal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cortical Activity Map (3D) -->
+        <section class="panel collapsible" data-panel="panel-cortex-3d" style="flex: none; min-height: 0;">
+            <div class="panel-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h2 class="panel-title">Cortical Activity Map</h2>
+                <svg class="panel-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <span class="panel-badge">3D</span>
+            </div>
+            <div class="panel-body">
+                <div class="brain3d-wrapper">
+                    <div id="brain3dContainer" class="brain3d-canvas"></div>
+                    <div class="brain3d-controls">
+                        <div class="brain3d-legend">
+                            <span class="legend-item"><span class="legend-dot" style="background:#c46060;"></span>Frontal — Stress</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#8b7db5;"></span>Prefrontal — Cog. Load</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#7ab3bd;"></span>Motor / Parietal — Attention</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#c49545;"></span>Temporal — Arousal</span>
+                            <span class="legend-item"><span class="legend-dot" style="background:#6b8f6b;"></span>Occipital — Visual</span>
+                        </div>
+                        <div class="brain3d-tribe-controls" id="tribeControls" style="display:none;">
+                            <label class="tribe-slider-label">
+                                <span>EEG</span>
+                                <input type="range" id="tribeBlendSlider" min="0" max="100" value="50" class="tribe-slider">
+                                <span>TRIBE</span>
+                            </label>
+                            <button class="tribe-load-btn" id="tribeLoadBtn">Load TRIBE JSON</button>
+                            <input type="file" id="tribeFileInput" accept=".json" style="display:none;">
+                        </div>
                     </div>
                 </div>
             </div>
