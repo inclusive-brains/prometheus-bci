@@ -117,10 +117,12 @@ var Brain3D = (function () {
         geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         geo.userData = { zoneMap: zoneMap };
 
-        mesh.material = new THREE.MeshPhongMaterial({
+        mesh.material = new THREE.MeshStandardMaterial({
             vertexColors: true,
-            shininess: 20,
-            specular: new THREE.Color(0x111118),
+            roughness: 0.6,
+            metalness: 0.05,
+            emissive: new THREE.Color(0x3a3530),
+            emissiveIntensity: 0.6,
             side: THREE.DoubleSide
         });
     }
@@ -168,7 +170,7 @@ var Brain3D = (function () {
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.container.appendChild(this.renderer.domElement);
 
-        this.scene.add(new THREE.AmbientLight(0x505060, 0.7));
+        this.scene.add(new THREE.AmbientLight(0x8888aa, 1.2));
 
         var key = new THREE.DirectionalLight(0xddeeff, 0.8);
         key.position.set(100, -200, 300);
