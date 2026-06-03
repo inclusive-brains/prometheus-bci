@@ -76,12 +76,18 @@ Let's advance open science and BCI innovation together!
 
 ### Quick Start (recommended)
 
-A `Makefile` is provided to simplify installation and usage:
+A `Makefile` is provided to simplify installation and usage. It uses
+[uv](https://docs.astral.sh/uv/) to manage Python and dependencies — install it
+first (`make setup` will also tell you how if it's missing):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh   # install uv (macOS / Linux)
+```
 
 ```bash
 git clone https://github.com/inclusive-brains/prometheus-bci.git
 cd prometheus-bci
-make setup    # Creates the conda environment and installs all dependencies
+make setup    # Creates the .venv (Python 3.10) and installs all dependencies
 make run      # Opens the configuration UI, then launches the application
 ```
 
@@ -89,12 +95,12 @@ make run      # Opens the configuration UI, then launches the application
 
 | Command        | Description                                              |
 |----------------|----------------------------------------------------------|
-| `make setup`   | Create the conda environment (Python 3.10) and install dependencies |
+| `make setup`   | Create the uv environment (`.venv`, Python 3.10) and install dependencies |
 | `make install` | Install Python dependencies only                         |
 | `make config`  | Open the interactive `.env` configuration UI             |
 | `make run`     | Configure and launch the Timeflux application            |
 | `make update`  | Update all dependencies                                  |
-| `make clean`   | Remove the conda environment                             |
+| `make clean`   | Remove the `.venv` environment                           |
 | `make sync-ui` | Synchronize shared UI assets (CSS, nav component) to all routes |
 | `make logs`    | Display the latest log file                              |
 | `make help`    | Show all available commands                              |
@@ -160,21 +166,21 @@ make setup && make run
 
 #### 1. Prerequisites
 
-First, install Timeflux in a clean environment:
+First, install [uv](https://docs.astral.sh/uv/):
 
 ```bash
-conda create --name timeflux python=3.10 pytables
-conda activate timeflux
+curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux
 ```
 
 #### 2. Setup
 
-Then, install the application from the Git repository:
+Then, install the application from the Git repository in a clean environment:
 
 ```bash
 git clone https://github.com/inclusive-brains/prometheus-bci.git
 cd prometheus-bci
-pip install -r requirements.txt
+uv venv --python 3.10 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
 ```
 
 ### Updating
@@ -188,7 +194,7 @@ Or manually:
 ```bash
 cd prometheus-bci
 git pull
-pip install -U -r requirements.txt
+uv pip install --python .venv/bin/python -U -r requirements.txt
 ```
 
 ### Running
@@ -202,8 +208,7 @@ make run
 Or manually:
 
 ```bash
-conda activate timeflux
-timeflux -d app.yaml
+uv run --python .venv/bin/python timeflux -d app.yaml
 ```
 
 You can use the classic Timeflux monitoring interface or the Inclusive Brains UI to check the signal or start a new BCI session:

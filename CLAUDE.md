@@ -9,16 +9,18 @@ Prometheus BCI is a brain-computer interface platform built on **Timeflux** for 
 ## Build & Run Commands
 
 ```bash
-make setup      # Create conda env (timeflux, python 3.10) + install deps
+make setup      # Create uv venv (.venv, python 3.10) + install deps
 make config     # Interactive .env editor in browser
 make run        # Launch setup_ui then timeflux daemon
 make sync-ui    # Propagate shared UI assets (CSS/JS) to all routes
 make logs       # Tail latest log file
-make clean      # Destroy conda env
+make clean      # Remove the .venv environment
 make update     # Upgrade dependencies
 ```
 
-**Manual setup**: `conda create --name timeflux python=3.10 pytables && pip install -r requirements.txt`
+**Requires [uv](https://docs.astral.sh/uv/)** (`curl -LsSf https://astral.sh/uv/install.sh | sh`). `make setup` checks for it and prints install instructions if missing.
+
+**Manual setup**: `uv venv --python 3.10 .venv && uv pip install --python .venv/bin/python -r requirements.txt`
 
 **Run without hardware**: Set `EEG_DEVICE=dummy` and `PPG_DEVICE=fake` in `.env` — all UIs and classifiers work with synthetic data.
 

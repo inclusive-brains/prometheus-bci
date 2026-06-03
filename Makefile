@@ -1,58 +1,55 @@
 # Prometheus BCI - Makefile
-# Requires: conda (Miniconda or Anaconda)
+# Requires: uv (https://docs.astral.sh/uv/)
 
-ENV_NAME = timeflux
+VENV = .venv
+VENV_PY = $(VENV)/bin/python
 PYTHON_VERSION = 3.10
 APP_CONFIG = app.yaml
 PORT = 8002
 
-# Detect conda once; empty if not on PATH.
-CONDA := $(shell command -v conda 2>/dev/null)
+# Detect uv once; empty if not on PATH.
+UV := $(shell command -v uv 2>/dev/null)
 
-.PHONY: help install setup run clean update logs config check-conda \
+.PHONY: help install setup run clean update logs config check-uv \
        docker-build docker-run docker-run-hw docker-stop docker-test docker-logs
 
 help: ## Afficher l'aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-check-conda: ## Vérifier que conda est installé
-ifeq ($(CONDA),)
-	@echo "ERROR: 'conda' was not found on your PATH."
+check-uv: ## Vérifier que uv est installé
+ifeq ($(UV),)
+	@echo "ERROR: 'uv' was not found on your PATH."
 	@echo ""
-	@echo "Prometheus BCI uses a conda environment (Python $(PYTHON_VERSION))."
-	@echo "Please install Miniconda, then re-run 'make setup':"
+	@echo "Prometheus BCI uses uv to manage Python $(PYTHON_VERSION) and dependencies."
+	@echo "Please install uv, then re-run 'make setup':"
 	@echo ""
-	@echo "  macOS (Apple Silicon):"
-	@echo "    curl -L -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
-	@echo "    bash ~/miniconda.sh -b -p \$$HOME/miniconda3"
+	@echo "  macOS / Linux:"
+	@echo "    curl -LsSf https://astral.sh/uv/install.sh | sh"
 	@echo ""
-	@echo "  macOS (Intel):"
-	@echo "    curl -L -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
-	@echo "    bash ~/miniconda.sh -b -p \$$HOME/miniconda3"
+	@echo "  macOS (Homebrew):"
+	@echo "    brew install uv"
 	@echo ""
-	@echo "  Linux (x86_64):"
-	@echo "    curl -L -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-	@echo "    bash ~/miniconda.sh -b -p \$$HOME/miniconda3"
+	@echo "  With pipx:"
+	@echo "    pipx install uv"
 	@echo ""
-	@echo "Then initialise your shell and reopen the terminal:"
-	@echo "    \$$HOME/miniconda3/bin/conda init \"\$$(basename \$$SHELL)\""
+	@echo "Then reopen your terminal (or 'source \$$HOME/.local/bin/env')."
 	@echo ""
-	@echo "Full instructions: https://docs.conda.io/projects/miniconda/en/latest/"
+	@echo "Full instructions: https://docs.astral.sh/uv/getting-started/installation/"
 	@exit 1
 else
-	@echo "conda found: $(CONDA)"
+	@echo "uv found: $(UV)"
 endif
 
-setup: check-conda ## Créer l'environnement conda et installer les dépendances
-	conda create -y --name $(ENV_NAME) python=$(PYTHON_VERSION) pytables
+setup: check-uv ## Créer l'environnement virtuel uv et installer les dépendances
+	uv venv --python $(PYTHON_VERSION) $(VENV)
 	$(MAKE) install
 
-install: check-conda ## Installer les dépendances Python
-	conda run -n $(ENV_NAME) pip install -r requirements.txt
+install: check-uv ## Installer les dépendances Python
+	uv pip install --python $(VENV_PY) -r requirements.txt
 
-update: check-conda ## Mettre à jour les dépendances
-	conda run -n $(ENV_NAME) pip install -U -r requirements.txt
+update: check-uv ## Mettre à jour les dépendances
+	uv pip install --python $(VENV_PY) -U -r requirements.txt
 
 sync-ui: ## Synchroniser les assets UI partagés vers chaque route
 	@for dir in ui/data_monitoring ui/real_time_detections/brain_metrics ui/real_time_detections/heart_metrics ui/real_time_detections/head_motions ui/real_time_detections/facial_expressions ui/real_time_detections/eeg_quality ui/real_time_detections/multimodal ui/real_time_detections/neurofeedback_art ui/mind_control/motor ui/mind_control/obi1 ui/mind_control/prometheus ui/mind_control/prometheus_2 ui/experiments/nback ui/experiments/stroop ui/robotic_arm; do \
@@ -64,14 +61,14 @@ sync-ui: ## Synchroniser les assets UI partagés vers chaque route
 config: ## Ouvrir l'interface de configuration .env
 	@python3 scripts/setup_ui.py
 
-run: check-conda config ## Configurer puis lancer l'application Timeflux
+run: check-uv config ## Configurer puis lancer l'application Timeflux
 	@mkdir -p logs data
 	@echo "  Launching Timeflux in 3s..."
 	@sleep 3
-	conda run -n $(ENV_NAME) timeflux -d $(APP_CONFIG)
+	uv run --python $(VENV_PY) timeflux -d $(APP_CONFIG)
 
-clean: check-conda ## Supprimer l'environnement conda
-	conda env remove -y --name $(ENV_NAME)
+clean: ## Supprimer l'environnement virtuel
+	rm -rf $(VENV)
 
 logs: ## Afficher le dernier fichier de log
 	@ls -t logs/*.log 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "Aucun log trouvé"
