@@ -6,21 +6,52 @@ PYTHON_VERSION = 3.10
 APP_CONFIG = app.yaml
 PORT = 8002
 
-.PHONY: help install setup run clean update logs config \
+# Detect conda once; empty if not on PATH.
+CONDA := $(shell command -v conda 2>/dev/null)
+
+.PHONY: help install setup run clean update logs config check-conda \
        docker-build docker-run docker-run-hw docker-stop docker-test docker-logs
 
 help: ## Afficher l'aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-setup: ## Créer l'environnement conda et installer les dépendances
+check-conda: ## Vérifier que conda est installé
+ifeq ($(CONDA),)
+	@echo "ERROR: 'conda' was not found on your PATH."
+	@echo ""
+	@echo "Prometheus BCI uses a conda environment (Python $(PYTHON_VERSION))."
+	@echo "Please install Miniconda, then re-run 'make setup':"
+	@echo ""
+	@echo "  macOS (Apple Silicon):"
+	@echo "    curl -L -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
+	@echo "    bash ~/miniconda.sh -b -p \$$HOME/miniconda3"
+	@echo ""
+	@echo "  macOS (Intel):"
+	@echo "    curl -L -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+	@echo "    bash ~/miniconda.sh -b -p \$$HOME/miniconda3"
+	@echo ""
+	@echo "  Linux (x86_64):"
+	@echo "    curl -L -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+	@echo "    bash ~/miniconda.sh -b -p \$$HOME/miniconda3"
+	@echo ""
+	@echo "Then initialise your shell and reopen the terminal:"
+	@echo "    \$$HOME/miniconda3/bin/conda init \"\$$(basename \$$SHELL)\""
+	@echo ""
+	@echo "Full instructions: https://docs.conda.io/projects/miniconda/en/latest/"
+	@exit 1
+else
+	@echo "conda found: $(CONDA)"
+endif
+
+setup: check-conda ## Créer l'environnement conda et installer les dépendances
 	conda create -y --name $(ENV_NAME) python=$(PYTHON_VERSION) pytables
 	$(MAKE) install
 
-install: ## Installer les dépendances Python
+install: check-conda ## Installer les dépendances Python
 	conda run -n $(ENV_NAME) pip install -r requirements.txt
 
-update: ## Mettre à jour les dépendances
+update: check-conda ## Mettre à jour les dépendances
 	conda run -n $(ENV_NAME) pip install -U -r requirements.txt
 
 sync-ui: ## Synchroniser les assets UI partagés vers chaque route
@@ -33,13 +64,13 @@ sync-ui: ## Synchroniser les assets UI partagés vers chaque route
 config: ## Ouvrir l'interface de configuration .env
 	@python3 scripts/setup_ui.py
 
-run: config ## Configurer puis lancer l'application Timeflux
+run: check-conda config ## Configurer puis lancer l'application Timeflux
 	@mkdir -p logs data
 	@echo "  Launching Timeflux in 3s..."
 	@sleep 3
 	conda run -n $(ENV_NAME) timeflux -d $(APP_CONFIG)
 
-clean: ## Supprimer l'environnement conda
+clean: check-conda ## Supprimer l'environnement conda
 	conda env remove -y --name $(ENV_NAME)
 
 logs: ## Afficher le dernier fichier de log
